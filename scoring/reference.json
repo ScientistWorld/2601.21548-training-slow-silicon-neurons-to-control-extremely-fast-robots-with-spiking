@@ -2,7 +2,7 @@
   "experiments": {
     "randomized_air_hockey": {
       "description": "Air-hockey interception with randomized initial puck position and speed, the paper's headline generalization setting.",
-      "weight": 1.0,
+      "weight": 0.75,
       "primary_metric": "success_rate",
       "metrics": {
         "success_rate": {
@@ -23,6 +23,33 @@
           "type": "proposed",
           "success_rate": 0.98,
           "hit_rate": 0.98,
+          "hidden_neurons": 1020.0
+        }
+      }
+    },
+    "velocity_range_wide": {
+      "description": "Encoding-range scalability test with the widest main puck-speed range [0.7, 1.5] m/s and the same fixed 1020-neuron reservoir.",
+      "weight": 0.25,
+      "primary_metric": "success_rate",
+      "metrics": {
+        "success_rate": {
+          "higher_is_better": true,
+          "coefficient": 1.0
+        },
+        "hit_rate": {
+          "higher_is_better": true,
+          "coefficient": 0.2
+        },
+        "hidden_neurons": {
+          "higher_is_better": false,
+          "coefficient": -0.2
+        }
+      },
+      "results": {
+        "spiking_eprop": {
+          "type": "proposed",
+          "success_rate": 0.93,
+          "hit_rate": 0.93,
           "hidden_neurons": 1020.0
         }
       }

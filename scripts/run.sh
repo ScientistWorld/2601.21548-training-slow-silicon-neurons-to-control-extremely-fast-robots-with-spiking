@@ -14,7 +14,11 @@ set -e
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
+mkdir -p outputs scoring
+rm -f outputs/spiking_eprop_*.json outputs/random_policy_*.json scoring/scores.json
+
 python validate.py --reference-only
 SEEDS=1 BASELINE_EPISODES=500 bash scripts/baseline.sh
 SEEDS=1 EPISODES=2000 EVAL_EPISODES=500 HIDDEN_NEURONS=1020 bash scripts/method.sh
+CONDITION=speed_wide SEEDS=1 EPISODES=2000 EVAL_EPISODES=500 HIDDEN_NEURONS=1020 bash scripts/method.sh
 python validate.py --compare

@@ -8,32 +8,34 @@ import json
 from pathlib import Path
 
 
-ARTIFACT_TO_METHOD = {
-    "spiking_eprop_random_position_speed.json": "spiking_eprop",
-    "random_policy_random_position_speed.json": "random_policy",
+CONDITION_TO_EXPERIMENT = {
+    "random_position_speed": "randomized_air_hockey",
+    "speed_wide": "velocity_range_wide",
 }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--artifacts", nargs="+", default=["outputs/spiking_eprop_random_position_speed.json"])
+    parser.add_argument("--artifacts", nargs="+", default=None)
     parser.add_argument("--output", default="scoring/scores.json")
     args = parser.parse_args()
 
-    results = {}
-    for artifact in args.artifacts:
-        path = Path(artifact)
+    artifact_paths = [Path(p) for p in args.artifacts] if args.artifacts else sorted(Path("outputs").glob("spiking_eprop_*.json"))
+    experiments: dict[str, dict] = {}
+    for path in artifact_paths:
         if not path.exists():
             continue
         data = json.loads(path.read_text())
-        method = ARTIFACT_TO_METHOD.get(path.name, data.get("method", path.stem))
-        results[method] = {
+        method = data.get("method", "spiking_eprop")
+        experiment = CONDITION_TO_EXPERIMENT.get(data.get("condition", ""), data.get("condition", path.stem))
+        experiments.setdefault(experiment, {"results": {}})
+        experiments[experiment]["results"][method] = {
             "success_rate": float(data["success_rate"]),
             "hit_rate": float(data.get("hit_rate", 0.0)),
             "hidden_neurons": float(data.get("hidden_neurons", 0.0)),
         }
 
-    scores = {"experiments": {"randomized_air_hockey": {"results": results}}}
+    scores = {"experiments": experiments}
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(scores, indent=2) + "\n")

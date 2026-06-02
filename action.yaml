@@ -30,5 +30,5 @@
 action: submit
 gpus: 0
 test: false
-milestone: none
-notes: "Rerun core reproduction after widening the primitive contact phase and adding centered-return e-prop updates: 500-episode random sanity baseline, 2000-episode spiking training with 1020 hidden neurons, evaluation, and score validation."
+milestone: core_claim
+notes: "Core claim reached on randomized puck position/speed. Expand to the paper's widest velocity-range condition with the same 1020-neuron spiking e-prop controller, then validate scores."

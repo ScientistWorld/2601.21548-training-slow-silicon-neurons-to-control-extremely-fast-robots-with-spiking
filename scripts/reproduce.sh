@@ -19,6 +19,10 @@ set -e
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
+mkdir -p outputs scoring
+rm -f outputs/spiking_eprop_*.json outputs/random_policy_*.json scoring/scores.json
+
 bash scripts/baseline.sh
 bash scripts/method.sh
+CONDITION=speed_wide bash scripts/method.sh
 bash scripts/evaluate.sh

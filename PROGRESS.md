@@ -6,18 +6,19 @@
 - `data/air_hockey_env.py` defines the 6D air-hockey interception task, reward, success condition, and randomized benchmark condition.
 - `method/` implements the paper's actual computational structure: Gaussian population-coded state spikes, fixed random LIF-style reservoir, filtered hidden traces, two-action softmax readout, and e-prop-style readout updates every two trials.
 - `eval/` reads emitted method artifacts and writes `scoring/scores.json` without importing `method/`.
+- Job `47cdad61-a3f` reached `core_claim`: the reproduced controller clearly beats the random sanity baseline on the randomized puck position/speed benchmark while preserving the 1020-neuron reservoir constraint.
 
 ## Results
 
 - Job `7595de2e-7e4` produced `spiking_eprop` success rate 0.993 and hit rate 0.993 in the randomized condition. This result is not accepted as `core_claim` because the random sanity baseline also reached 1.0 success in the same simulator.
 - Job `53701b5a-4a7` produced `spiking_eprop` success rate 0.953 and hit rate 0.953, but random action selection reached 0.973. This is also not accepted as `core_claim`.
 - Job `c7cdbcc2-e98` produced random success 0.02, confirming the persistent-primitive task is non-trivial, but the method scored 0.0 after 2000 episodes.
+- Job `47cdad61-a3f` produced random success 0.072 and `spiking_eprop` success 0.960 / hit rate 0.960 with 1020 hidden neurons. The paper reports >0.98 success in the corresponding randomized condition; this reproduction is close enough to support the central claim on the accessible task-level simulator.
 
 ## Remaining
 
-- Rerun after the contact-window and readout-update changes and inspect both random sanity baseline and method artifacts.
-- If the method success rate is not clearly above the random sanity baseline, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm.
-- Expand to velocity-range conditions after the core randomized setting is confirmed.
+- Expand to the paper's widest velocity-range condition (`[0.7, 1.5]` m/s) and score it through the same evaluator.
+- If the wide velocity-range run underperforms, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm and fixed 1020-neuron scoring constraint.
 
 ## Issues
 
@@ -26,6 +27,7 @@
 - Job `7595de2e-7e4` exposed an invalid-evaluation issue: the task allowed a mallet to wait at the intercept point and still hit the puck, so random action selection was near-perfect. The simulator now requires active forward motion at contact.
 - Job `53701b5a-4a7` showed the active-swing condition was still too weak because random switching often produced a valid forward motion near contact. The simulator now models persistent open-loop primitives and only counts contact during a narrow swing phase.
 - Job `c7cdbcc2-e98` showed that the first persistent-primitive version made successes too sparse for the current online readout learner. The contact phase was widened and return centering was added to reduce policy-gradient variance without changing the local eligibility-trace computation.
+- Job `47cdad61-a3f` resolved the non-triviality issue: random action selection stayed low while the paper method learned a high-success policy.
 
 ## Deviations from Paper
 

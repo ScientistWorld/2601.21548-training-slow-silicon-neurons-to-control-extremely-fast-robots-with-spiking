@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: none**
+**Current: core_claim**
 
 <!-- Milestone levels (update "Current" above as you progress):
   none             — just started, no meaningful progress yet
@@ -36,5 +36,10 @@
 - Job `c7cdbcc2-e98` made the random baseline non-trivial at 2% success, but the method did not learn in that sparse-reward configuration.
 - Widened the valid primitive-contact phase while keeping random below the invalid near-perfect regime, added return centering for lower-variance e-prop policy-gradient updates, and added training diagnostics to the method artifact.
 
+### [2026-06-02 16:08] - core_claim
+- Job `47cdad61-a3f` validated the randomized puck position/speed setting: the random sanity baseline scored 7.2% success while the spiking e-prop controller scored 96.0% success.
+- The successful run preserved the paper's fixed-size 1020-neuron hidden reservoir constraint and passed `python validate.py --compare`.
+- Prepared the next job to add the paper's wide velocity-range condition for `core_claim_plus`.
+
 ## Stop Justification
-- Not stopped. First reproduction job is ready for submission.
+- Not stopped. Core claim is reached; next job expands to an additional paper setting.
