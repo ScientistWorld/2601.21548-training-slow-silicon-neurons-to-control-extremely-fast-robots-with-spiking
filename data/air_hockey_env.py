@@ -25,6 +25,7 @@ class AirHockeyConfig:
     forward_x: float = 1.50
     center_y: float = 0.0
     mallet_speed: float = 4.0
+    active_hit_speed: float = 0.35
     rebound_speed: float = 1.25
     terminal_reward: float = 20.0
     step_penalty: float = -0.1
@@ -116,19 +117,25 @@ class AirHockeyInterceptionEnv:
         target_y = cfg.center_y
 
         max_delta = cfg.mallet_speed * cfg.control_dt
+        old_ex = ex
+        old_ey = ey
         delta = np.array([target_x - ex, target_y - ey], dtype=np.float64)
         norm = float(np.linalg.norm(delta))
         if norm > max_delta and norm > 0.0:
             delta *= max_delta / norm
         ex += float(delta[0])
         ey += float(delta[1])
+        mallet_vx = (ex - old_ex) / cfg.control_dt
+        mallet_vy = (ey - old_ey) / cfg.control_dt
 
         px += vx * cfg.control_dt
         py += vy * cfg.control_dt
         dist = float(np.hypot(px - ex, py - ey))
 
         reward = cfg.step_penalty
-        if (not self.hit) and dist <= self.hit_radius:
+        active_forward_swing = mallet_vx > cfg.active_hit_speed
+        active_lateral_alignment = abs(mallet_vy) < 0.5
+        if (not self.hit) and dist <= self.hit_radius and active_forward_swing and active_lateral_alignment:
             self.hit = True
             vx = abs(vx) * cfg.rebound_speed + 0.15
             reward = cfg.shaping_scale * vx
@@ -142,7 +149,7 @@ class AirHockeyInterceptionEnv:
         self.steps += 1
         done = self.success or self.steps >= cfg.episode_steps or px < 0.0 or abs(py) > 0.4
         self.state[:] = [px, py, vx, vy, ex, ey]
-        info = {"success": self.success, "hit": self.hit, "steps": self.steps}
+        info = {"success": self.success, "hit": self.hit, "steps": self.steps, "mallet_vx": mallet_vx}
         return self.state.copy(), float(reward), bool(done), info
 
 

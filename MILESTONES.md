@@ -24,5 +24,9 @@
 - Job `f65b0a96-f82` failed before running the method because direct script execution could not import workspace packages.
 - Updated all shell entry points to export `PYTHONPATH=/home/user` before invoking Python.
 
+### [2026-06-02 15:59] - none
+- Job `7595de2e-7e4` ran to completion and produced a high method success rate, but the random sanity baseline also achieved 100% success.
+- Tightened the task simulator so successful contact requires an active forward mallet swing, matching the paper's emphasis on precise timing and preventing trivial intercept-point camping.
+
 ## Stop Justification
 - Not stopped. First reproduction job is ready for submission.

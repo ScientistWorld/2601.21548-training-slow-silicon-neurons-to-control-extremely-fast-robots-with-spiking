@@ -9,18 +9,19 @@
 
 ## Results
 
-- No compute-job results yet. The first job will train and evaluate the randomized position/speed condition.
+- Job `7595de2e-7e4` produced `spiking_eprop` success rate 0.993 and hit rate 0.993 in the randomized condition. This result is not accepted as `core_claim` because the random sanity baseline also reached 1.0 success in the same simulator.
 
 ## Remaining
 
-- Run the submitted job and inspect `outputs/spiking_eprop_random_position_speed.json` and `scoring/scores.json`.
-- If the success rate is not clearly above the random sanity baseline, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm.
+- Rerun after the active-swing simulator fix and inspect both random sanity baseline and method artifacts.
+- If the method success rate is not clearly above the random sanity baseline, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm.
 - Expand to velocity-range conditions after the core randomized setting is confirmed.
 
 ## Issues
 
 - The original DYNAP-SE hardware and MuJoCo robot stack are unavailable in this workspace, so the reproduction uses a software LIF/reservoir simulator and task-level air-hockey dynamics.
 - Job `f65b0a96-f82` failed before baseline execution with `ModuleNotFoundError: No module named 'data'`. Cause: Python launched `baseline/random_policy.py` directly and did not include the workspace root on `sys.path`. Fixed by exporting `PYTHONPATH=/home/user` in the shell entry points.
+- Job `7595de2e-7e4` exposed an invalid-evaluation issue: the task allowed a mallet to wait at the intercept point and still hit the puck, so random action selection was near-perfect. The simulator now requires active forward motion at contact.
 
 ## Deviations from Paper
 
