@@ -2,4 +2,4 @@ action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Artifact-only train/test split; 20 train metric values, 18 test metric values; spiking_eprop success gaps: randomized 0.80 train vs 0.96 test, wide 0.71 train vs 0.674 test; caveat: one-seed IQR saturated and zero-weighted."
+notes: "Packaging audit passed: no external artifacts required, tracked simulator is used, and validate.py passes."
