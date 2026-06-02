@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: true
 milestone: core_claim
-notes: "Run CPU reproduction with added variable_speed_generalization setting; validate whether results support core_claim_plus while preserving current core_claim."
+notes: "Continuation audit passed for core_claim; submit CPU job to generate missing variable_speed_generalization score and test whether it supports core_claim_plus."
