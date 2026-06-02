@@ -31,4 +31,4 @@ action: submit
 gpus: 0
 test: false
 milestone: none
-notes: "Rerun the first core reproduction attempt after fixing PYTHONPATH: random sanity baseline, 1500-episode spiking e-prop training with 1020 hidden neurons, evaluation, and score validation."
+notes: "Rerun core reproduction after making the simulator non-trivial: random sanity baseline, 1500-episode spiking e-prop training with active-swing contact, evaluation, and score validation."

@@ -3,8 +3,8 @@
     "randomized_air_hockey": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.9933333333333333,
-          "hit_rate": 0.9933333333333333,
+          "success_rate": 0.9533333333333334,
+          "hit_rate": 0.9533333333333334,
           "hidden_neurons": 1020.0
         }
       }
