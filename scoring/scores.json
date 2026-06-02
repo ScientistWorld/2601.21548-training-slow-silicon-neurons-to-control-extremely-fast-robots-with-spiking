@@ -8,6 +8,15 @@
           "hidden_neurons": 1020.0
         }
       }
+    },
+    "velocity_range_wide": {
+      "results": {
+        "spiking_eprop": {
+          "success_rate": 0.674,
+          "hit_rate": 0.674,
+          "hidden_neurons": 1020.0
+        }
+      }
     }
   }
 }
