@@ -46,5 +46,10 @@
 - The wide-range run scored 67.4% success with the same 1020-neuron spiking e-prop controller, below the paper's reported 93.0%; this is useful coverage but not enough to claim `core_claim_plus`.
 - Added condition-aware random baselines and prepared a longer tuned wide-range run.
 
+### [2026-06-02 16:16] - core_claim
+- Job `58fce6b9-d6d` tested a longer 5000-episode tuned wide-range run.
+- The wide-range score stayed at 67.4% while the random wide sanity baseline was 7.8%, so the additional setting demonstrates non-trivial learning but remains below the paper's 93.0% result.
+- Reverted the reusable scripts to the shorter 2000-episode wide run because the longer run did not improve the final scored metric.
+
 ## Stop Justification
-- Not stopped. Core claim is reached; next job improves the additional wide velocity-range setting.
+- Stopping at `core_claim`: the central randomized setting is reproduced with a strong method-vs-random gap and the fixed 1020-neuron constraint. A second paper setting is packaged and scored, but it remains below the paper's reported performance after an additional tuning attempt.

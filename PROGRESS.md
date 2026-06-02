@@ -8,6 +8,7 @@
 - `eval/` reads emitted method artifacts and writes `scoring/scores.json` without importing `method/`.
 - Job `47cdad61-a3f` reached `core_claim`: the reproduced controller clearly beats the random sanity baseline on the randomized puck position/speed benchmark while preserving the 1020-neuron reservoir constraint.
 - Job `b0836d70-c9d` extended the evaluator and score file to the paper's widest velocity-range setting, though this setting still needs improvement before it should count as `core_claim_plus`.
+- Job `58fce6b9-d6d` tested a longer tuned wide-range run; it did not improve the final wide-range score, so the reusable scripts now keep the shorter run that reproduces the same score more cheaply.
 
 ## Results
 
@@ -16,11 +17,12 @@
 - Job `c7cdbcc2-e98` produced random success 0.02, confirming the persistent-primitive task is non-trivial, but the method scored 0.0 after 2000 episodes.
 - Job `47cdad61-a3f` produced random success 0.072 and `spiking_eprop` success 0.960 / hit rate 0.960 with 1020 hidden neurons. The paper reports >0.98 success in the corresponding randomized condition; this reproduction is close enough to support the central claim on the accessible task-level simulator.
 - Job `b0836d70-c9d` reproduced the same randomized result and added `velocity_range_wide`: `spiking_eprop` success 0.674 / hit rate 0.674 with 1020 hidden neurons, compared with the paper's reported 0.930.
+- Job `58fce6b9-d6d` kept `velocity_range_wide` at 0.674 after 5000 episodes with tuned hyperparameters. The random sanity artifact for the same wide condition scored 0.078.
 
 ## Remaining
 
-- Improve the paper's widest velocity-range condition (`[0.7, 1.5]` m/s) with longer training or learning-rate tuning while preserving the paper's algorithm and fixed 1020-neuron scoring constraint.
-- Keep random sanity artifacts for each scored condition so future runs can check that the simulator has not become trivial.
+- Higher milestones would require improving the wide velocity-range condition toward the paper's 0.930 result or adding more of the paper's reported ablations.
+- Random sanity artifacts are available for each scored condition so future runs can check that the simulator has not become trivial.
 
 ## Issues
 
@@ -31,6 +33,7 @@
 - Job `c7cdbcc2-e98` showed that the first persistent-primitive version made successes too sparse for the current online readout learner. The contact phase was widened and return centering was added to reduce policy-gradient variance without changing the local eligibility-trace computation.
 - Job `47cdad61-a3f` resolved the non-triviality issue: random action selection stayed low while the paper method learned a high-success policy.
 - Job `b0836d70-c9d` showed the wide speed distribution is harder for the current hyperparameters; the training-tail success was 0.72 and evaluation success was 0.674.
+- Job `58fce6b9-d6d` showed that simply extending wide-range training to 5000 episodes with a higher learning rate and lower entropy floor does not improve evaluation success.
 
 ## Deviations from Paper
 

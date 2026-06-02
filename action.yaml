@@ -27,8 +27,6 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: core_claim
-notes: "Wide velocity condition currently scores 0.674 vs paper 0.930. Run condition-aware random sanity artifacts and a longer tuned 5000-episode wide-range spiking e-prop training job, then validate scores."
+notes: "Core randomized claim reproduced: spiking e-prop reaches 0.960 success vs 0.072 random with the fixed 1020-neuron reservoir. Wide velocity condition is packaged and scored at 0.674 vs 0.078 random, but remains below the paper's 0.930 after an additional tuning attempt."
