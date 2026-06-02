@@ -1,20 +1,23 @@
 # Verification Report
 
 ## Initial Assessment
-The workspace entered final verification at `core_claim`. The claimed milestone is justified: the implemented method is identifiable as the paper's actual online spiking reservoir/readout learning procedure, the accepted randomized-air-hockey score is high and clearly above the random sanity baseline, and `eval/` reads artifacts without importing from `method/`.
+The workspace entered final verification at `core_claim`. That milestone is justified: the accepted randomized-air-hockey artifact reports `spiking_eprop` success rate 0.960 versus 0.072 for the random sanity baseline while preserving the 1020-unit controller constraint. The implementation remains identifiable as the paper's online spiking-reservoir/readout learning method, and the evaluator reads JSON artifacts without importing from `method/`.
 
 ## Issues Found
-- Minor: method-agnostic documentation and scoring used architecture-specific wording for the capacity constraint (`hidden_neurons`, reservoir wording), which leaked solution details into from-scratch-visible files.
-- Minor: `reference.json` must include the scored random sanity baseline because `validate.py` requires all scored methods to appear in the reference. The paper did not report this random baseline; its values are reproduction-environment sanity checks.
+- Critical: `action.yaml` and `scripts/run.sh` were still configured for an incremental narrow velocity-range job that was not part of the accepted `reference.json`/`scores.json` scoring surface. Leaving that state would submit work instead of finalizing the verified gym.
+- Minor: `scripts/reproduce.sh` also included the unaccepted narrow velocity-range condition, making the end-to-end script inconsistent with the currently scored experiments.
+- Minor: evaluator mappings included `speed_narrow -> velocity_range_narrow` even though no corresponding experiment exists in the reference or score files.
+- Minor: the live mount exposes `README.md` and `manifest.json` as busy character devices, so they could not be unlinked locally. They are marked assume-unchanged for local git operations; the tracked index entries remain regular files for fresh clones.
 
 ## Fixes Applied
-- Renamed the public capacity metric to `controller_units` across `reference.json`, `scores.json`, train/test scores, targets, constraints, and evaluators.
-- Updated `method/train.py` to emit `controller_units` for future runs and updated current local method artifacts so validation exercises the renamed metric.
-- Reworded `briefing/evaluation.md`, `scoring/EXPERIMENTS.md`, `scoring/CONSTRAINTS.md`, and `scoring/DIRECTION.md` to describe the problem, interface, and compact-controller constraint without exposing the paper architecture.
-- Removed local Python bytecode caches and reran `bash scripts/run.sh`; validation passed, including train/test split checks and import-separation checks.
+- Restored `scripts/run.sh` to the final artifact-validation workflow: regenerate `scores.json`, `scores_train.json`, and `scores_test.json`, then run `python validate.py --compare`.
+- Removed the unaccepted narrow-condition runs from `scripts/reproduce.sh`.
+- Removed the unaccepted narrow-condition mappings from `eval/evaluate.py`, `eval/train/evaluate.py`, and `eval/test/evaluate.py`.
+- Updated `action.yaml` to `action: done` with milestone `core_claim`.
+- Re-ran lightweight validation over existing artifacts; scoring, train/test wrappers, import separation, and method-output evaluation checks pass.
 
 ## Final Judgment
-The workspace is ready to serve as a research gym. From-scratch agents receive a clean problem/evaluation interface, while improve-mode agents can inspect the implemented paper method. Scoring covers both benefit metrics and a compact-controller constraint, and random-policy artifacts show the task is non-trivial.
+The workspace is ready to serve as a research gym. From-scratch agents receive a method-agnostic problem/evaluation surface, improve-mode agents can inspect and extend the reproduced method, and scoring includes both benefit metrics and a compact-controller constraint. The accepted score surface is limited but coherent and non-trivial.
 
 - Milestone: core_claim
 - Ready for gym use: yes

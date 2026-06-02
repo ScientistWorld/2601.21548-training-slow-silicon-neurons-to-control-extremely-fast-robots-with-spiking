@@ -11,7 +11,6 @@ from typing import Any
 
 CONDITION_TO_EXPERIMENT = {
     "random_position_speed": "randomized_air_hockey",
-    "speed_narrow": "velocity_range_narrow",
     "speed_wide": "velocity_range_wide",
 }
 

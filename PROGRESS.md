@@ -14,7 +14,7 @@
 - Fresh continuation audit at 2026-06-02 16:43 rechecked the implementation, output artifacts, scripts, and deliverables. It found no scoring honesty blocker; minor template/comment cleanup was applied to `briefing/` and `scripts/evaluate.sh`.
 - Continuation audit at 2026-06-02 16:58 made `scripts/evaluate.sh` include all controller artifacts by default, so `scores.json` now records the random sanity baseline alongside the reproduced spiking e-prop controller for each scored experiment.
 - Final verification at 2026-06-02 17:03 kept the milestone at `core_claim`, changed the public capacity metric from architecture-specific wording to `controller_units`, and confirmed `bash scripts/run.sh` passes.
-- On 2026-06-02 17:06, the evaluator was extended for the paper's narrow velocity-range setting and `scripts/run.sh` was changed to submit a new CPU reproduction run for that setting. This is pending job verification and does not change the milestone yet.
+- A planned narrow velocity-range job was removed during final verification because it was not part of the accepted `reference.json`/`scores.json` surface. The packaged scripts now validate the two scored experiments only: `randomized_air_hockey` and `velocity_range_wide`.
 - Generated job logs and raw trajectory traces were removed from the git index because they are already covered by `.gitignore` and should not ship as tracked gym files.
 
 ## Results
@@ -32,7 +32,7 @@
 ## Remaining
 
 - Higher milestones would require improving the wide velocity-range condition toward the paper's 0.930 result or adding more of the paper's reported ablations.
-- `core_claim_plus` would require improving the wide velocity-range condition or completing the newly submitted narrow velocity-range setting with a non-trivial learned success rate clearly above its random sanity baseline while preserving the 1020-neuron constraint.
+- `core_claim_plus` would require improving the wide velocity-range condition or adding another scored setting with a non-trivial learned success rate clearly above its random sanity baseline while preserving the 1020-unit controller constraint.
 - Random sanity artifacts are available for each scored condition so future runs can check that the simulator has not become trivial.
 
 ## Issues
@@ -46,6 +46,7 @@
 - Job `b0836d70-c9d` showed the wide speed distribution is harder for the current hyperparameters; the training-tail success was 0.72 and evaluation success was 0.674.
 - Job `58fce6b9-d6d` showed that simply extending wide-range training to 5000 episodes with a higher learning rate and lower entropy floor does not improve evaluation success.
 - The live workspace has `README.md` and `manifest.json` mounted as busy character devices, so they cannot be unlinked locally. They were marked assume-unchanged for git operations; the tracked index entries remain regular files for fresh clones.
+- Final verification found `action.yaml` and `scripts/run.sh` pointed at an aborted unscored narrow-condition submission. These were restored to the final `done` action and artifact-validation workflow.
 
 ## Deviations from Paper
 

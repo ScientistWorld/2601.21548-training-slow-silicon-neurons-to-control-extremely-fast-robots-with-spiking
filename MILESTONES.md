@@ -27,3 +27,7 @@
 ### [2026-06-02 17:06] - core_claim
 - Prepared an incremental CPU job for the paper's narrow velocity-range condition `[0.7, 0.9] m/s`, which is a candidate for `core_claim_plus` if the reproduced method clearly beats the random sanity baseline.
 - Extended the artifact evaluators to recognize `speed_narrow` as `velocity_range_narrow` and to carry `train_success_gain` into the default `scores.json` when method artifacts provide training summaries.
+
+### [2026-06-02 17:10] - core_claim
+- Final verification removed the aborted narrow-condition submission setup from the packaged scripts because that experiment was not accepted into the scored gym surface.
+- Restored `scripts/run.sh` to validate the existing artifact scores, train/test score files, and `validate.py --compare`; the milestone remains `core_claim`.
