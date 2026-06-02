@@ -19,8 +19,10 @@ cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 mkdir -p outputs
+COND="${CONDITION:-random_position_speed}"
+OUT="${OUTPUT_PATH:-outputs/random_policy_${COND}.json}"
 python baseline/random_policy.py \
-  --condition random_position_speed \
+  --condition "${COND}" \
   --episodes "${BASELINE_EPISODES:-400}" \
   --seeds "${SEEDS:-3}" \
-  --output outputs/random_policy_random_position_speed.json
+  --output "${OUT}"

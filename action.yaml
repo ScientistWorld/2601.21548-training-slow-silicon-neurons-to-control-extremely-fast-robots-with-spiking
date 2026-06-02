@@ -31,4 +31,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Core claim reached on randomized puck position/speed. Expand to the paper's widest velocity-range condition with the same 1020-neuron spiking e-prop controller, then validate scores."
+notes: "Wide velocity condition currently scores 0.674 vs paper 0.930. Run condition-aware random sanity artifacts and a longer tuned 5000-episode wide-range spiking e-prop training job, then validate scores."

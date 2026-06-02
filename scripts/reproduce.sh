@@ -24,5 +24,6 @@ rm -f outputs/spiking_eprop_*.json outputs/random_policy_*.json scoring/scores.j
 
 bash scripts/baseline.sh
 bash scripts/method.sh
-CONDITION=speed_wide bash scripts/method.sh
+CONDITION=speed_wide bash scripts/baseline.sh
+CONDITION=speed_wide EPISODES="${EPISODES_WIDE:-5000}" LEARNING_RATE="${LEARNING_RATE_WIDE:-0.006}" ENTROPY_FLOOR="${ENTROPY_FLOOR_WIDE:-0.06}" bash scripts/method.sh
 bash scripts/evaluate.sh

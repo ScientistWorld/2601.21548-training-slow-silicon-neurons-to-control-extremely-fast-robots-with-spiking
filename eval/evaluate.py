@@ -29,11 +29,13 @@ def main() -> None:
         method = data.get("method", "spiking_eprop")
         experiment = CONDITION_TO_EXPERIMENT.get(data.get("condition", ""), data.get("condition", path.stem))
         experiments.setdefault(experiment, {"results": {}})
-        experiments[experiment]["results"][method] = {
+        result = {
             "success_rate": float(data["success_rate"]),
             "hit_rate": float(data.get("hit_rate", 0.0)),
-            "hidden_neurons": float(data.get("hidden_neurons", 0.0)),
         }
+        if "hidden_neurons" in data:
+            result["hidden_neurons"] = float(data["hidden_neurons"])
+        experiments[experiment]["results"][method] = result
 
     scores = {"experiments": experiments}
     out = Path(args.output)

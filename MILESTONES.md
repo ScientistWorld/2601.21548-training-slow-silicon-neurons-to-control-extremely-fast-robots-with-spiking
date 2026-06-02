@@ -41,5 +41,10 @@
 - The successful run preserved the paper's fixed-size 1020-neuron hidden reservoir constraint and passed `python validate.py --compare`.
 - Prepared the next job to add the paper's wide velocity-range condition for `core_claim_plus`.
 
+### [2026-06-02 16:13] - core_claim
+- Job `b0836d70-c9d` added the paper's widest velocity-range condition and passed `python validate.py --compare`.
+- The wide-range run scored 67.4% success with the same 1020-neuron spiking e-prop controller, below the paper's reported 93.0%; this is useful coverage but not enough to claim `core_claim_plus`.
+- Added condition-aware random baselines and prepared a longer tuned wide-range run.
+
 ## Stop Justification
-- Not stopped. Core claim is reached; next job expands to an additional paper setting.
+- Not stopped. Core claim is reached; next job improves the additional wide velocity-range setting.
