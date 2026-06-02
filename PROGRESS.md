@@ -10,10 +10,11 @@
 ## Results
 
 - Job `7595de2e-7e4` produced `spiking_eprop` success rate 0.993 and hit rate 0.993 in the randomized condition. This result is not accepted as `core_claim` because the random sanity baseline also reached 1.0 success in the same simulator.
+- Job `53701b5a-4a7` produced `spiking_eprop` success rate 0.953 and hit rate 0.953, but random action selection reached 0.973. This is also not accepted as `core_claim`.
 
 ## Remaining
 
-- Rerun after the active-swing simulator fix and inspect both random sanity baseline and method artifacts.
+- Rerun after the persistent-primitive simulator fix and inspect both random sanity baseline and method artifacts.
 - If the method success rate is not clearly above the random sanity baseline, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm.
 - Expand to velocity-range conditions after the core randomized setting is confirmed.
 
@@ -22,6 +23,7 @@
 - The original DYNAP-SE hardware and MuJoCo robot stack are unavailable in this workspace, so the reproduction uses a software LIF/reservoir simulator and task-level air-hockey dynamics.
 - Job `f65b0a96-f82` failed before baseline execution with `ModuleNotFoundError: No module named 'data'`. Cause: Python launched `baseline/random_policy.py` directly and did not include the workspace root on `sys.path`. Fixed by exporting `PYTHONPATH=/home/user` in the shell entry points.
 - Job `7595de2e-7e4` exposed an invalid-evaluation issue: the task allowed a mallet to wait at the intercept point and still hit the puck, so random action selection was near-perfect. The simulator now requires active forward motion at contact.
+- Job `53701b5a-4a7` showed the active-swing condition was still too weak because random switching often produced a valid forward motion near contact. The simulator now models persistent open-loop primitives and only counts contact during a narrow swing phase.
 
 ## Deviations from Paper
 

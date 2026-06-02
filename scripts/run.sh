@@ -15,6 +15,6 @@ cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 python validate.py --reference-only
-SEEDS=1 BASELINE_EPISODES=300 bash scripts/baseline.sh
-SEEDS=1 EPISODES=1500 EVAL_EPISODES=300 HIDDEN_NEURONS=1020 bash scripts/method.sh
+SEEDS=1 BASELINE_EPISODES=500 bash scripts/baseline.sh
+SEEDS=1 EPISODES=2000 EVAL_EPISODES=500 HIDDEN_NEURONS=1020 bash scripts/method.sh
 python validate.py --compare

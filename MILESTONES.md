@@ -28,5 +28,9 @@
 - Job `7595de2e-7e4` ran to completion and produced a high method success rate, but the random sanity baseline also achieved 100% success.
 - Tightened the task simulator so successful contact requires an active forward mallet swing, matching the paper's emphasis on precise timing and preventing trivial intercept-point camping.
 
+### [2026-06-02 16:01] - none
+- Job `53701b5a-4a7` ran to completion, but random action selection still reached 97.3% success while the method reached 95.3%.
+- Updated the simulator to treat actions as persistent open-loop primitives with a narrow valid swing-contact phase, matching the paper's ballistic primitive description.
+
 ## Stop Justification
 - Not stopped. First reproduction job is ready for submission.

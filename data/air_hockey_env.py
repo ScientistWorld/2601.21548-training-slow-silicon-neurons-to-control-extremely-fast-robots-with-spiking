@@ -26,6 +26,8 @@ class AirHockeyConfig:
     center_y: float = 0.0
     mallet_speed: float = 4.0
     active_hit_speed: float = 0.35
+    swing_active_start: int = 6
+    swing_active_end: int = 11
     rebound_speed: float = 1.25
     terminal_reward: float = 20.0
     step_penalty: float = -0.1
@@ -89,6 +91,8 @@ class AirHockeyInterceptionEnv:
         self.steps = 0
         self.success = False
         self.hit = False
+        self.primitive = 0
+        self.swing_age = -1
 
     @property
     def hit_radius(self) -> float:
@@ -108,12 +112,24 @@ class AirHockeyInterceptionEnv:
         self.steps = 0
         self.success = False
         self.hit = False
+        self.primitive = 0
+        self.swing_age = -1
         return self.state.copy()
 
     def step(self, action: int) -> tuple[np.ndarray, float, bool, dict[str, float | bool]]:
         cfg = self.config
         px, py, vx, vy, ex, ey = [float(v) for v in self.state]
-        target_x = cfg.home_x if int(action) == 0 else cfg.forward_x
+        action = int(action)
+        if action == 0:
+            self.primitive = 0
+            self.swing_age = -1
+        elif self.primitive == 0 and ex <= cfg.home_x + 0.06:
+            self.primitive = 1
+            self.swing_age = 0
+        elif self.primitive == 1:
+            self.swing_age += 1
+
+        target_x = cfg.home_x if self.primitive == 0 else cfg.forward_x
         target_y = cfg.center_y
 
         max_delta = cfg.mallet_speed * cfg.control_dt
@@ -133,7 +149,8 @@ class AirHockeyInterceptionEnv:
         dist = float(np.hypot(px - ex, py - ey))
 
         reward = cfg.step_penalty
-        active_forward_swing = mallet_vx > cfg.active_hit_speed
+        swing_in_contact_phase = cfg.swing_active_start <= self.swing_age <= cfg.swing_active_end
+        active_forward_swing = mallet_vx > cfg.active_hit_speed and swing_in_contact_phase
         active_lateral_alignment = abs(mallet_vy) < 0.5
         if (not self.hit) and dist <= self.hit_radius and active_forward_swing and active_lateral_alignment:
             self.hit = True
