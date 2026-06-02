@@ -13,5 +13,10 @@
 - Confirmed the task is non-trivial by running a random-action sanity baseline that remained far below the learned controller in prior job artifacts.
 - Added a second scored wide-velocity condition; it remains below the paper target and is documented as future work rather than claimed as `core_claim_plus`.
 
+### [2026-06-02 16:14] - core_claim
+- Continuing-agent audit found the method implementation faithful to the paper's computational structure rather than a surrogate.
+- Re-ran `bash scripts/evaluate.sh` and `python validate.py --compare`; scoring, standalone evaluation, and import-separation checks all passed.
+- Restored the reset milestone to `core_claim`.
+
 ## Stop Justification
 - Completed at milestone `core_claim`. Higher milestones would require improving or expanding the wide velocity-range reproduction.

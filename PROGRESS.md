@@ -6,6 +6,7 @@
 - `data/air_hockey_env.py` defines the 6D air-hockey interception task, reward, success condition, and randomized benchmark condition.
 - `method/` implements the paper's actual computational structure: Gaussian population-coded state spikes, fixed random LIF-style reservoir, filtered hidden traces, two-action softmax readout, and e-prop-style readout updates every two trials.
 - `eval/` reads emitted method artifacts and writes `scoring/scores.json` without importing `method/`.
+- Continuing-agent audit on 2026-06-02 verified that the implementation is not a surrogate, `scripts/evaluate.sh` works standalone, and `python validate.py --compare` passes all scoring and separation checks.
 - Job `47cdad61-a3f` reached `core_claim`: the reproduced controller clearly beats the random sanity baseline on the randomized puck position/speed benchmark while preserving the 1020-neuron reservoir constraint.
 - Job `b0836d70-c9d` extended the evaluator and score file to the paper's widest velocity-range setting, though this setting still needs improvement before it should count as `core_claim_plus`.
 - Job `58fce6b9-d6d` tested a longer tuned wide-range run; it did not improve the final wide-range score, so the reusable scripts now keep the shorter run that reproduces the same score more cheaply.

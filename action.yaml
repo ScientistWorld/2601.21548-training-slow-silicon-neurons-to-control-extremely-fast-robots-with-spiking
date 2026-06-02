@@ -5,4 +5,4 @@ action: done
 gpus: 1
 test: false
 milestone: core_claim
-notes: "Reproduced the core randomized air-hockey claim with the spiking e-prop reservoir controller: 0.960 success / 0.960 hit rate using 1020 hidden neurons. Wide velocity-range condition is included but below paper target, so not claiming core_claim_plus."
+notes: "Continuing-agent audit restored core_claim: method implements the spiking e-prop reservoir controller, standalone evaluation and validate.py --compare pass, and reproduced randomized air-hockey score remains 0.960 success / 0.960 hit rate with 1020 hidden neurons."
