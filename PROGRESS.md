@@ -12,6 +12,7 @@
 - Job `58fce6b9-d6d` tested a longer tuned wide-range run; it did not improve the final wide-range score, so the reusable scripts now keep the shorter run that reproduces the same score more cheaply.
 - Current iteration adds `variable_speed_generalization`, the paper's fixed-launch-position randomized-speed condition, to `reference.json`, `TARGETS.md`, `EXPERIMENTS.md`, and the reusable run scripts. This is intended as a paper-reported additional setting for a `core_claim_plus` attempt, pending job results.
 - Continuation audit at 2026-06-02 16:22 found no surrogate-method or evaluation-separation issue. The only concrete packaging issue is that `variable_speed_generalization` is now listed as a target but has not yet been generated into `scores.json`; the prepared CPU job is being resubmitted.
+- Continuation check at 2026-06-02 16:23 found the previous submit state had not produced a new job directory. `action.yaml` is refreshed with a new timestamped submit note while keeping the same prepared CPU job.
 
 ## Results
 
