@@ -11,6 +11,7 @@ from typing import Any
 
 CONDITION_TO_EXPERIMENT = {
     "random_position_speed": "randomized_air_hockey",
+    "speed_narrow": "velocity_range_narrow",
     "speed_wide": "velocity_range_wide",
 }
 
@@ -61,6 +62,10 @@ def main() -> None:
         controller_units = _as_float(data, "controller_units")
         if controller_units is not None:
             result["controller_units"] = controller_units
+        train_tail = _as_float(data, "train_tail_success_rate")
+        train_first = _as_float(data, "train_first_success_rate")
+        if train_tail is not None and train_first is not None:
+            result["train_success_gain"] = train_tail - train_first
         success_iqr = _as_float(data, "success_rate_iqr")
         if success_iqr is not None:
             result["success_rate_iqr"] = success_iqr

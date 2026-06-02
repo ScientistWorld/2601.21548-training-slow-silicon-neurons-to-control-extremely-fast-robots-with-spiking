@@ -23,3 +23,7 @@
 ### [2026-06-02 17:03] - core_claim
 - Final verification confirmed the `core_claim` milestone remains justified.
 - Cleaned method-agnostic documentation and scoring terminology by using `controller_units` for the compact-controller constraint, then reran `bash scripts/run.sh` successfully.
+
+### [2026-06-02 17:06] - core_claim
+- Prepared an incremental CPU job for the paper's narrow velocity-range condition `[0.7, 0.9] m/s`, which is a candidate for `core_claim_plus` if the reproduced method clearly beats the random sanity baseline.
+- Extended the artifact evaluators to recognize `speed_narrow` as `velocity_range_narrow` and to carry `train_success_gain` into the default `scores.json` when method artifacts provide training summaries.

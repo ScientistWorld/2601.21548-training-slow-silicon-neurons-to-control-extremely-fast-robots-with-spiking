@@ -1,3 +1,5 @@
-action: done
+action: submit
+gpus: 0
+test: true
 milestone: core_claim
-notes: "Final verification passed: method-agnostic docs cleaned, scoring uses controller_units capacity metric, and scripts/run.sh validation succeeds."
+notes: "CPU job to run the paper's narrow velocity-range condition with the spiking e-prop controller and random sanity baseline. Current milestone remains core_claim until this result is verified."

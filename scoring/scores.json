@@ -12,6 +12,7 @@
           "success_rate": 0.96,
           "hit_rate": 0.96,
           "controller_units": 1020.0,
+          "train_success_gain": 0.020000000000000018,
           "success_rate_iqr": 0.0,
           "seed_worst_success": 0.96
         }
@@ -29,6 +30,7 @@
           "success_rate": 0.674,
           "hit_rate": 0.674,
           "controller_units": 1020.0,
+          "train_success_gain": -0.030000000000000027,
           "success_rate_iqr": 0.0,
           "seed_worst_success": 0.674
         }
