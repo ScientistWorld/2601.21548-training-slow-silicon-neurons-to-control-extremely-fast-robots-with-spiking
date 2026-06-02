@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: pending
+action: done
 gpus: 1
 test: false
-milestone: method_runs
-notes: ""
+milestone: core_claim
+notes: "Reproduced the core randomized air-hockey claim with the spiking e-prop reservoir controller: 0.960 success / 0.960 hit rate using 1020 hidden neurons. Wide velocity-range condition is included but below paper target, so not claiming core_claim_plus."
