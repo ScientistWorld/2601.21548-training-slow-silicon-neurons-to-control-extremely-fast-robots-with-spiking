@@ -12,7 +12,7 @@
         "spiking_eprop": {
           "success_rate": 0.8,
           "hit_rate": 0.96,
-          "hidden_neurons": 1020.0,
+          "controller_units": 1020.0,
           "train_success_gain": 0.020000000000000018,
           "success_rate_iqr": 0.0,
           "seed_worst_success": 0.8
@@ -30,7 +30,7 @@
         "spiking_eprop": {
           "success_rate": 0.71,
           "hit_rate": 0.674,
-          "hidden_neurons": 1020.0,
+          "controller_units": 1020.0,
           "train_success_gain": -0.030000000000000027,
           "success_rate_iqr": 0.0,
           "seed_worst_success": 0.71

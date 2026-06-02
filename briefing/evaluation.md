@@ -4,11 +4,11 @@
 
 - `success_rate`: fraction of evaluation episodes where the puck crosses `x_p > 1.5 m` with forward velocity `v_x > 0.1 m/s`. Higher is better.
 - `hit_rate`: fraction of episodes where the mallet contacts the puck within the 0.08 m contact threshold. Higher is better.
-- `hidden_neurons`: hidden reservoir size used by the controller. Lower is better as a capacity constraint.
+- `controller_units`: declared controller capacity used by the submitted system. Lower is better as a compactness constraint.
 
 ## Baselines and Targets
 
-The main target is the randomized initial position and speed setting. The paper reports stabilization above 98% success after roughly 1300 training episodes using a 1020-neuron reservoir. A random-action policy is included to verify that the evaluation task is non-trivial.
+The main target is the randomized initial position and speed setting. The reference result uses a 1020-unit controller budget and reports stabilization above 98% success after roughly 1300 training episodes. A random-action policy is included to verify that the evaluation task is non-trivial.
 
 ## Evaluation Protocol
 

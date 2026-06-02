@@ -7,7 +7,7 @@ Tests whether a controller can reliably complete the central randomized puck int
 
 ## Constraint: randomized_air_hockey
 Tests whether success is obtained within the compact-controller capacity central to the paper's claim.
-- **Metric**: `hidden_neurons` (lower is better)
+- **Metric**: `controller_units` (lower is better)
 - **Run**: `bash scripts/evaluate.sh` after producing artifacts under `outputs/`
 
 ## Primary: velocity_range_wide
@@ -17,5 +17,5 @@ Tests whether the controller remains effective when the puck speed is sampled fr
 
 ## Constraint: velocity_range_wide
 Tests whether wide-range performance is obtained with the same compact controller size.
-- **Metric**: `hidden_neurons` (lower is better)
+- **Metric**: `controller_units` (lower is better)
 - **Run**: `bash scripts/evaluate.sh` after producing artifacts under `outputs/`

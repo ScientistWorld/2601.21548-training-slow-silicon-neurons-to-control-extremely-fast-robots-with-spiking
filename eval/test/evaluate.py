@@ -106,9 +106,9 @@ def main() -> None:
         if hit_rate is not None:
             result["hit_rate"] = hit_rate
 
-        hidden_neurons = _as_float(data, "hidden_neurons")
-        if hidden_neurons is not None:
-            result["hidden_neurons"] = hidden_neurons
+        controller_units = _as_float(data, "controller_units")
+        if controller_units is not None:
+            result["controller_units"] = controller_units
 
         success_iqr = _as_float(data, "success_rate_iqr")
         if success_iqr is not None:

@@ -15,10 +15,10 @@
           "coefficient": 0.2,
           "description": "Rate at which the controller contacts the puck, catching policies that only optimize terminal success."
         },
-        "hidden_neurons": {
+        "controller_units": {
           "higher_is_better": false,
           "coefficient": -0.2,
-          "description": "Reservoir size, preserving the compact-controller constraint of the paper's claim."
+          "description": "Controller capacity, preserving the compact-controller constraint of the paper's claim."
         },
         "train_success_gain": {
           "higher_is_better": true,
@@ -46,12 +46,12 @@
           "type": "proposed",
           "success_rate": 0.98,
           "hit_rate": 0.98,
-          "hidden_neurons": 1020.0
+          "controller_units": 1020.0
         }
       }
     },
     "velocity_range_wide": {
-      "description": "Encoding-range scalability test with the widest main puck-speed range [0.7, 1.5] m/s and the same fixed 1020-neuron reservoir.",
+      "description": "Velocity-range robustness test with the widest main puck-speed range [0.7, 1.5] m/s and the same fixed 1020-unit controller budget.",
       "weight": 0.25,
       "primary_metric": "success_rate",
       "metrics": {
@@ -65,10 +65,10 @@
           "coefficient": 0.2,
           "description": "Puck-contact rate under the wide speed range, catching policies that miss the underlying control target."
         },
-        "hidden_neurons": {
+        "controller_units": {
           "higher_is_better": false,
           "coefficient": -0.2,
-          "description": "Reservoir size, preserving the compact-controller constraint under the harder velocity range."
+          "description": "Controller capacity, preserving the compact-controller constraint under the harder velocity range."
         },
         "train_success_gain": {
           "higher_is_better": true,
@@ -96,7 +96,7 @@
           "type": "proposed",
           "success_rate": 0.93,
           "hit_rate": 0.93,
-          "hidden_neurons": 1020.0
+          "controller_units": 1020.0
         }
       }
     }

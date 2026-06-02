@@ -79,6 +79,7 @@ def main() -> None:
         "episodes": args.episodes,
         "eval_episodes": args.eval_episodes,
         "seeds": args.seeds,
+        "controller_units": args.hidden_neurons,
         "hidden_neurons": args.hidden_neurons,
         "learning_rate": args.learning_rate,
         "entropy_floor": args.entropy_floor,

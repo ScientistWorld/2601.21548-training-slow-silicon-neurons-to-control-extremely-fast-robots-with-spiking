@@ -13,6 +13,7 @@
 - Continuation audit at 2026-06-02 16:22 found no surrogate-method or evaluation-separation issue. An unscored planned `variable_speed_generalization` target was removed from the scoring surface so `TARGETS.md`, `EXPERIMENTS.md`, `reference.json`, and `scores.json` remain consistent.
 - Fresh continuation audit at 2026-06-02 16:43 rechecked the implementation, output artifacts, scripts, and deliverables. It found no scoring honesty blocker; minor template/comment cleanup was applied to `briefing/` and `scripts/evaluate.sh`.
 - Continuation audit at 2026-06-02 16:58 made `scripts/evaluate.sh` include all controller artifacts by default, so `scores.json` now records the random sanity baseline alongside the reproduced spiking e-prop controller for each scored experiment.
+- Final verification at 2026-06-02 17:03 kept the milestone at `core_claim`, changed the public capacity metric from architecture-specific wording to `controller_units`, and confirmed `bash scripts/run.sh` passes.
 
 ## Results
 

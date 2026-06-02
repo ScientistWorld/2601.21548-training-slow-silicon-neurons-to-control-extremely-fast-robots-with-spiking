@@ -58,8 +58,9 @@ def main() -> None:
             "success_rate": float(data["success_rate"]),
             "hit_rate": float(data.get("hit_rate", 0.0)),
         }
-        if "hidden_neurons" in data:
-            result["hidden_neurons"] = float(data["hidden_neurons"])
+        controller_units = _as_float(data, "controller_units")
+        if controller_units is not None:
+            result["controller_units"] = controller_units
         success_iqr = _as_float(data, "success_rate_iqr")
         if success_iqr is not None:
             result["success_rate_iqr"] = success_iqr

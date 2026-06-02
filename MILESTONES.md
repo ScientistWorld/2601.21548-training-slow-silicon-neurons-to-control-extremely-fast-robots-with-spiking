@@ -19,3 +19,7 @@
 ### [2026-06-02 16:58] - core_claim
 - Updated the default evaluator so `scores.json` records both the random sanity baseline and the spiking e-prop controller for each scored experiment.
 - Updated `scripts/run.sh` to verify `scores.json`, the train/test split scores, and `validate.py --compare` in one CPU job.
+
+### [2026-06-02 17:03] - core_claim
+- Final verification confirmed the `core_claim` milestone remains justified.
+- Cleaned method-agnostic documentation and scoring terminology by using `controller_units` for the compact-controller constraint, then reran `bash scripts/run.sh` successfully.
