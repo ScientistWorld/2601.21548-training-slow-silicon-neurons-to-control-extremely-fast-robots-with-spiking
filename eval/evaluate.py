@@ -10,7 +10,6 @@ from pathlib import Path
 
 CONDITION_TO_EXPERIMENT = {
     "random_position_speed": "randomized_air_hockey",
-    "variable_speed": "variable_speed_generalization",
     "speed_wide": "velocity_range_wide",
 }
 

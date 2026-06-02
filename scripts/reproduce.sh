@@ -24,8 +24,6 @@ rm -f outputs/spiking_eprop_*.json outputs/random_policy_*.json scoring/scores.j
 
 bash scripts/baseline.sh
 bash scripts/method.sh
-CONDITION=variable_speed bash scripts/baseline.sh
-CONDITION=variable_speed bash scripts/method.sh
 CONDITION=speed_wide bash scripts/baseline.sh
 CONDITION=speed_wide EPISODES="${EPISODES_WIDE:-2000}" bash scripts/method.sh
 bash scripts/evaluate.sh

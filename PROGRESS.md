@@ -10,9 +10,7 @@
 - Job `47cdad61-a3f` reached `core_claim`: the reproduced controller clearly beats the random sanity baseline on the randomized puck position/speed benchmark while preserving the 1020-neuron reservoir constraint.
 - Job `b0836d70-c9d` extended the evaluator and score file to the paper's widest velocity-range setting, though this setting still needs improvement before it should count as `core_claim_plus`.
 - Job `58fce6b9-d6d` tested a longer tuned wide-range run; it did not improve the final wide-range score, so the reusable scripts now keep the shorter run that reproduces the same score more cheaply.
-- Current iteration adds `variable_speed_generalization`, the paper's fixed-launch-position randomized-speed condition, to `reference.json`, `TARGETS.md`, `EXPERIMENTS.md`, and the reusable run scripts. This is intended as a paper-reported additional setting for a `core_claim_plus` attempt, pending job results.
-- Continuation audit at 2026-06-02 16:22 found no surrogate-method or evaluation-separation issue. The only concrete packaging issue is that `variable_speed_generalization` is now listed as a target but has not yet been generated into `scores.json`; the prepared CPU job is being resubmitted.
-- Continuation check at 2026-06-02 16:23 found the previous submit state had not produced a new job directory. `action.yaml` is refreshed with a new timestamped submit note while keeping the same prepared CPU job.
+- Continuation audit at 2026-06-02 16:22 found no surrogate-method or evaluation-separation issue. An unscored planned `variable_speed_generalization` target was removed from the scoring surface so `TARGETS.md`, `EXPERIMENTS.md`, `reference.json`, and `scores.json` remain consistent.
 
 ## Results
 
@@ -22,12 +20,12 @@
 - Job `47cdad61-a3f` produced random success 0.072 and `spiking_eprop` success 0.960 / hit rate 0.960 with 1020 hidden neurons. The paper reports >0.98 success in the corresponding randomized condition; this reproduction is close enough to support the central claim on the accessible task-level simulator.
 - Job `b0836d70-c9d` reproduced the same randomized result and added `velocity_range_wide`: `spiking_eprop` success 0.674 / hit rate 0.674 with 1020 hidden neurons, compared with the paper's reported 0.930.
 - Job `58fce6b9-d6d` kept `velocity_range_wide` at 0.674 after 5000 episodes with tuned hyperparameters. The random sanity artifact for the same wide condition scored 0.078.
-- No accepted result is available yet for `variable_speed_generalization`; the next submitted job will run and score it.
+- The accepted score file contains exactly the two currently scored experiments: `randomized_air_hockey` and `velocity_range_wide`.
 
 ## Remaining
 
 - Higher milestones would require improving the wide velocity-range condition toward the paper's 0.930 result or adding more of the paper's reported ablations.
-- `core_claim_plus` can be claimed if the new variable-speed setting produces a non-trivial learned success rate clearly above its random sanity baseline while preserving the 1020-neuron constraint.
+- `core_claim_plus` would require improving the wide velocity-range condition or adding another completed, scored paper setting with a non-trivial learned success rate clearly above its random sanity baseline while preserving the 1020-neuron constraint.
 - Random sanity artifacts are available for each scored condition so future runs can check that the simulator has not become trivial.
 
 ## Issues
