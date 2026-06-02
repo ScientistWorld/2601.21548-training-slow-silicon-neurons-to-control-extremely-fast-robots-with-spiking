@@ -19,4 +19,4 @@
 - Restored the reset milestone to `core_claim`.
 
 ## Stop Justification
-- Completed at milestone `core_claim`. Higher milestones would require improving or expanding the wide velocity-range reproduction.
+- Completed at milestone `core_claim`.
