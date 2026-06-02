@@ -11,6 +11,7 @@
 - Job `b0836d70-c9d` extended the evaluator and score file to the paper's widest velocity-range setting, though this setting still needs improvement before it should count as `core_claim_plus`.
 - Job `58fce6b9-d6d` tested a longer tuned wide-range run; it did not improve the final wide-range score, so the reusable scripts now keep the shorter run that reproduces the same score more cheaply.
 - Continuation audit at 2026-06-02 16:22 found no surrogate-method or evaluation-separation issue. An unscored planned `variable_speed_generalization` target was removed from the scoring surface so `TARGETS.md`, `EXPERIMENTS.md`, `reference.json`, and `scores.json` remain consistent.
+- Fresh continuation audit at 2026-06-02 16:43 rechecked the implementation, output artifacts, scripts, and deliverables. It found no scoring honesty blocker; minor template/comment cleanup was applied to `briefing/` and `scripts/evaluate.sh`.
 
 ## Results
 

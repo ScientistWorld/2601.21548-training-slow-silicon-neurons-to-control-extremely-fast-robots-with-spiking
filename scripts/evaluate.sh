@@ -10,13 +10,13 @@
 #
 # OUTPUT CONTRACT: This script MUST write scoring/scores.json containing
 # a JSON dict nested by experiment, e.g.:
-#   {"imagenet_classification": {"top1_accuracy": 82.1, "top5_accuracy": 94.8}}
+#   {"experiments": {"randomized_air_hockey": {"results": {"method": {"success_rate": 0.96}}}}}
 # Experiment and metric names must match the keys in scoring/reference.json.
 # This file is read by the system for automated comparison.
 #
 # Example usage:
-#   ./evaluate.sh <method_and_run_name>                             # evaluate with defaults
-#   ./evaluate.sh <method_and_run_name> checkpoints/epoch_10.pt     # evaluate a specific checkpoint
+#   bash scripts/evaluate.sh
+#   bash scripts/evaluate.sh --artifacts outputs/spiking_eprop_random_position_speed.json
 #
 # Called from run.sh after training, or independently.
 

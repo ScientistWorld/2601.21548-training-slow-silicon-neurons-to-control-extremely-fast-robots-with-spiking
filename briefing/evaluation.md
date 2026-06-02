@@ -1,7 +1,5 @@
 # Evaluation
 
-How success is measured. Describe only the metrics, targets, and evaluation procedure — do NOT describe the paper's method or how they achieved these results. Think of this as a general evaluation protocal for other scientists trying to solve the same problem, where they should not see this paper's solution.
-
 ## Metrics
 
 - `success_rate`: fraction of evaluation episodes where the puck crosses `x_p > 1.5 m` with forward velocity `v_x > 0.1 m/s`. Higher is better.

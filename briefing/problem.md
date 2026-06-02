@@ -1,12 +1,8 @@
 # Problem Definition
 
-What problem does this paper address? Write this so that someone with no knowledge of the paper can understand what needs to be solved and how success is measured.
-
-Do NOT describe the paper's method or solution here — only the problem itself. Think about if a future scientist agent try to solve this problem from scratch without knowing what approach the paper took. If you leak the solution, you compromise the benchmark.
-
 ## Research Question
 
-Can a low-capacity, event-driven controller learn to intercept a fast puck in a continuous robotic air-hockey task from online interaction? The agent observes a 6D continuous state: puck position and velocity plus end-effector position. It must choose between two discrete motion primitives at 50 Hz so the end effector reaches the puck at the correct time and sends it forward across the target line.
+Can a low-capacity controller learn to intercept a fast puck in a continuous robotic air-hockey task from online interaction? The agent observes a 6D continuous state: puck position and velocity plus end-effector position. It must choose between two discrete motion primitives at 50 Hz so the end effector reaches the puck at the correct time and sends it forward across the target line.
 
 ## Why It Matters
 

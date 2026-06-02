@@ -11,3 +11,7 @@
 ### [2026-06-02 16:22] - core_claim
 - Continuation audit confirmed the implementation remains an identifiable software reproduction of the paper's spiking reservoir plus e-prop readout update, and `scripts/evaluate.sh` remains independent from `method/`.
 - Removed an unscored planned target from the scoring files and reusable run scripts so every target listed in `TARGETS.md` has a corresponding entry in `scores.json`.
+
+### [2026-06-02 16:43] - core_claim
+- Fresh continuation audit restored the milestone from `method_runs` to `core_claim` after checking the paper, method code, output artifacts, evaluator independence, and deliverables.
+- Removed leftover briefing template text and corrected `scripts/evaluate.sh` usage comments; validation still passes on the accepted score file.
