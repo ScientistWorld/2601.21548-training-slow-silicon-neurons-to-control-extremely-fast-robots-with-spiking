@@ -7,15 +7,18 @@
       "metrics": {
         "success_rate": {
           "higher_is_better": true,
-          "coefficient": 1.0
+          "coefficient": 1.0,
+          "description": "Task completion rate for puck interception, the primary scientific quantity."
         },
         "hit_rate": {
           "higher_is_better": true,
-          "coefficient": 0.2
+          "coefficient": 0.2,
+          "description": "Rate at which the controller contacts the puck, catching policies that only optimize terminal success."
         },
         "hidden_neurons": {
           "higher_is_better": false,
-          "coefficient": -0.2
+          "coefficient": -0.2,
+          "description": "Reservoir size, preserving the compact-controller constraint of the paper's claim."
         },
         "train_success_gain": {
           "higher_is_better": true,
@@ -26,6 +29,11 @@
           "higher_is_better": false,
           "coefficient": -0.1,
           "description": "Interquartile range of success across seeds, penalizing unstable policies that only succeed for favorable random draws."
+        },
+        "seed_worst_success": {
+          "higher_is_better": true,
+          "coefficient": 0.3,
+          "description": "Worst per-seed success rate, making brittle seed-specific tuning visible."
         }
       },
       "results": {
@@ -44,15 +52,18 @@
       "metrics": {
         "success_rate": {
           "higher_is_better": true,
-          "coefficient": 1.0
+          "coefficient": 1.0,
+          "description": "Task completion rate under the widest evaluated puck-speed range."
         },
         "hit_rate": {
           "higher_is_better": true,
-          "coefficient": 0.2
+          "coefficient": 0.2,
+          "description": "Puck-contact rate under the wide speed range, catching policies that miss the underlying control target."
         },
         "hidden_neurons": {
           "higher_is_better": false,
-          "coefficient": -0.2
+          "coefficient": -0.2,
+          "description": "Reservoir size, preserving the compact-controller constraint under the harder velocity range."
         },
         "train_success_gain": {
           "higher_is_better": true,
@@ -63,6 +74,11 @@
           "higher_is_better": false,
           "coefficient": -0.1,
           "description": "Interquartile range of success across seeds under the wide velocity range, penalizing unstable policies."
+        },
+        "seed_worst_success": {
+          "higher_is_better": true,
+          "coefficient": 0.3,
+          "description": "Worst per-seed success rate under the wide velocity range, exposing fragile methods tuned to favorable seeds."
         }
       },
       "results": {

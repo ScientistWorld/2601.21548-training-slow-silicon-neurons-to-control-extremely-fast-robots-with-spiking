@@ -39,6 +39,18 @@ def _as_float(data: dict[str, Any], key: str) -> float | None:
     return None
 
 
+def _float_list(data: dict[str, Any], key: str) -> list[float] | None:
+    value = data.get(key)
+    if not isinstance(value, list):
+        return None
+    out: list[float] = []
+    for item in value:
+        if not isinstance(item, (int, float)) or isinstance(item, bool):
+            return None
+        out.append(float(item))
+    return out or None
+
+
 def _required_pairs(train_scores_path: Path) -> set[tuple[str, str]] | None:
     if not train_scores_path.exists():
         return None
@@ -54,6 +66,13 @@ def _required_pairs(train_scores_path: Path) -> set[tuple[str, str]] | None:
             if not str(method).startswith("_"):
                 pairs.add((experiment, str(method)))
     return pairs or None
+
+
+def _seed_worst_success(data: dict[str, Any]) -> float | None:
+    values = _float_list(data, "eval_success_by_seed")
+    if values:
+        return min(values)
+    return None
 
 
 def main() -> None:
@@ -94,6 +113,10 @@ def main() -> None:
         success_iqr = _as_float(data, "success_rate_iqr")
         if success_iqr is not None:
             result["success_rate_iqr"] = success_iqr
+
+        worst_success = _seed_worst_success(data)
+        if worst_success is not None:
+            result["seed_worst_success"] = worst_success
 
         experiments.setdefault(experiment, {"results": {}})
         experiments[experiment]["results"][method] = result

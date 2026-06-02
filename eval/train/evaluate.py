@@ -19,17 +19,6 @@ CONDITION_TO_EXPERIMENT = {
 }
 
 
-def _load_reference_methods() -> set[str] | None:
-    path = Path("scoring/reference.json")
-    if not path.exists():
-        return None
-    data = json.loads(path.read_text())
-    methods: set[str] = set()
-    for experiment in data.get("experiments", {}).values():
-        methods.update(experiment.get("results", {}).keys())
-    return methods or None
-
-
 def _artifact_paths(paths: list[str] | None) -> list[Path]:
     if paths:
         return [Path(p) for p in paths]
@@ -46,6 +35,18 @@ def _as_float(data: dict[str, Any], key: str) -> float | None:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return float(value)
     return None
+
+
+def _float_list(data: dict[str, Any], key: str) -> list[float] | None:
+    value = data.get(key)
+    if not isinstance(value, list):
+        return None
+    out: list[float] = []
+    for item in value:
+        if not isinstance(item, (int, float)) or isinstance(item, bool):
+            return None
+        out.append(float(item))
+    return out or None
 
 
 def _train_success(data: dict[str, Any]) -> float:
@@ -66,24 +67,54 @@ def _learning_gain(data: dict[str, Any]) -> float | None:
     return tail - first
 
 
+def _success_iqr(data: dict[str, Any]) -> float | None:
+    values = _float_list(data, "train_tail_success_by_seed")
+    if values:
+        values = sorted(values)
+        mid = len(values) // 2
+        lower = values[:mid] or values
+        upper = values[-mid:] if mid else values
+        return _median(upper) - _median(lower)
+    return _as_float(data, "success_rate_iqr")
+
+
+def _seed_worst_success(data: dict[str, Any]) -> float | None:
+    values = _float_list(data, "train_tail_success_by_seed")
+    if values:
+        return min(values)
+    values = _float_list(data, "eval_success_by_seed")
+    if values:
+        return min(values)
+    return None
+
+
+def _median(values: list[float]) -> float:
+    ordered = sorted(values)
+    mid = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[mid]
+    return (ordered[mid - 1] + ordered[mid]) / 2.0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifacts", nargs="+", default=None)
     parser.add_argument("--output", default="scoring/scores_train.json")
     args = parser.parse_args()
 
-    registered_methods = _load_reference_methods()
     experiments: dict[str, dict[str, Any]] = {}
     for path in _artifact_paths(args.artifacts):
         if not path.exists():
             continue
         data = json.loads(path.read_text())
         method = str(data.get("method", path.stem))
-        if args.artifacts is None and registered_methods is not None and method not in registered_methods:
-            continue
 
         experiment = _experiment_name(data, path)
         result: dict[str, float] = {"success_rate": _train_success(data)}
+
+        hit_rate = _as_float(data, "hit_rate")
+        if hit_rate is not None:
+            result["hit_rate"] = hit_rate
 
         hidden_neurons = _as_float(data, "hidden_neurons")
         if hidden_neurons is not None:
@@ -92,6 +123,14 @@ def main() -> None:
         gain = _learning_gain(data)
         if gain is not None:
             result["train_success_gain"] = gain
+
+        success_iqr = _success_iqr(data)
+        if success_iqr is not None:
+            result["success_rate_iqr"] = success_iqr
+
+        worst_success = _seed_worst_success(data)
+        if worst_success is not None:
+            result["seed_worst_success"] = worst_success
 
         experiments.setdefault(experiment, {"results": {}})
         experiments[experiment]["results"][method] = result
