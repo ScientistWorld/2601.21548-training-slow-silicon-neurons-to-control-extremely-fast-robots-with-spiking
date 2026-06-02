@@ -1,9 +1,5 @@
-# This iteration writes files only — do NOT submit compute jobs.
-# Once you set action to 'done', STOP immediately.
-# Do NOT sleep, poll, or wait. The system reads this file
-# only after your turn ends.
-action: done
+action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Improvements: removed reference-method filtering from train scoring, added worst-seed stability scoring, completed metric descriptions. Notes: see DESIGN_NOTES.md."
+notes: "Run artifact-only evaluate_train.sh and evaluate_test.sh against existing outputs; populate train/test scores."
