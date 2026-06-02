@@ -1,5 +1,3 @@
 action: done
-gpus: 0
-test: false
 milestone: core_claim
-notes: "Packaging audit passed: no external artifacts required, tracked simulator is used, and validate.py passes."
+notes: "Final verification passed: method-agnostic docs cleaned, scoring uses controller_units capacity metric, and scripts/run.sh validation succeeds."
