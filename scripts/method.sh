@@ -9,6 +9,7 @@
 set -e
 
 cd /home/user
+export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 mkdir -p outputs checkpoints
 python method/train.py \

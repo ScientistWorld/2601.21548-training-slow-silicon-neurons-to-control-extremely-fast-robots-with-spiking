@@ -20,5 +20,9 @@
 - Implemented the task-level air-hockey simulator, spiking reservoir/e-prop readout controller, random sanity baseline, and method-agnostic evaluator.
 - Prepared the first compute job to run the reproduced algorithm and score the randomized puck position/speed experiment.
 
+### [2026-06-02 15:57] - none
+- Job `f65b0a96-f82` failed before running the method because direct script execution could not import workspace packages.
+- Updated all shell entry points to export `PYTHONPATH=/home/user` before invoking Python.
+
 ## Stop Justification
 - Not stopped. First reproduction job is ready for submission.

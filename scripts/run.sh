@@ -12,6 +12,7 @@
 set -e
 
 cd /home/user
+export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 python validate.py --reference-only
 SEEDS=1 BASELINE_EPISODES=300 bash scripts/baseline.sh

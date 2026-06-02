@@ -16,6 +16,7 @@
 set -e
 
 cd /home/user
+export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 mkdir -p outputs
 python baseline/random_policy.py \
