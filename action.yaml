@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: done
+action: pending
 gpus: 1
 test: false
-milestone: core_claim
-notes: "Continuing-agent audit restored core_claim: method implements the spiking e-prop reservoir controller, standalone evaluation and validate.py --compare pass, and reproduced randomized air-hockey score remains 0.960 success / 0.960 hit rate with 1020 hidden neurons."
+milestone: method_runs
+notes: ""
