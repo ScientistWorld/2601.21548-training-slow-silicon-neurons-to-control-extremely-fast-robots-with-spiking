@@ -27,8 +27,8 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: pending
-gpus: 1
+action: submit
+gpus: 0
 test: false
 milestone: none
-notes: ""
+notes: "Run the first core reproduction attempt: random sanity baseline, 1500-episode spiking e-prop training with 1020 hidden neurons, evaluation, and score validation."
