@@ -32,5 +32,9 @@
 - Job `53701b5a-4a7` ran to completion, but random action selection still reached 97.3% success while the method reached 95.3%.
 - Updated the simulator to treat actions as persistent open-loop primitives with a narrow valid swing-contact phase, matching the paper's ballistic primitive description.
 
+### [2026-06-02 16:03] - none
+- Job `c7cdbcc2-e98` made the random baseline non-trivial at 2% success, but the method did not learn in that sparse-reward configuration.
+- Widened the valid primitive-contact phase while keeping random below the invalid near-perfect regime, added return centering for lower-variance e-prop policy-gradient updates, and added training diagnostics to the method artifact.
+
 ## Stop Justification
 - Not stopped. First reproduction job is ready for submission.

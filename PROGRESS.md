@@ -11,10 +11,11 @@
 
 - Job `7595de2e-7e4` produced `spiking_eprop` success rate 0.993 and hit rate 0.993 in the randomized condition. This result is not accepted as `core_claim` because the random sanity baseline also reached 1.0 success in the same simulator.
 - Job `53701b5a-4a7` produced `spiking_eprop` success rate 0.953 and hit rate 0.953, but random action selection reached 0.973. This is also not accepted as `core_claim`.
+- Job `c7cdbcc2-e98` produced random success 0.02, confirming the persistent-primitive task is non-trivial, but the method scored 0.0 after 2000 episodes.
 
 ## Remaining
 
-- Rerun after the persistent-primitive simulator fix and inspect both random sanity baseline and method artifacts.
+- Rerun after the contact-window and readout-update changes and inspect both random sanity baseline and method artifacts.
 - If the method success rate is not clearly above the random sanity baseline, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm.
 - Expand to velocity-range conditions after the core randomized setting is confirmed.
 
@@ -24,9 +25,11 @@
 - Job `f65b0a96-f82` failed before baseline execution with `ModuleNotFoundError: No module named 'data'`. Cause: Python launched `baseline/random_policy.py` directly and did not include the workspace root on `sys.path`. Fixed by exporting `PYTHONPATH=/home/user` in the shell entry points.
 - Job `7595de2e-7e4` exposed an invalid-evaluation issue: the task allowed a mallet to wait at the intercept point and still hit the puck, so random action selection was near-perfect. The simulator now requires active forward motion at contact.
 - Job `53701b5a-4a7` showed the active-swing condition was still too weak because random switching often produced a valid forward motion near contact. The simulator now models persistent open-loop primitives and only counts contact during a narrow swing phase.
+- Job `c7cdbcc2-e98` showed that the first persistent-primitive version made successes too sparse for the current online readout learner. The contact phase was widened and return centering was added to reduce policy-gradient variance without changing the local eligibility-trace computation.
 
 ## Deviations from Paper
 
 - Hardware substitution: the paper uses DYNAP-SE mixed-signal silicon neurons in the loop; this reproduction uses a software LIF-style random reservoir with the same input/readout/update structure because DYNAP-SE hardware is not available.
 - Environment substitution: the paper uses the MuJoCo Air Hockey robot environment; this reproduction uses a tracked task-level simulator with the same 6D state, two primitive targets, contact threshold, reward, and success definition because the exact MuJoCo stack is not provided.
 - Scale for first job: the submitted run uses fewer seeds than the paper's 10 independent reservoir samples to establish the core claim within the initial compute budget. The algorithm and training procedure are unchanged.
+- Optimization stabilization: the reproduction centers discounted returns within each two-trial update batch. This is a policy-gradient variance-control addition around the paper's e-prop eligibility update, introduced because the software task-level simulator produced very sparse successes.

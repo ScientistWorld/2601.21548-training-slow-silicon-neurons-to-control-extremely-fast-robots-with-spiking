@@ -27,6 +27,7 @@ class SpikingAgentConfig:
     gamma: float = 0.96
     update_every_trials: int = 2
     entropy_floor: float = 0.04
+    center_returns: bool = True
 
 
 class SpikingEpropAgent:
@@ -128,6 +129,10 @@ class SpikingEpropAgent:
                 g = float(item["reward"]) + cfg.gamma * g
                 returns.append(g)
             returns.reverse()
+            if cfg.center_returns and len(returns) > 1:
+                returns_array = np.asarray(returns, dtype=np.float64)
+                returns_array = (returns_array - returns_array.mean()) / (returns_array.std() + 1e-6)
+                returns = returns_array.tolist()
             for item, ret in zip(episode, returns):
                 probs = np.asarray(item["probs"], dtype=np.float64)
                 chosen = int(item["action"])

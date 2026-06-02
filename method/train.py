@@ -38,13 +38,19 @@ def main() -> None:
     parser.add_argument("--eval-episodes", type=int, default=300)
     parser.add_argument("--seeds", type=int, default=3)
     parser.add_argument("--hidden-neurons", type=int, default=1020)
+    parser.add_argument("--learning-rate", type=float, default=0.004)
+    parser.add_argument("--entropy-floor", type=float, default=0.08)
     parser.add_argument("--output", default="outputs/spiking_eprop_random_position_speed.json")
     args = parser.parse_args()
 
     all_train = []
     all_eval = []
     for seed in range(args.seeds):
-        cfg = SpikingAgentConfig(hidden_neurons=args.hidden_neurons)
+        cfg = SpikingAgentConfig(
+            hidden_neurons=args.hidden_neurons,
+            learning_rate=args.learning_rate,
+            entropy_floor=args.entropy_floor,
+        )
         agent = SpikingEpropAgent(seed=seed, config=cfg)
         train_env = AirHockeyInterceptionEnv(condition=args.condition, seed=1000 + seed)
         train_records = []
@@ -60,6 +66,13 @@ def main() -> None:
     train_tail_success = [
         float(np.mean([r["success"] for r in records[-min(100, len(records)) :]])) for records in all_train
     ]
+    train_first_success = [
+        float(np.mean([r["success"] for r in records[: min(100, len(records))]])) for records in all_train
+    ]
+    train_mid_success = [
+        float(np.mean([r["success"] for r in records[len(records) // 2 : len(records) // 2 + min(100, len(records))]]))
+        for records in all_train
+    ]
     result = {
         "method": "spiking_eprop",
         "condition": args.condition,
@@ -67,10 +80,14 @@ def main() -> None:
         "eval_episodes": args.eval_episodes,
         "seeds": args.seeds,
         "hidden_neurons": args.hidden_neurons,
+        "learning_rate": args.learning_rate,
+        "entropy_floor": args.entropy_floor,
         "success_rate": float(np.mean(eval_success)),
         "success_rate_iqr": float(np.subtract(*np.percentile(eval_success, [75, 25]))),
         "hit_rate": float(np.mean(eval_hit)),
         "train_tail_success_rate": float(np.mean(train_tail_success)),
+        "train_first_success_rate": float(np.mean(train_first_success)),
+        "train_mid_success_rate": float(np.mean(train_mid_success)),
         "eval_success_by_seed": eval_success,
         "train_tail_success_by_seed": train_tail_success,
     }

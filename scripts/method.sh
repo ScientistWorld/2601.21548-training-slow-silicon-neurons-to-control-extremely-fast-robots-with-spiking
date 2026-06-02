@@ -18,6 +18,8 @@ python method/train.py \
   --eval-episodes "${EVAL_EPISODES:-400}" \
   --seeds "${SEEDS:-3}" \
   --hidden-neurons "${HIDDEN_NEURONS:-1020}" \
+  --learning-rate "${LEARNING_RATE:-0.004}" \
+  --entropy-floor "${ENTROPY_FLOOR:-0.08}" \
   --output outputs/spiking_eprop_random_position_speed.json
 
 bash scripts/evaluate.sh

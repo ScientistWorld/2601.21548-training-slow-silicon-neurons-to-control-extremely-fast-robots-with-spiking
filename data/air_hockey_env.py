@@ -26,8 +26,8 @@ class AirHockeyConfig:
     center_y: float = 0.0
     mallet_speed: float = 4.0
     active_hit_speed: float = 0.35
-    swing_active_start: int = 6
-    swing_active_end: int = 11
+    swing_active_start: int = 4
+    swing_active_end: int = 14
     rebound_speed: float = 1.25
     terminal_reward: float = 20.0
     step_penalty: float = -0.1
