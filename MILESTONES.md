@@ -52,4 +52,4 @@
 - Reverted the reusable scripts to the shorter 2000-episode wide run because the longer run did not improve the final scored metric.
 
 ## Stop Justification
-- Stopping at `core_claim`: the central randomized setting is reproduced with a strong method-vs-random gap and the fixed 1020-neuron constraint. A second paper setting is packaged and scored, but it remains below the paper's reported performance after an additional tuning attempt.
+- Completed at milestone `core_claim`.
