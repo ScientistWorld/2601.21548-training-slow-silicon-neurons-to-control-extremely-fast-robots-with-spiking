@@ -14,6 +14,6 @@ set -e
 cd /home/user
 
 python validate.py --reference-only
-bash scripts/baseline.sh
-bash scripts/method.sh
+SEEDS=1 BASELINE_EPISODES=300 bash scripts/baseline.sh
+SEEDS=1 EPISODES=1500 EVAL_EPISODES=300 HIDDEN_NEURONS=1020 bash scripts/method.sh
 python validate.py --compare
