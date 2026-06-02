@@ -12,6 +12,7 @@
 - Job `58fce6b9-d6d` tested a longer tuned wide-range run; it did not improve the final wide-range score, so the reusable scripts now keep the shorter run that reproduces the same score more cheaply.
 - Continuation audit at 2026-06-02 16:22 found no surrogate-method or evaluation-separation issue. An unscored planned `variable_speed_generalization` target was removed from the scoring surface so `TARGETS.md`, `EXPERIMENTS.md`, `reference.json`, and `scores.json` remain consistent.
 - Fresh continuation audit at 2026-06-02 16:43 rechecked the implementation, output artifacts, scripts, and deliverables. It found no scoring honesty blocker; minor template/comment cleanup was applied to `briefing/` and `scripts/evaluate.sh`.
+- Continuation audit at 2026-06-02 16:58 made `scripts/evaluate.sh` include all controller artifacts by default, so `scores.json` now records the random sanity baseline alongside the reproduced spiking e-prop controller for each scored experiment.
 
 ## Results
 
@@ -22,6 +23,7 @@
 - Job `b0836d70-c9d` reproduced the same randomized result and added `velocity_range_wide`: `spiking_eprop` success 0.674 / hit rate 0.674 with 1020 hidden neurons, compared with the paper's reported 0.930.
 - Job `58fce6b9-d6d` kept `velocity_range_wide` at 0.674 after 5000 episodes with tuned hyperparameters. The random sanity artifact for the same wide condition scored 0.078.
 - The accepted score file contains exactly the two currently scored experiments: `randomized_air_hockey` and `velocity_range_wide`.
+- The default `scores.json` now includes both `random_policy` and `spiking_eprop` entries for both scored experiments, matching the non-triviality checks already present in the train/test score split.
 
 ## Remaining
 

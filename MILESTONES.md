@@ -15,3 +15,7 @@
 ### [2026-06-02 16:43] - core_claim
 - Fresh continuation audit restored the milestone from `method_runs` to `core_claim` after checking the paper, method code, output artifacts, evaluator independence, and deliverables.
 - Removed leftover briefing template text and corrected `scripts/evaluate.sh` usage comments; validation still passes on the accepted score file.
+
+### [2026-06-02 16:58] - core_claim
+- Updated the default evaluator so `scores.json` records both the random sanity baseline and the spiking e-prop controller for each scored experiment.
+- Updated `scripts/run.sh` to verify `scores.json`, the train/test split scores, and `validate.py --compare` in one CPU job.
