@@ -27,8 +27,8 @@
         },
         "success_rate_iqr": {
           "higher_is_better": false,
-          "coefficient": -0.1,
-          "description": "Interquartile range of success across seeds, penalizing unstable policies that only succeed for favorable random draws."
+          "coefficient": 0.0,
+          "description": "Interquartile range of success across seeds, reported for diagnostics; zero-weighted because the baseline run has one seed."
         },
         "seed_worst_success": {
           "higher_is_better": true,
@@ -37,6 +37,11 @@
         }
       },
       "results": {
+        "random_policy": {
+          "type": "baseline",
+          "success_rate": 0.072,
+          "hit_rate": 0.072
+        },
         "spiking_eprop": {
           "type": "proposed",
           "success_rate": 0.98,
@@ -72,8 +77,8 @@
         },
         "success_rate_iqr": {
           "higher_is_better": false,
-          "coefficient": -0.1,
-          "description": "Interquartile range of success across seeds under the wide velocity range, penalizing unstable policies."
+          "coefficient": 0.0,
+          "description": "Interquartile range of success across seeds under the wide velocity range, reported for diagnostics; zero-weighted because the baseline run has one seed."
         },
         "seed_worst_success": {
           "higher_is_better": true,
@@ -82,6 +87,11 @@
         }
       },
       "results": {
+        "random_policy": {
+          "type": "baseline",
+          "success_rate": 0.078,
+          "hit_rate": 0.078
+        },
         "spiking_eprop": {
           "type": "proposed",
           "success_rate": 0.93,

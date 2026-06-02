@@ -1,5 +1,5 @@
-action: submit
+action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Run artifact-only evaluate_train.sh and evaluate_test.sh against existing outputs; populate train/test scores."
+notes: "Artifact-only train/test split; 20 train metric values, 18 test metric values; spiking_eprop success gaps: randomized 0.80 train vs 0.96 test, wide 0.71 train vs 0.674 test; caveat: one-seed IQR saturated and zero-weighted."
