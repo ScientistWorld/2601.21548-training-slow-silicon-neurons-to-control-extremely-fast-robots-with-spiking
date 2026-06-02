@@ -4,12 +4,14 @@ How success is measured. Describe only the metrics, targets, and evaluation proc
 
 ## Metrics
 
-<!-- What metrics are used? How are they computed? What does higher/lower mean? -->
+- `success_rate`: fraction of evaluation episodes where the puck crosses `x_p > 1.5 m` with forward velocity `v_x > 0.1 m/s`. Higher is better.
+- `hit_rate`: fraction of episodes where the mallet contacts the puck within the 0.08 m contact threshold. Higher is better.
+- `hidden_neurons`: hidden reservoir size used by the controller. Lower is better as a capacity constraint.
 
 ## Baselines and Targets
 
-<!-- What performance levels exist as reference points? Include the paper's reported numbers as targets, and any standard baselines. A scientist agent should know what "good" looks like. -->
+The main target is the randomized initial position and speed setting. The paper reports stabilization above 98% success after roughly 1300 training episodes using a 1020-neuron reservoir. A random-action policy is included to verify that the evaluation task is non-trivial.
 
 ## Evaluation Protocol
 
-<!-- How should evaluation be run? What data split, what conditions? Any important details about how to compare fairly (e.g., fixed seeds, specific test sets, averaging over runs). -->
+Train on the randomized-position-and-speed condition and evaluate on held-out random seeds from the same condition. Report the mean success and hit rates over all evaluation episodes. Evaluation code must consume method artifacts written under `outputs/` and must not import from `method/`.

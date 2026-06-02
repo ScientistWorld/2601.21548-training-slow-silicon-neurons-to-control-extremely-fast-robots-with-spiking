@@ -1,14 +1,16 @@
 # Overview
 
-- **Paper ID:** <!-- e.g. 1706.03762 -->
-- **Title:** <!-- e.g. Attention Is All You Need -->
-- **Domain:** <!-- e.g. Computer Vision / Object Detection -->
-- **TL;DR:** <!-- One sentence: what this paper does and why it matters -->
+- **Paper ID:** 2601.21548
+- **Title:** Training slow silicon neurons to control extremely fast robots with spiking reinforcement learning
+- **Domain:** Neuromorphic reinforcement learning / robotics
+- **TL;DR:** The paper trains a compact spiking neural controller with local readout learning to time air-hockey interception primitives under fast puck dynamics.
 
 ## Short Summary
 
-<!-- 3-5 sentences covering the problem, approach, and main findings -->
+The work studies whether neuromorphic reinforcement learning can scale from simple game benchmarks to real-time robotic air hockey. The controller observes a 6D continuous state, encodes it as spikes, processes it through a fixed random reservoir, and learns a two-action readout online. The reported system reaches high success rates under randomized puck speeds and initial positions while using only 1020 hidden neurons.
 
 ## Key Results
 
-<!-- 2-3 bullet points: main findings or numbers in bullet points -->
+- Randomized speed and position setting stabilizes above 98% success after about 1300 episodes.
+- Randomized speed alone reaches above 96% success after about 1500 episodes.
+- Velocity-range tests show graceful degradation from above 97% success on narrow ranges to about 93% on the widest main range.

@@ -17,4 +17,9 @@ set -e
 
 cd /home/user
 
-# TODO: run baseline
+mkdir -p outputs
+python baseline/random_policy.py \
+  --condition random_position_speed \
+  --episodes "${BASELINE_EPISODES:-400}" \
+  --seeds "${SEEDS:-3}" \
+  --output outputs/random_policy_random_position_speed.json

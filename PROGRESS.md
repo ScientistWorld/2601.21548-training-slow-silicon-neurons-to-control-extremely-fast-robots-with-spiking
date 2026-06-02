@@ -2,36 +2,27 @@
 
 ## What Works
 
-<!-- What has been successfully reproduced so far. -->
+- Paper analysis is complete for the central claim.
+- `data/air_hockey_env.py` defines the 6D air-hockey interception task, reward, success condition, and randomized benchmark condition.
+- `method/` implements the paper's actual computational structure: Gaussian population-coded state spikes, fixed random LIF-style reservoir, filtered hidden traces, two-action softmax readout, and e-prop-style readout updates every two trials.
+- `eval/` reads emitted method artifacts and writes `scoring/scores.json` without importing `method/`.
 
 ## Results
 
-<!-- Reproduced numbers compared to the paper's reported numbers. -->
+- No compute-job results yet. The first job will train and evaluate the randomized position/speed condition.
 
 ## Remaining
 
-<!-- What still needs to be done to reach higher milestones. -->
+- Run the submitted job and inspect `outputs/spiking_eprop_random_position_speed.json` and `scoring/scores.json`.
+- If the success rate is not clearly above the random sanity baseline, tune learning rate, reservoir scale, or training length while preserving the paper's algorithm.
+- Expand to velocity-range conditions after the core randomized setting is confirmed.
 
 ## Issues
 
-<!-- Blockers, bugs, or difficulties encountered. -->
+- The original DYNAP-SE hardware and MuJoCo robot stack are unavailable in this workspace, so the reproduction uses a software LIF/reservoir simulator and task-level air-hockey dynamics.
 
 ## Deviations from Paper
 
-<!-- Do not edit this section unless you deviated from the paper's original setup.
-     For each deviation, document: what the paper used, what you substituted, and why.
-
-     ACCEPTABLE deviations (data/resource/scale substitutions — milestones still valid):
-       - Replaced a proprietary dataset with a public one
-       - Used a smaller model of the same architecture
-       - Scaled down training (fewer epochs, smaller batch)
-       - Used a different library for the same algorithm
-
-     UNACCEPTABLE deviations (algorithm substitutions — milestones above 'none' are void):
-       - Replaced the paper's algorithm with a fundamentally different one
-       - Wrote a generic model trained to approximate the method's outputs
-         instead of implementing the method's computational steps
-
-     The test: could someone reading your code identify which algorithm from
-     the paper you implemented? If not, you replaced the method. -->
-
+- Hardware substitution: the paper uses DYNAP-SE mixed-signal silicon neurons in the loop; this reproduction uses a software LIF-style random reservoir with the same input/readout/update structure because DYNAP-SE hardware is not available.
+- Environment substitution: the paper uses the MuJoCo Air Hockey robot environment; this reproduction uses a tracked task-level simulator with the same 6D state, two primitive targets, contact threshold, reward, and success definition because the exact MuJoCo stack is not provided.
+- Scale for first job: the submitted run uses fewer seeds than the paper's 10 independent reservoir samples to establish the core claim within the initial compute budget. The algorithm and training procedure are unchanged.

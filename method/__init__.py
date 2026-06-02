@@ -1,0 +1,1 @@
+"""Paper method implementation."""

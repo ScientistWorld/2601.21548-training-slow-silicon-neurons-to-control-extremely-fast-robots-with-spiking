@@ -15,7 +15,10 @@
 
 ## Progress Log
 
-<!-- Write your progress here -->
+### [2026-06-02 15:54] - none
+- Read the paper markdown and extracted the core method, task conditions, reward, and reported numbers.
+- Implemented the task-level air-hockey simulator, spiking reservoir/e-prop readout controller, random sanity baseline, and method-agnostic evaluator.
+- Prepared the first compute job to run the reproduced algorithm and score the randomized puck position/speed experiment.
 
 ## Stop Justification
-- Completed at milestone `none`.
+- Not stopped. First reproduction job is ready for submission.
