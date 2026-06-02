@@ -16,6 +16,16 @@
         "hidden_neurons": {
           "higher_is_better": false,
           "coefficient": -0.2
+        },
+        "train_success_gain": {
+          "higher_is_better": true,
+          "coefficient": 0.2,
+          "description": "Improvement from early training episodes to the visible training tail, rewarding sample-efficient learning progress."
+        },
+        "success_rate_iqr": {
+          "higher_is_better": false,
+          "coefficient": -0.1,
+          "description": "Interquartile range of success across seeds, penalizing unstable policies that only succeed for favorable random draws."
         }
       },
       "results": {
@@ -43,6 +53,16 @@
         "hidden_neurons": {
           "higher_is_better": false,
           "coefficient": -0.2
+        },
+        "train_success_gain": {
+          "higher_is_better": true,
+          "coefficient": 0.2,
+          "description": "Improvement from early training episodes to the visible training tail under the wide velocity range."
+        },
+        "success_rate_iqr": {
+          "higher_is_better": false,
+          "coefficient": -0.1,
+          "description": "Interquartile range of success across seeds under the wide velocity range, penalizing unstable policies."
         }
       },
       "results": {

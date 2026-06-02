@@ -2,8 +2,8 @@
 # Once you set action to 'done', STOP immediately.
 # Do NOT sleep, poll, or wait. The system reads this file
 # only after your turn ends.
-action: pending
+action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: ""
+notes: "metric-triangulation split over existing output artifacts; train slice reports 3 metrics per experiment and test slice reports 4 metrics per experiment; scripts written, scores produced later."
