@@ -15,6 +15,7 @@
 - Continuation audit at 2026-06-02 16:58 made `scripts/evaluate.sh` include all controller artifacts by default, so `scores.json` now records the random sanity baseline alongside the reproduced spiking e-prop controller for each scored experiment.
 - Final verification at 2026-06-02 17:03 kept the milestone at `core_claim`, changed the public capacity metric from architecture-specific wording to `controller_units`, and confirmed `bash scripts/run.sh` passes.
 - A planned narrow velocity-range job was removed during final verification because it was not part of the accepted `reference.json`/`scores.json` surface. The packaged scripts now validate the two scored experiments only: `randomized_air_hockey` and `velocity_range_wide`.
+- Final verification at 2026-06-02 17:29 confirmed the packaged evaluator still scores both accepted experiments, added notes distinguishing local random-policy sanity values from paper-reported proposed-method values, and removed method-family wording from `scoring/DIRECTION.md`.
 - Generated job logs and raw trajectory traces were removed from the git index because they are already covered by `.gitignore` and should not ship as tracked gym files.
 
 ## Results

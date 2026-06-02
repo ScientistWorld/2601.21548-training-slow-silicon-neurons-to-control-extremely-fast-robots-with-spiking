@@ -31,3 +31,7 @@
 ### [2026-06-02 17:10] - core_claim
 - Final verification removed the aborted narrow-condition submission setup from the packaged scripts because that experiment was not accepted into the scored gym surface.
 - Restored `scripts/run.sh` to validate the existing artifact scores, train/test score files, and `validate.py --compare`; the milestone remains `core_claim`.
+
+### [2026-06-02 17:29] - core_claim
+- Re-ran final verification checks; `scripts/run.sh` and `validate.py --compare` pass over the packaged artifacts.
+- Added explicit notes that random-policy reference values are local sanity baselines and removed method-family wording from the high-level research-direction guidance.
