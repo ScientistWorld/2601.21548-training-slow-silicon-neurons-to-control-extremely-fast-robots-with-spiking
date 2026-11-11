@@ -1,0 +1,106 @@
+{
+  "experiments": {
+    "randomized_air_hockey": {
+      "description": "Air-hockey interception with randomized initial puck position and speed, the paper's headline generalization setting.",
+      "notes": "The proposed-method values are paper-reported. The random_policy values are local reproduction-environment sanity baselines included so scored baseline artifacts validate against the reference schema.",
+      "weight": 0.75,
+      "primary_metric": "success_rate",
+      "metrics": {
+        "success_rate": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "Task completion rate for puck interception, the primary scientific quantity."
+        },
+        "hit_rate": {
+          "higher_is_better": true,
+          "coefficient": 0.2,
+          "description": "Rate at which the controller contacts the puck, catching policies that only optimize terminal success."
+        },
+        "controller_units": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Controller capacity, preserving the compact-controller constraint of the paper's claim."
+        },
+        "train_success_gain": {
+          "higher_is_better": true,
+          "coefficient": 0.2,
+          "description": "Improvement from early training episodes to the visible training tail, rewarding sample-efficient learning progress."
+        },
+        "success_rate_iqr": {
+          "higher_is_better": false,
+          "coefficient": 0.0,
+          "description": "Interquartile range of success across seeds, reported for diagnostics; zero-weighted because the baseline run has one seed."
+        },
+        "seed_worst_success": {
+          "higher_is_better": true,
+          "coefficient": 0.3,
+          "description": "Worst per-seed success rate, making brittle seed-specific tuning visible."
+        }
+      },
+      "results": {
+        "random_policy": {
+          "type": "baseline",
+          "success_rate": 0.072,
+          "hit_rate": 0.072
+        },
+        "spiking_eprop": {
+          "type": "proposed",
+          "success_rate": 0.98,
+          "hit_rate": 0.98,
+          "controller_units": 1020.0
+        }
+      }
+    },
+    "velocity_range_wide": {
+      "description": "Velocity-range robustness test with the widest main puck-speed range [0.7, 1.5] m/s and the same fixed 1020-unit controller budget.",
+      "notes": "The proposed-method values are paper-reported. The random_policy values are local reproduction-environment sanity baselines included so scored baseline artifacts validate against the reference schema.",
+      "weight": 0.25,
+      "primary_metric": "success_rate",
+      "metrics": {
+        "success_rate": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "Task completion rate under the widest evaluated puck-speed range."
+        },
+        "hit_rate": {
+          "higher_is_better": true,
+          "coefficient": 0.2,
+          "description": "Puck-contact rate under the wide speed range, catching policies that miss the underlying control target."
+        },
+        "controller_units": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Controller capacity, preserving the compact-controller constraint under the harder velocity range."
+        },
+        "train_success_gain": {
+          "higher_is_better": true,
+          "coefficient": 0.2,
+          "description": "Improvement from early training episodes to the visible training tail under the wide velocity range."
+        },
+        "success_rate_iqr": {
+          "higher_is_better": false,
+          "coefficient": 0.0,
+          "description": "Interquartile range of success across seeds under the wide velocity range, reported for diagnostics; zero-weighted because the baseline run has one seed."
+        },
+        "seed_worst_success": {
+          "higher_is_better": true,
+          "coefficient": 0.3,
+          "description": "Worst per-seed success rate under the wide velocity range, exposing fragile methods tuned to favorable seeds."
+        }
+      },
+      "results": {
+        "random_policy": {
+          "type": "baseline",
+          "success_rate": 0.078,
+          "hit_rate": 0.078
+        },
+        "spiking_eprop": {
+          "type": "proposed",
+          "success_rate": 0.93,
+          "hit_rate": 0.93,
+          "controller_units": 1020.0
+        }
+      }
+    }
+  }
+}
