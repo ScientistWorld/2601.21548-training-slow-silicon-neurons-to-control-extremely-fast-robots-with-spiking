@@ -1,4 +1,4 @@
 action: submit
 gpus: 0
 test: false
-notes: "Run redteam audit batch: three-seed original and longer-training controls, learned timing, weak policies, and artifact/missing-result/simulator/finite-search shortcuts; save each unchanged hidden-test result."
+notes: "Short redteam follow-up: exact single-seed constant-policy shortcut, relaxed simulator threshold replacement, failed controller rewarded through forged auxiliary metrics; recompute normalized audit scores."

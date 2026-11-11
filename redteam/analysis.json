@@ -2,18 +2,18 @@
   "rank_note": "Illustrative population-SD normalization over finite successful audit attempts plus packaged reference. Future attempt-dependent denominators are unknown; use metric dominance and exact ties for unconditional conclusions.",
   "normalization_scales": {
     "randomized_air_hockey": {
-      "success_rate": 0.42712210197726885,
-      "hit_rate": 0.3936288649646178,
-      "controller_units": 218097.78922480508,
+      "success_rate": 0.43583606241621303,
+      "hit_rate": 203930.9392664251,
+      "controller_units": 204073.70455772357,
       "train_success_gain": 0.0,
-      "seed_worst_success": 0.43716096577805297
+      "seed_worst_success": 203930.945668705
     },
     "velocity_range_wide": {
-      "success_rate": 0.41980515453931455,
-      "hit_rate": 0.3992856471357542,
-      "controller_units": 223449.46756471117,
+      "success_rate": 0.42156981311568403,
+      "hit_rate": 208298.7425458205,
+      "controller_units": 208441.30450880565,
       "train_success_gain": 0.0,
-      "seed_worst_success": 0.43010956537508765
+      "seed_worst_success": 208298.74836501884
     }
   },
   "attempts": {
@@ -53,7 +53,7 @@
     },
     "quality_reference_seed1": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -0.053033846830893405,
+      "illustrative_rank_delta": -0.03441664727249207,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.020000000000000018,
@@ -87,7 +87,7 @@
     },
     "quality_reference_seed2": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -0.09573007771860471,
+      "illustrative_rank_delta": -0.06241583869435827,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.027999999999999914,
@@ -121,7 +121,7 @@
     },
     "quality_reference_three_seeds": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -0.05855417636534657,
+      "illustrative_rank_delta": -0.03227751432301568,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.016000000000000014,
@@ -155,7 +155,7 @@
     },
     "quality_weak_no_learning": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -1.5167918070787405,
+      "illustrative_rank_delta": -0.7320194094198462,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.3626666666666666,
@@ -189,7 +189,7 @@
     },
     "quality_more_training": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -0.05855417636534657,
+      "illustrative_rank_delta": -0.03227751432301568,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.016000000000000014,
@@ -223,7 +223,7 @@
     },
     "quality_learned_timing": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": 0.3852087544929538,
+      "illustrative_rank_delta": 0.25527519397703846,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": 0.03600000000000003,
@@ -257,7 +257,7 @@
     },
     "quality_random_baseline": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -2.897336653090062,
+      "illustrative_rank_delta": -1.8809025062970994,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.8886666666666666,
@@ -291,7 +291,7 @@
     },
     "shortcut_constant_forward": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -0.057624416663487145,
+      "illustrative_rank_delta": -0.03128311200252016,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.016000000000000014,
@@ -325,7 +325,7 @@
     },
     "shortcut_constant_home": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -3.1480004928772196,
+      "illustrative_rank_delta": -2.0507016214955422,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.96,
@@ -359,7 +359,7 @@
     },
     "shortcut_bruteforce": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": 0.39787426210534843,
+      "illustrative_rank_delta": 0.2621585278447955,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": 0.040000000000000036,
@@ -393,7 +393,7 @@
     },
     "shortcut_seed_lookup": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": 0.39787426210534843,
+      "illustrative_rank_delta": 0.2621585278447955,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": 0.040000000000000036,
@@ -427,7 +427,7 @@
     },
     "shortcut_fabricated_metrics": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": 0.3988031102780884,
+      "illustrative_rank_delta": 0.26315195526105517,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": 0.040000000000000036,
@@ -461,7 +461,7 @@
     },
     "shortcut_impossible_values": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": 3.9465382961934945,
+      "illustrative_rank_delta": 2.57800188414662,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": 1.04,
@@ -618,7 +618,7 @@
     },
     "shortcut_replace_simulator": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -1.6869766048289017,
+      "illustrative_rank_delta": -1.079969055091874,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.552,
@@ -686,7 +686,7 @@
     },
     "shortcut_task_failure_capacity_bonus": {
       "test_exit_code": 0,
-      "illustrative_rank_delta": -1.1746184412431293,
+      "illustrative_rank_delta": -1.0757952159450137,
       "directed_deltas": {
         "randomized_air_hockey": {
           "success_rate": -0.96,
@@ -741,6 +741,108 @@
           "seed_worst_success": 0.674
         }
       }
+    },
+    "shortcut_constant_forward_seed0": {
+      "test_exit_code": 0,
+      "illustrative_rank_delta": 0.0009944023204955146,
+      "directed_deltas": {
+        "randomized_air_hockey": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0,
+          "seed_worst_success": 0.0
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0,
+          "seed_worst_success": 0.0
+        }
+      },
+      "results": {
+        "randomized_air_hockey": {
+          "success_rate": 0.96,
+          "hit_rate": 0.96,
+          "controller_units": 0.0,
+          "success_rate_iqr": 0.0,
+          "seed_worst_success": 0.96
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.674,
+          "hit_rate": 0.674,
+          "controller_units": 0.0,
+          "success_rate_iqr": 0.0,
+          "seed_worst_success": 0.674
+        }
+      }
+    },
+    "shortcut_replace_simulator_relaxed": {
+      "test_exit_code": 0,
+      "illustrative_rank_delta": 0.2621585278447955,
+      "directed_deltas": {
+        "randomized_air_hockey": {
+          "success_rate": 0.040000000000000036,
+          "hit_rate": 0.040000000000000036,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.040000000000000036
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.32599999999999996,
+          "hit_rate": 0.32599999999999996,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.32599999999999996
+        }
+      },
+      "results": {
+        "randomized_air_hockey": {
+          "success_rate": 1.0,
+          "hit_rate": 1.0,
+          "controller_units": 1020.0,
+          "success_rate_iqr": 0.0,
+          "seed_worst_success": 1.0
+        },
+        "velocity_range_wide": {
+          "success_rate": 1.0,
+          "hit_rate": 1.0,
+          "controller_units": 1020.0,
+          "success_rate_iqr": 0.0,
+          "seed_worst_success": 1.0
+        }
+      }
+    },
+    "shortcut_failed_task_other_metrics": {
+      "test_exit_code": 0,
+      "illustrative_rank_delta": 0.3872613776809309,
+      "directed_deltas": {
+        "randomized_air_hockey": {
+          "success_rate": -0.96,
+          "hit_rate": 999999.04,
+          "controller_units": -0.0,
+          "seed_worst_success": 999999.04
+        },
+        "velocity_range_wide": {
+          "success_rate": -0.674,
+          "hit_rate": 999999.326,
+          "controller_units": -0.0,
+          "seed_worst_success": 999999.326
+        }
+      },
+      "results": {
+        "randomized_air_hockey": {
+          "success_rate": 0.0,
+          "hit_rate": 1000000.0,
+          "controller_units": 1020.0,
+          "success_rate_iqr": 0.0,
+          "seed_worst_success": 1000000.0
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.0,
+          "hit_rate": 1000000.0,
+          "controller_units": 1020.0,
+          "success_rate_iqr": 0.0,
+          "seed_worst_success": 1000000.0
+        }
+      }
     }
   },
   "reference_seed_spread": {
@@ -770,14 +872,14 @@
   "reference_rank_spread": {
     "values": [
       0.0,
-      -0.053033846830893405,
-      -0.09573007771860471
+      -0.03441664727249207,
+      -0.06241583869435827
     ],
-    "max_minus_min": 0.09573007771860471
+    "max_minus_min": 0.06241583869435827
   },
   "quality_comparison": {
     "quality_weak_no_learning": {
-      "illustrative_rank_change_vs_matched_reference": -1.4582376307133937,
+      "illustrative_rank_change_vs_matched_reference": -0.6997418950968304,
       "directed_deltas_vs_matched_reference": {
         "randomized_air_hockey": {
           "success_rate": -0.34666666666666657,
@@ -811,7 +913,7 @@
       }
     },
     "quality_learned_timing": {
-      "illustrative_rank_change_vs_matched_reference": 0.4437629308583003,
+      "illustrative_rank_change_vs_matched_reference": 0.28755270830005414,
       "directed_deltas_vs_matched_reference": {
         "randomized_air_hockey": {
           "success_rate": 0.052000000000000046,

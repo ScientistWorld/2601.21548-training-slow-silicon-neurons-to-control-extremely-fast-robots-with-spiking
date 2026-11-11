@@ -1,0 +1,30 @@
+{
+  "attempt_0.json": {
+    "method": "spiking_eprop",
+    "condition": "random_position_speed",
+    "controller_units": 0,
+    "episodes": 0,
+    "eval_episodes": 500,
+    "seeds": 1,
+    "success_rate": 0.96,
+    "hit_rate": 0.96,
+    "eval_success_by_seed": [
+      0.96
+    ],
+    "success_rate_iqr": 0.0
+  },
+  "attempt_1.json": {
+    "method": "spiking_eprop",
+    "condition": "speed_wide",
+    "controller_units": 0,
+    "episodes": 0,
+    "eval_episodes": 500,
+    "seeds": 1,
+    "success_rate": 0.674,
+    "hit_rate": 0.674,
+    "eval_success_by_seed": [
+      0.674
+    ],
+    "success_rate_iqr": 0.0
+  }
+}
