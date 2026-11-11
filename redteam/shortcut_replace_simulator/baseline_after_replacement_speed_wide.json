@@ -1,0 +1,14 @@
+{
+  "method": "random_policy",
+  "condition": "speed_wide",
+  "episodes": 500,
+  "seeds": 3,
+  "success_rate": 0.4546666666666666,
+  "success_rate_iqr": 0.03899999999999998,
+  "hit_rate": 0.45533333333333337,
+  "eval_success_by_seed": [
+    0.412,
+    0.462,
+    0.49
+  ]
+}

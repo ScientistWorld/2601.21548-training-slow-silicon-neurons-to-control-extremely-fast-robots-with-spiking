@@ -1,0 +1,82 @@
+{
+  "attempt_0.json": {
+    "method": "spiking_eprop",
+    "condition": "random_position_speed",
+    "seed": 0,
+    "episodes": 2000,
+    "eval_episodes": 500,
+    "seeds": 1,
+    "controller_units": 1020,
+    "learning_rate": 0.004,
+    "entropy_floor": 0.08,
+    "success_rate": 0.96,
+    "hit_rate": 0.96,
+    "eval_success_by_seed": [
+      0.96
+    ],
+    "success_rate_iqr": 0.0,
+    "train_first_success_rate": 0.78,
+    "train_tail_success_rate": 0.8,
+    "train_tail_success_by_seed": [
+      0.8
+    ],
+    "audit_action_counts": [
+      0,
+      5710
+    ],
+    "audit_elapsed_seconds": 59.526162481997744,
+    "audit_action_counts_by_seed": [
+      [
+        0,
+        5710
+      ]
+    ]
+  },
+  "unlisted_failure_1.json": {
+    "method": "unlisted_failed_controller",
+    "condition": "speed_wide",
+    "success_rate": 0.0,
+    "hit_rate": 0.0,
+    "controller_units": 1020
+  },
+  "attempt_1.json": {
+    "method": "spiking_eprop",
+    "condition": "speed_wide",
+    "seed": 0,
+    "episodes": 5000,
+    "eval_episodes": 500,
+    "seeds": 1,
+    "controller_units": 1020,
+    "learning_rate": 0.006,
+    "entropy_floor": 0.06,
+    "success_rate": 0.674,
+    "hit_rate": 0.674,
+    "eval_success_by_seed": [
+      0.674
+    ],
+    "success_rate_iqr": 0.0,
+    "train_first_success_rate": 0.74,
+    "train_tail_success_rate": 0.71,
+    "train_tail_success_by_seed": [
+      0.71
+    ],
+    "audit_action_counts": [
+      0,
+      12906
+    ],
+    "audit_elapsed_seconds": 75.46512054900813,
+    "audit_action_counts_by_seed": [
+      [
+        0,
+        12906
+      ]
+    ]
+  },
+  "unlisted_failure_0.json": {
+    "method": "unlisted_failed_controller",
+    "condition": "random_position_speed",
+    "success_rate": 0.0,
+    "hit_rate": 0.0,
+    "controller_units": 1020
+  }
+}

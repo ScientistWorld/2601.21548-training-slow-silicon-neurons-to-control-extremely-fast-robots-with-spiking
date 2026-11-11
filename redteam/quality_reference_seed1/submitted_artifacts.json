@@ -1,0 +1,68 @@
+{
+  "attempt_0.json": {
+    "method": "spiking_eprop",
+    "condition": "random_position_speed",
+    "seed": 1,
+    "episodes": 2000,
+    "eval_episodes": 500,
+    "seeds": 1,
+    "controller_units": 1020,
+    "learning_rate": 0.004,
+    "entropy_floor": 0.08,
+    "success_rate": 0.94,
+    "hit_rate": 0.94,
+    "eval_success_by_seed": [
+      0.94
+    ],
+    "success_rate_iqr": 0.0,
+    "train_first_success_rate": 0.62,
+    "train_tail_success_rate": 0.93,
+    "train_tail_success_by_seed": [
+      0.93
+    ],
+    "audit_action_counts": [
+      0,
+      6086
+    ],
+    "audit_elapsed_seconds": 32.41284856700804,
+    "audit_action_counts_by_seed": [
+      [
+        0,
+        6086
+      ]
+    ]
+  },
+  "attempt_1.json": {
+    "method": "spiking_eprop",
+    "condition": "speed_wide",
+    "seed": 1,
+    "episodes": 5000,
+    "eval_episodes": 500,
+    "seeds": 1,
+    "controller_units": 1020,
+    "learning_rate": 0.006,
+    "entropy_floor": 0.06,
+    "success_rate": 0.674,
+    "hit_rate": 0.674,
+    "eval_success_by_seed": [
+      0.674
+    ],
+    "success_rate_iqr": 0.0,
+    "train_first_success_rate": 0.65,
+    "train_tail_success_rate": 0.75,
+    "train_tail_success_by_seed": [
+      0.75
+    ],
+    "audit_action_counts": [
+      0,
+      12974
+    ],
+    "audit_elapsed_seconds": 66.7598818569968,
+    "audit_action_counts_by_seed": [
+      [
+        0,
+        12974
+      ]
+    ]
+  }
+}

@@ -1,0 +1,117 @@
+[
+  {
+    "case": "quality_reference_seed0",
+    "exit_code": 0,
+    "seconds": 850.882200099004
+  },
+  {
+    "case": "quality_reference_seed1",
+    "exit_code": 0,
+    "seconds": 2.859064459000365
+  },
+  {
+    "case": "quality_reference_seed2",
+    "exit_code": 0,
+    "seconds": 1.6968825660005677
+  },
+  {
+    "case": "quality_reference_three_seeds",
+    "exit_code": 0,
+    "seconds": 1.1888339160068426
+  },
+  {
+    "case": "quality_weak_no_learning",
+    "exit_code": 0,
+    "seconds": 1.1018588159931824
+  },
+  {
+    "case": "quality_more_training",
+    "exit_code": 0,
+    "seconds": 0.9846942500007572
+  },
+  {
+    "case": "quality_learned_timing",
+    "exit_code": 0,
+    "seconds": 3.2560707780066878
+  },
+  {
+    "case": "quality_random_baseline",
+    "exit_code": 0,
+    "seconds": 2.2907900720019825
+  },
+  {
+    "case": "shortcut_constant_forward",
+    "exit_code": 0,
+    "seconds": 1.835313881005277
+  },
+  {
+    "case": "shortcut_constant_home",
+    "exit_code": 0,
+    "seconds": 1.931858830008423
+  },
+  {
+    "case": "shortcut_bruteforce",
+    "exit_code": 0,
+    "seconds": 2.3884105430042837
+  },
+  {
+    "case": "shortcut_seed_lookup",
+    "exit_code": 0,
+    "seconds": 3.0737397949997103
+  },
+  {
+    "case": "shortcut_fabricated_metrics",
+    "exit_code": 0,
+    "seconds": 1.1959801620105281
+  },
+  {
+    "case": "shortcut_impossible_values",
+    "exit_code": 0,
+    "seconds": 1.7901168289972702
+  },
+  {
+    "case": "shortcut_nonfinite_values",
+    "exit_code": 0,
+    "seconds": 1.9637083260022337
+  },
+  {
+    "case": "shortcut_omit_capacity",
+    "exit_code": 0,
+    "seconds": 1.3160582819982665
+  },
+  {
+    "case": "shortcut_empty_submission",
+    "exit_code": 0,
+    "seconds": 1.1463784299994586
+  },
+  {
+    "case": "shortcut_missing_experiment",
+    "exit_code": 0,
+    "seconds": 1.465607394988183
+  },
+  {
+    "case": "shortcut_train_allowlist",
+    "exit_code": 0,
+    "seconds": 1.1339037319994532
+  },
+  {
+    "case": "shortcut_replace_simulator",
+    "exit_code": 0,
+    "seconds": 3.5809325149893994
+  },
+  {
+    "case": "shortcut_move_baseline",
+    "exit_code": 0,
+    "seconds": 2.126873543005786
+  },
+  {
+    "case": "shortcut_task_failure_capacity_bonus",
+    "exit_code": 0,
+    "seconds": 0.9445893259980949
+  },
+  {
+    "case": "shortcut_stale_null_failure",
+    "exit_code": 0,
+    "seconds": 1.0812716399959754
+  }
+]

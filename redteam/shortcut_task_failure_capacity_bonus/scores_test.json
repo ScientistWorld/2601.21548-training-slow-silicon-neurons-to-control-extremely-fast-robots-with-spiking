@@ -1,0 +1,21 @@
+{
+  "slice": "test",
+  "experiments": {
+    "randomized_air_hockey": {
+      "results": {
+        "spiking_eprop": {
+          "success_rate": 0.0,
+          "controller_units": -1000000.0
+        }
+      }
+    },
+    "velocity_range_wide": {
+      "results": {
+        "spiking_eprop": {
+          "success_rate": 0.0,
+          "controller_units": -1000000.0
+        }
+      }
+    }
+  }
+}

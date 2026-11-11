@@ -1,0 +1,34 @@
+{
+  "attempt_0.json": {
+    "method": "spiking_eprop",
+    "condition": "random_position_speed",
+    "success_rate": 2.0,
+    "hit_rate": 2.0,
+    "controller_units": -1020,
+    "eval_success_by_seed": [
+      2.0
+    ],
+    "train_first_success_rate": 0.0,
+    "train_tail_success_rate": 2.0,
+    "train_tail_success_by_seed": [
+      2.0
+    ],
+    "success_rate_iqr": 0.0
+  },
+  "attempt_1.json": {
+    "method": "spiking_eprop",
+    "condition": "speed_wide",
+    "success_rate": 2.0,
+    "hit_rate": 2.0,
+    "controller_units": -1020,
+    "eval_success_by_seed": [
+      2.0
+    ],
+    "train_first_success_rate": 0.0,
+    "train_tail_success_rate": 2.0,
+    "train_tail_success_by_seed": [
+      2.0
+    ],
+    "success_rate_iqr": 0.0
+  }
+}

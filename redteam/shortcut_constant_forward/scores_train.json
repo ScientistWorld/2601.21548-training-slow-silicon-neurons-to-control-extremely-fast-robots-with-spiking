@@ -1,0 +1,27 @@
+{
+  "slice": "train",
+  "experiments": {
+    "randomized_air_hockey": {
+      "results": {
+        "spiking_eprop": {
+          "success_rate": 0.944,
+          "hit_rate": 0.944,
+          "controller_units": 0.0,
+          "success_rate_iqr": 0.014000000000000012,
+          "seed_worst_success": 0.932
+        }
+      }
+    },
+    "velocity_range_wide": {
+      "results": {
+        "spiking_eprop": {
+          "success_rate": 0.666,
+          "hit_rate": 0.666,
+          "controller_units": 0.0,
+          "success_rate_iqr": 0.01200000000000001,
+          "seed_worst_success": 0.65
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "method": "random_policy",
+  "condition": "random_position_speed",
+  "episodes": 100,
+  "seeds": 1,
+  "success_rate": 0.0,
+  "success_rate_iqr": 0.0,
+  "hit_rate": 0.0,
+  "eval_success_by_seed": [
+    0.0
+  ]
+}

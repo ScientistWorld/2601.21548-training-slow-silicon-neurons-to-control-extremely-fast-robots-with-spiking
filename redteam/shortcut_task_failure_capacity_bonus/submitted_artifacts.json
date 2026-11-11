@@ -1,0 +1,14 @@
+{
+  "attempt_0.json": {
+    "method": "spiking_eprop",
+    "condition": "random_position_speed",
+    "success_rate": 0.0,
+    "controller_units": -1000000
+  },
+  "attempt_1.json": {
+    "method": "spiking_eprop",
+    "condition": "speed_wide",
+    "success_rate": 0.0,
+    "controller_units": -1000000
+  }
+}
