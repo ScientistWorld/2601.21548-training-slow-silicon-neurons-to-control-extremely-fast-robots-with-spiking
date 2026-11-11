@@ -1,4 +1,2 @@
-action: submit
-gpus: 0
-test: false
-notes: "Short redteam follow-up: exact single-seed constant-policy shortcut, relaxed simulator threshold replacement, failed controller rewarded through forged auxiliary metrics; recompute normalized audit scores."
+action: done
+notes: "Audit complete: genuine gains score higher, but artifact fabrication, omitted results, simulator replacement and finite search pay; all evidence is in REDTEAM.md and redteam/."
