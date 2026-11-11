@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/user/eval/test/evaluate.py", line 138, in <module>
+    main()
+  File "/home/user/eval/test/evaluate.py", line 101, in main
+    raise KeyError(f"{path} is missing success_rate")
+KeyError: 'outputs/attempt_0.json is missing success_rate'

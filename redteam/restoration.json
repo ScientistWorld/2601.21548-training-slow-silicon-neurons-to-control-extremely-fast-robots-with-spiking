@@ -1,0 +1,35 @@
+{
+  "base_commit": "d67996b4df95228f866eed6c1351f04298e2cf7d",
+  "task_directories_match_initial_git": {
+    "baseline": true,
+    "briefing": true,
+    "data": true,
+    "environment": true,
+    "eval": true,
+    "method": true,
+    "scoring": true,
+    "scripts": true
+  },
+  "outputs_match_initial_snapshot": true,
+  "evaluator_hashes_match_initial": true,
+  "preexisting_missing_files_preserved": [
+    "trajectory/turn_0001_raw.jsonl",
+    "trajectory/turn_0002_raw.jsonl",
+    "trajectory/turn_0003_raw.jsonl",
+    "trajectory/turn_0004_raw.jsonl",
+    "trajectory/turn_0005_raw.jsonl",
+    "trajectory/turn_0006_raw.jsonl",
+    "trajectory/turn_0007_raw.jsonl",
+    "trajectory/turn_0008_raw.jsonl"
+  ],
+  "preexisting_device_mounts_preserved": [
+    "README.md",
+    "manifest.json"
+  ],
+  "audit_job_evidence_moved_under_redteam": [
+    "e5a8ba18-1dc",
+    "a38c068d-a2d"
+  ],
+  "orchestration_exception": "action.yaml is set to done after final commit",
+  "source_syntax_and_report_links_checked": true
+}

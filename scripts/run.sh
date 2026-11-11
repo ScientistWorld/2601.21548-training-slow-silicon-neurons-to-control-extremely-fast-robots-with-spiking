@@ -1,9 +1,15 @@
 #!/bin/bash
-set -euo pipefail
+# Verify the packaged scoring surface over existing reproduction artifacts.
+
+set -e
+
 cd /home/user
-export PYTHONPATH=/home/user${PYTHONPATH:+:$PYTHONPATH}
-export OPENBLAS_NUM_THREADS=1
-export OMP_NUM_THREADS=1
-export MKL_NUM_THREADS=1
-export PYTHONUNBUFFERED=1
-python redteam/run_followup.py
+export PYTHONPATH=/home/user:${PYTHONPATH:-}
+
+mkdir -p scoring
+rm -f scoring/scores.json scoring/scores_train.json scoring/scores_test.json
+
+bash scripts/evaluate.sh
+bash scripts/evaluate_train.sh
+bash scripts/evaluate_test.sh
+python validate.py --compare

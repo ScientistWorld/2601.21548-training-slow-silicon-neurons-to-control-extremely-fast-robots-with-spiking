@@ -40,3 +40,15 @@ the finite, successful audit cohort plus the reference. Future attempt-dependent
 normalizers are unavailable, so these are explicitly illustrative: direct metric
 dominance, omitted losses, and exact ties are the unconditional findings.
 Nonfinite results and nonzero test exits are not assigned a valid rank.
+
+Two CPU jobs completed the audit: `e5a8ba18-1dc` (shared training and 23 cases)
+and `a38c068d-a2d` (three follow-ups). `job_evidence/` preserves their logs and
+metadata. `verification.json` checks all 26 case records against the initial
+evaluator hashes. The full findings and all shortcut outcomes are in
+[`../REDTEAM.md`](../REDTEAM.md).
+
+The follow-up adds an exactly matched single-seed constant-forward shortcut,
+a successful simulator-threshold replacement shortcut, and a shortcut that
+leaves task success honestly zero but forges auxiliary metrics. The latter
+outranks the reference in the explicitly documented normalized audit cohort;
+this mixed-metric conclusion is conditional on the cohort's normalization.

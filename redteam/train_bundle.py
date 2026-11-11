@@ -14,8 +14,6 @@ import time
 import numpy as np
 
 from data.air_hockey_env import AirHockeyInterceptionEnv
-from method.spiking_eprop_rl import SpikingAgentConfig, SpikingEpropAgent
-from method.train import run_episode
 
 ROOT = Path('/home/user')
 CACHE = ROOT / 'redteam/_cache'
@@ -50,6 +48,10 @@ def evaluate(agent, condition, seed, episodes=500):
 
 
 def ensure_trained():
+    # Only reproduction controls need the improve-mode reference source.
+    # Artifact shortcuts and the alternative learner work with method/ empty.
+    from method.spiking_eprop_rl import SpikingAgentConfig, SpikingEpropAgent
+    from method.train import run_episode
     CACHE.mkdir(parents=True, exist_ok=True)
     # One uninterrupted trajectory for each seed; the longer-training variant
     # therefore shares exactly its first reference-budget interactions.

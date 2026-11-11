@@ -1,0 +1,105 @@
+[hive] This stdout log is managed by Hive.
+[hive] job_id: 828c0635
+[hive] host: node
+[hive] node_id: 6d3445135ad278143e2003a21dbe6382012fbe1a691bccdff248eeaa
+[hive] user: nexus/user (remote)
+[hive] resource: gpu-cpu-test
+[hive] gpus: 0
+[hive] cpus: 1
+[hive] workdir: /home/user
+[hive] timeout_sec: 21600
+[hive] started_at: 2026-11-11 12:58:15 EST
+[hive] command: apptainer exec --containall --cleanenv --env HF_HOME=/home/user/shared/hf_cache --env TRANSFORMERS_CACHE=/home/user/shared/hf_cache --env HF_DATASETS_CACHE=/home/user/shared/hf_cache/datasets --env TORCH_HOME=/home/user/shared/hf_cache/torch --bind /home/user/scratch/AgentWorkspaces/workspaces/2601.21548:/home/user --overlay /home/user/scratch/AgentWorkspaces/workspaces/2601.21548/environment/overlay.img:ro --bind /home/user/scratch/AgentWorkspaces/shared/datasets:/home/user/shared/datasets:ro --bind /home/user/scratch/AgentWorkspaces/shared/models:/home/user/shared/models:ro --bind /home/user/scratch/AgentWorkspaces/shared/hf_cache:/home/user/shared/hf_cache /home/user/scratch/AgentWorkspaces/workspaces/2601.21548/environment/container.sif bash -c 'cd /home/user && bash /home/user/scripts/run.sh'
+START shortcut_constant_forward_seed0
+shortcut_constant_forward_seed0 test exit 0
+START shortcut_replace_simulator_relaxed
+shortcut_replace_simulator_relaxed test exit 0
+START shortcut_failed_task_other_metrics
+shortcut_failed_task_other_metrics test exit 0
+{
+  "seed_spread": {
+    "randomized_air_hockey": {
+      "values": [
+        0.96,
+        0.94,
+        0.932
+      ],
+      "mean": 0.944,
+      "min": 0.932,
+      "max": 0.96,
+      "max_minus_min": 0.027999999999999914
+    },
+    "velocity_range_wide": {
+      "values": [
+        0.674,
+        0.674,
+        0.65
+      ],
+      "mean": 0.666,
+      "min": 0.65,
+      "max": 0.674,
+      "max_minus_min": 0.02400000000000002
+    }
+  },
+  "seed_rank_spread": {
+    "values": [
+      0.0,
+      -0.03441664727249207,
+      -0.06241583869435827
+    ],
+    "max_minus_min": 0.06241583869435827
+  },
+  "quality_comparison": {
+    "quality_weak_no_learning": {
+      "illustrative_rank_change_vs_matched_reference": -0.6997418950968304,
+      "directed_deltas_vs_matched_reference": {
+        "randomized_air_hockey": {
+          "success_rate": -0.34666666666666657,
+          "hit_rate": -0.34666666666666657,
+          "controller_units": -0.0,
+          "seed_worst_success": -0.93
+        },
+        "velocity_range_wide": {
+          "success_rate": -0.17400000000000004,
+          "hit_rate": -0.17400000000000004,
+          "controller_units": -0.0,
+          "seed_worst_success": -0.65
+        }
+      }
+    },
+    "quality_more_training": {
+      "illustrative_rank_change_vs_matched_reference": 0.0,
+      "directed_deltas_vs_matched_reference": {
+        "randomized_air_hockey": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.0
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.0
+        }
+      }
+    },
+    "quality_learned_timing": {
+      "illustrative_rank_change_vs_matched_reference": 0.28755270830005414,
+      "directed_deltas_vs_matched_reference": {
+        "randomized_air_hockey": {
+          "success_rate": 0.052000000000000046,
+          "hit_rate": 0.052000000000000046,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.05999999999999994
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.33399999999999996,
+          "hit_rate": 0.33399999999999996,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.35
+        }
+      }
+    }
+  }
+}

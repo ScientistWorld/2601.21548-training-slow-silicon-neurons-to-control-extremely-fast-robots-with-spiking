@@ -1,0 +1,186 @@
+[hive] This stdout log is managed by Hive.
+[hive] job_id: 0ece6f79
+[hive] host: node
+[hive] node_id: 6d3445135ad278143e2003a21dbe6382012fbe1a691bccdff248eeaa
+[hive] user: nexus/user (remote)
+[hive] resource: gpu-cpu-test
+[hive] gpus: 0
+[hive] cpus: 1
+[hive] workdir: /home/user
+[hive] timeout_sec: 21600
+[hive] started_at: 2026-11-11 12:37:48 EST
+[hive] command: apptainer exec --containall --cleanenv --env HF_HOME=/home/user/shared/hf_cache --env TRANSFORMERS_CACHE=/home/user/shared/hf_cache --env HF_DATASETS_CACHE=/home/user/shared/hf_cache/datasets --env TORCH_HOME=/home/user/shared/hf_cache/torch --bind /home/user/scratch/AgentWorkspaces/workspaces/2601.21548:/home/user --overlay /home/user/scratch/AgentWorkspaces/workspaces/2601.21548/environment/overlay.img:ro --bind /home/user/scratch/AgentWorkspaces/shared/datasets:/home/user/shared/datasets:ro --bind /home/user/scratch/AgentWorkspaces/shared/models:/home/user/shared/models:ro --bind /home/user/scratch/AgentWorkspaces/shared/hf_cache:/home/user/shared/hf_cache /home/user/scratch/AgentWorkspaces/workspaces/2601.21548/environment/container.sif bash -c 'cd /home/user && bash /home/user/scripts/run.sh'
+START quality_reference_seed0
+TRAIN random_position_speed seed=0 episodes=0 eval=0.8940 actions=[209, 6850]
+TRAIN random_position_speed seed=0 episodes=2000 eval=0.9600 actions=[0, 5710]
+TRAIN random_position_speed seed=0 episodes=10000 eval=0.9600 actions=[0, 5710]
+TRAIN random_position_speed seed=1 episodes=0 eval=0.0020 actions=[19002, 894]
+TRAIN random_position_speed seed=1 episodes=2000 eval=0.9400 actions=[0, 6086]
+TRAIN random_position_speed seed=1 episodes=10000 eval=0.9400 actions=[0, 6086]
+TRAIN random_position_speed seed=2 episodes=0 eval=0.8960 actions=[205, 7127]
+TRAIN random_position_speed seed=2 episodes=2000 eval=0.9320 actions=[0, 6248]
+TRAIN random_position_speed seed=2 episodes=10000 eval=0.9320 actions=[0, 6248]
+TRAIN speed_wide seed=0 episodes=0 eval=0.7700 actions=[975, 10792]
+TRAIN speed_wide seed=0 episodes=5000 eval=0.6740 actions=[0, 12906]
+TRAIN speed_wide seed=0 episodes=10000 eval=0.6740 actions=[0, 12906]
+TRAIN speed_wide seed=1 episodes=0 eval=0.0000 actions=[21907, 1339]
+TRAIN speed_wide seed=1 episodes=5000 eval=0.6740 actions=[0, 12974]
+TRAIN speed_wide seed=1 episodes=10000 eval=0.6740 actions=[0, 12974]
+TRAIN speed_wide seed=2 episodes=0 eval=0.7060 actions=[325, 12628]
+TRAIN speed_wide seed=2 episodes=5000 eval=0.6500 actions=[0, 13519]
+TRAIN speed_wide seed=2 episodes=10000 eval=0.6500 actions=[0, 13519]
+quality_reference_seed0 test exit 0
+FINISH quality_reference_seed0 0
+START quality_reference_seed1
+quality_reference_seed1 test exit 0
+FINISH quality_reference_seed1 0
+START quality_reference_seed2
+quality_reference_seed2 test exit 0
+FINISH quality_reference_seed2 0
+START quality_reference_three_seeds
+quality_reference_three_seeds test exit 0
+FINISH quality_reference_three_seeds 0
+START quality_weak_no_learning
+quality_weak_no_learning test exit 0
+FINISH quality_weak_no_learning 0
+START quality_more_training
+quality_more_training test exit 0
+FINISH quality_more_training 0
+START quality_learned_timing
+quality_learned_timing test exit 0
+FINISH quality_learned_timing 0
+START quality_random_baseline
+quality_random_baseline test exit 0
+FINISH quality_random_baseline 0
+START shortcut_constant_forward
+shortcut_constant_forward test exit 0
+FINISH shortcut_constant_forward 0
+START shortcut_constant_home
+shortcut_constant_home test exit 0
+FINISH shortcut_constant_home 0
+START shortcut_bruteforce
+shortcut_bruteforce test exit 0
+FINISH shortcut_bruteforce 0
+START shortcut_seed_lookup
+shortcut_seed_lookup test exit 0
+FINISH shortcut_seed_lookup 0
+START shortcut_fabricated_metrics
+shortcut_fabricated_metrics test exit 0
+FINISH shortcut_fabricated_metrics 0
+START shortcut_impossible_values
+shortcut_impossible_values test exit 0
+FINISH shortcut_impossible_values 0
+START shortcut_nonfinite_values
+shortcut_nonfinite_values test exit 0
+FINISH shortcut_nonfinite_values 0
+START shortcut_omit_capacity
+shortcut_omit_capacity test exit 0
+FINISH shortcut_omit_capacity 0
+START shortcut_empty_submission
+shortcut_empty_submission test exit 0
+FINISH shortcut_empty_submission 0
+START shortcut_missing_experiment
+shortcut_missing_experiment test exit 0
+FINISH shortcut_missing_experiment 0
+START shortcut_train_allowlist
+shortcut_train_allowlist test exit 0
+FINISH shortcut_train_allowlist 0
+START shortcut_replace_simulator
+shortcut_replace_simulator test exit 0
+FINISH shortcut_replace_simulator 0
+START shortcut_move_baseline
+shortcut_move_baseline test exit 0
+FINISH shortcut_move_baseline 0
+START shortcut_task_failure_capacity_bonus
+shortcut_task_failure_capacity_bonus test exit 0
+FINISH shortcut_task_failure_capacity_bonus 0
+START shortcut_stale_null_failure
+shortcut_stale_null_failure test exit 1
+FINISH shortcut_stale_null_failure 0
+{
+  "seed_spread": {
+    "randomized_air_hockey": {
+      "values": [
+        0.96,
+        0.94,
+        0.932
+      ],
+      "mean": 0.944,
+      "min": 0.932,
+      "max": 0.96,
+      "max_minus_min": 0.027999999999999914
+    },
+    "velocity_range_wide": {
+      "values": [
+        0.674,
+        0.674,
+        0.65
+      ],
+      "mean": 0.666,
+      "min": 0.65,
+      "max": 0.674,
+      "max_minus_min": 0.02400000000000002
+    }
+  },
+  "seed_rank_spread": {
+    "values": [
+      0.0,
+      -0.053033846830893405,
+      -0.09573007771860471
+    ],
+    "max_minus_min": 0.09573007771860471
+  },
+  "quality_comparison": {
+    "quality_weak_no_learning": {
+      "illustrative_rank_change_vs_matched_reference": -1.4582376307133937,
+      "directed_deltas_vs_matched_reference": {
+        "randomized_air_hockey": {
+          "success_rate": -0.34666666666666657,
+          "hit_rate": -0.34666666666666657,
+          "controller_units": -0.0,
+          "seed_worst_success": -0.93
+        },
+        "velocity_range_wide": {
+          "success_rate": -0.17400000000000004,
+          "hit_rate": -0.17400000000000004,
+          "controller_units": -0.0,
+          "seed_worst_success": -0.65
+        }
+      }
+    },
+    "quality_more_training": {
+      "illustrative_rank_change_vs_matched_reference": 0.0,
+      "directed_deltas_vs_matched_reference": {
+        "randomized_air_hockey": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.0
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.0
+        }
+      }
+    },
+    "quality_learned_timing": {
+      "illustrative_rank_change_vs_matched_reference": 0.4437629308583003,
+      "directed_deltas_vs_matched_reference": {
+        "randomized_air_hockey": {
+          "success_rate": 0.052000000000000046,
+          "hit_rate": 0.052000000000000046,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.05999999999999994
+        },
+        "velocity_range_wide": {
+          "success_rate": 0.33399999999999996,
+          "hit_rate": 0.33399999999999996,
+          "controller_units": -0.0,
+          "seed_worst_success": 0.35
+        }
+      }
+    }
+  }
+}

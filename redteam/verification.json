@@ -1,0 +1,138 @@
+{
+  "case_count": 26,
+  "quality_control_count": 8,
+  "shortcut_count": 18,
+  "all_evaluators_match_initial": true,
+  "runs": [
+    {
+      "case": "quality_reference_seed0",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_reference_seed1",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_reference_seed2",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_reference_three_seeds",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_weak_no_learning",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_more_training",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_learned_timing",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "quality_random_baseline",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_constant_forward",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_constant_home",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_bruteforce",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_seed_lookup",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_fabricated_metrics",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_impossible_values",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_nonfinite_values",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_omit_capacity",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_empty_submission",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_missing_experiment",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_train_allowlist",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_replace_simulator",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_move_baseline",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_task_failure_capacity_bonus",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_stale_null_failure",
+      "test_exit_code": 1,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_constant_forward_seed0",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_replace_simulator_relaxed",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    },
+    {
+      "case": "shortcut_failed_task_other_metrics",
+      "test_exit_code": 0,
+      "evaluator_matches_initial": true
+    }
+  ]
+}
