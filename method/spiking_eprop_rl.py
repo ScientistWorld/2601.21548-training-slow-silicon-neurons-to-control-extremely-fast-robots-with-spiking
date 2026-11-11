@@ -1,152 +1,304 @@
-"""Software reproduction of the paper's spiking e-prop RL controller."""
+"""Reproduction of the paper's spiking reservoir controller with e-prop readout learning.
+
+Paper, Sec. II-B: 6 state variables -> Gaussian population code (10 cells per
+variable, 60 deterministic spike generators) -> 1020 adaptive LIF silicon
+neurons with *fixed random feedforward* synapses -> 2 linear readout units on
+the filtered hidden spike trains -> softmax action probabilities.  Each control
+step runs the analog dynamics for 20 ms.  Only the hidden-to-readout weights
+are plastic and are updated every two trials with Eq. 1:
+
+    dw_ik = -alpha * sum_t r^t * sum_{t'<=t} gamma^(t-t') (pi_k^t' - 1[a^t'=k]) sbar_i^t'
+
+The silicon substrate is replaced by the software runtime in
+``data/neuromorphic_chip.py`` (1 ms LIF dynamics with synaptic filtering,
+spike-frequency adaptation, refractoriness and device mismatch drawn per
+reservoir seed).  The trained controller is exported in that runtime's
+configuration format.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Callable
 
 import numpy as np
 
-from data.air_hockey_env import state_ranges
+from data.air_hockey_env import CONDITIONS, AirHockeyBatch, sample_initial_conditions
+from data.neuromorphic_chip import ChipBatch, validate_config
 
 
 @dataclass
-class SpikingAgentConfig:
-    state_dim: int = 6
-    cells_per_dim: int = 10
+class EpropConfig:
     hidden_neurons: int = 1020
-    actions: int = 2
-    sim_dt_ms: float = 1.0
-    control_ms: int = 20
-    tau_mem_ms: float = 10.0
+    cells_per_dim: int = 10
+    input_rate_hz: float = 200.0
+    connection_prob: float = 0.2
+    inhibitory_fraction: float = 0.2
+    target_active_fraction: float = 0.25
+    tau_mem_ms: float = 20.0
+    tau_syn_ms: float = 5.0
+    tau_adapt_ms: float = 100.0
+    adapt_increment: float = 0.002
+    refractory_ms: float = 2.0
     tau_trace_ms: float = 30.0
-    input_rate_hz: float = 250.0
-    encoding_sigma_cells: float = 1.5
-    input_weight_scale: float = 0.55
-    recurrent_weight_scale: float = 0.04
-    learning_rate: float = 0.0015
-    gamma: float = 0.96
+    mismatch_cv: float = 0.2
+    # alpha of Eq. 1, expressed in units of 1 / E[||sbar||^2] of the untrained
+    # reservoir so one value transfers across reservoir samples.
+    learning_rate: float = 0.01
+    gamma: float = 0.95
     update_every_trials: int = 2
-    entropy_floor: float = 0.04
-    center_returns: bool = True
+    init_logit_std: float = 0.1
+    # Variant switch (NOT the paper's rule): subtract a learned value readout
+    # from the return (actor-critic e-prop).  Off for the reproduction.
+    critic_learning_rate: float = 0.0
+    calibration_episodes: int = 16
+    extra: dict = field(default_factory=dict)
 
 
-class SpikingEpropAgent:
-    """Fixed random LIF reservoir plus plastic softmax readout.
+def encoder_ranges(condition: str) -> np.ndarray:
+    """Population-code range per state variable (adaptive to the condition).
 
-    The hidden layer is a software stand-in for the DYNAP-SE silicon neurons:
-    input population spike trains drive leaky integrate-and-fire dynamics with
-    fixed random connectivity.  Only hidden-to-readout weights are updated using
-    the e-prop-style policy-gradient rule given in Eq. 1 of the paper.
+    The velocity code spans the condition's speed range (both directions,
+    since the puck bounces off the side walls), so wider speed ranges are
+    represented with coarser resolution by the same 10 cells (Sec. III-B).
     """
+    vmax = max(0.2, float(CONDITIONS[condition]["speed"][1]))
+    return np.array([
+        [0.80, 1.60],    # x_p
+        [-0.50, 0.50],   # y_p
+        [-1.00, 4.00],   # v_x
+        [-vmax, vmax],   # v_y
+        [0.70, 1.50],    # x_ee
+        [-0.05, 0.05],   # y_ee
+    ])
 
-    def __init__(self, seed: int = 0, config: SpikingAgentConfig | None = None) -> None:
-        self.config = config or SpikingAgentConfig()
-        self.rng = np.random.default_rng(seed)
-        cfg = self.config
-        self.input_neurons = cfg.state_dim * cfg.cells_per_dim
-        self.low, self.high = state_ranges()
-        self.centers = np.stack(
-            [np.linspace(self.low[i], self.high[i], cfg.cells_per_dim) for i in range(cfg.state_dim)]
-        )
-        fan_in = max(1, self.input_neurons)
-        self.w_in = self.rng.normal(0.0, cfg.input_weight_scale / np.sqrt(fan_in), (cfg.hidden_neurons, self.input_neurons))
-        # Store sparse random recurrence as edge lists.  This preserves fixed
-        # random reservoir dynamics without doing a dense 1020x1020 multiply at
-        # every simulated millisecond.
-        rec_edges = cfg.hidden_neurons * 16
-        self.rec_src = self.rng.integers(0, cfg.hidden_neurons, rec_edges)
-        self.rec_dst = self.rng.integers(0, cfg.hidden_neurons, rec_edges)
-        self.rec_w = self.rng.normal(0.0, cfg.recurrent_weight_scale, rec_edges)
-        self.w_out = self.rng.normal(0.0, 0.01, (cfg.hidden_neurons, cfg.actions))
-        self.v = self.rng.uniform(0.0, 0.5, cfg.hidden_neurons)
-        self.trace = np.zeros(cfg.hidden_neurons, dtype=np.float64)
-        self.prev_spikes = np.zeros(cfg.hidden_neurons, dtype=np.float64)
-        self.pending_episodes: list[list[dict[str, np.ndarray | int | float]]] = []
 
-    def encode_rates(self, state: np.ndarray) -> np.ndarray:
-        cfg = self.config
-        clipped = np.clip(state[: cfg.state_dim], self.low, self.high)
-        rates = []
-        for dim in range(cfg.state_dim):
-            dist = (self.centers[dim] - clipped[dim]) / (cfg.encoding_sigma_cells * (self.high[dim] - self.low[dim]) / (cfg.cells_per_dim - 1))
-            activity = np.exp(-0.5 * dist * dist)
-            rates.append(activity)
-        return cfg.input_rate_hz * np.concatenate(rates)
+def _lognormal(rng: np.random.Generator, cv: float, size) -> np.ndarray:
+    return rng.lognormal(mean=0.0, sigma=cv, size=size)
 
-    def _softmax(self, logits: np.ndarray) -> np.ndarray:
-        logits = logits - np.max(logits)
-        exp = np.exp(logits)
-        probs = exp / np.sum(exp)
-        eps = self.config.entropy_floor
-        return (1.0 - eps) * probs + eps / self.config.actions
 
-    def act(self, state: np.ndarray, greedy: bool = False) -> tuple[int, np.ndarray, np.ndarray]:
-        cfg = self.config
-        rates = self.encode_rates(state)
-        # Aggregate the deterministic FPGA spike replay over one 20 ms control
-        # window.  This is the same state update granularity at which the paper
-        # reads out actions, but avoids a costly Python loop over every hardware
-        # millisecond.
-        expected_input_spikes = rates * (cfg.control_ms / 1000.0)
-        input_spikes = self.rng.poisson(expected_input_spikes).astype(np.float64)
-        rec_current = np.zeros(cfg.hidden_neurons, dtype=np.float64)
-        active_edges = self.prev_spikes[self.rec_src] > 0.0
-        if np.any(active_edges):
-            rec_current += np.bincount(
-                self.rec_dst[active_edges],
-                weights=self.rec_w[active_edges],
-                minlength=cfg.hidden_neurons,
-            )
-        alpha_mem = np.exp(-cfg.control_ms / cfg.tau_mem_ms)
-        alpha_trace = np.exp(-cfg.control_ms / cfg.tau_trace_ms)
-        current = self.w_in @ input_spikes + rec_current
-        self.v = alpha_mem * self.v + current
-        spike_prob = 1.0 / (1.0 + np.exp(-(self.v - 1.0) * 2.5))
-        spikes = self.rng.random(cfg.hidden_neurons) < spike_prob
-        self.v[spikes] = 0.0
-        self.prev_spikes = spikes.astype(np.float64)
-        self.trace = alpha_trace * self.trace + self.prev_spikes
+def _random_rollout_states(condition: str, rng: np.random.Generator, episodes: int) -> np.ndarray:
+    env = AirHockeyBatch(sample_initial_conditions(condition, rng, episodes))
+    states = [env.observe()[~env.done]]
+    while not np.all(env.done):
+        obs, _, _, _ = env.step(rng.integers(0, 2, size=episodes))
+        states.append(obs[~env.done])
+    return np.concatenate(states, axis=0)
 
-        filtered = self.trace
-        logits = filtered @ self.w_out
-        probs = self._softmax(logits)
-        action = int(np.argmax(probs)) if greedy else int(self.rng.choice(cfg.actions, p=probs))
-        return action, probs.copy(), filtered.copy()
 
-    def finish_episode(self, trajectory: list[dict[str, np.ndarray | int | float]]) -> None:
-        self.pending_episodes.append(trajectory)
-        if len(self.pending_episodes) >= self.config.update_every_trials:
-            self.update_readout(self.pending_episodes)
-            self.pending_episodes = []
+def build_reservoir(seed: int, condition: str, cfg: EpropConfig) -> tuple[dict[str, np.ndarray], dict]:
+    """Sample a fixed random reservoir ("chip instance") and an untrained readout."""
+    rng = np.random.default_rng([seed, 7919])
+    k = cfg.cells_per_dim
+    n = cfg.hidden_neurons
+    ranges = encoder_ranges(condition)
+    centers = np.stack([np.linspace(lo, hi, k) for lo, hi in ranges])
+    spacing = (ranges[:, 1] - ranges[:, 0]) / max(1, k - 1)
+    sigma = np.repeat(spacing[:, None], k, axis=1)
+    rates = np.full((6, k), cfg.input_rate_hz)
 
-    def update_readout(self, episodes: list[list[dict[str, np.ndarray | int | float]]]) -> None:
-        cfg = self.config
+    n_in = 6 * k
+    mask = rng.random((n, n_in)) < cfg.connection_prob
+    sign = np.where(rng.random((n, n_in)) < cfg.inhibitory_fraction, -1.0, 1.0)
+    w_shape = mask * sign * _lognormal(rng, 0.25, (n, n_in))
+
+    tau_mem = cfg.tau_mem_ms * _lognormal(rng, cfg.mismatch_cv, n)
+    tau_syn = cfg.tau_syn_ms * _lognormal(rng, cfg.mismatch_cv, n)
+    tau_adapt = cfg.tau_adapt_ms * _lognormal(rng, cfg.mismatch_cv, n)
+    threshold = _lognormal(rng, 0.5 * cfg.mismatch_cv, n)
+    adapt_inc = cfg.adapt_increment * _lognormal(rng, cfg.mismatch_cv, n)
+
+    # Bias calibration of the chip: one global synaptic gain chosen so that a
+    # target fraction of (neuron, state) pairs is driven above threshold in
+    # the steady state over states visited by random behaviour.
+    calib_rng = np.random.default_rng([seed, 104729])
+    states = _random_rollout_states(condition, calib_rng, cfg.calibration_episodes)
+    if states.shape[0] > 600:
+        states = states[calib_rng.choice(states.shape[0], 600, replace=False)]
+    dim_index = np.repeat(np.arange(6), k)
+    z = (states[:, dim_index] - centers.reshape(-1)) / sigma.reshape(-1)
+    in_rate = rates.reshape(-1) * 1e-3 * np.exp(-0.5 * z * z)          # spikes per ms
+    a_mem = np.exp(-1.0 / tau_mem)
+    a_syn = np.exp(-1.0 / tau_syn)
+    drive = (in_rate @ w_shape.T) / ((1.0 - a_syn) * (1.0 - a_mem))    # [S, N]
+    ratio = np.where(drive > 0, threshold / np.maximum(drive, 1e-12), np.inf)
+    gain = float(np.quantile(ratio, cfg.target_active_fraction))
+    if not np.isfinite(gain):
+        gain = float(np.quantile(ratio[np.isfinite(ratio)], 0.5))
+
+    config = {
+        "enc_centers": centers,
+        "enc_sigma": sigma,
+        "enc_max_rate_hz": rates,
+        "w_in": gain * w_shape,
+        "bias": np.zeros(n),
+        "tau_mem_ms": tau_mem,
+        "tau_syn_ms": tau_syn,
+        "tau_adapt_ms": tau_adapt,
+        "adapt_increment": adapt_inc,
+        "threshold": threshold,
+        "refractory_ms": np.full(n, cfg.refractory_ms),
+        "tau_trace_ms": np.full(n, cfg.tau_trace_ms),
+        "w_out": np.zeros((n, 2)),
+        "b_out": np.zeros(2),
+    }
+    config = validate_config(config)
+
+    # Readout input power of the untrained reservoir under random behaviour.
+    chip = ChipBatch(config, cfg.calibration_episodes)
+    env = AirHockeyBatch(sample_initial_conditions(condition, calib_rng, cfg.calibration_episodes))
+    rows = np.arange(cfg.calibration_episodes)
+    obs = env.observe()
+    power, rate_sum, count = 0.0, 0.0, 0
+    while rows.size:
+        trace = chip.step(obs[rows]).astype(np.float64)
+        power += float(np.sum(trace * trace))
+        rate_sum += float(np.sum(chip.spike_count))
+        count += rows.size
+        act = np.zeros(env.batch, dtype=np.int64)
+        act[rows] = calib_rng.integers(0, 2, size=rows.size)
+        obs, _, done, _ = env.step(act)
+        keep = ~done[rows]
+        if not np.all(keep):
+            chip.keep(np.flatnonzero(keep))
+            rows = rows[keep]
+    trace_power = power / max(1, count)
+    stats = {
+        "gain": gain,
+        "trace_power": trace_power,
+        "mean_rate_hz": rate_sum / max(1, count * n) / 0.020,
+        "active_fraction_target": cfg.target_active_fraction,
+    }
+    w_rng = np.random.default_rng([seed, 15485863])
+    w_out = w_rng.normal(0.0, cfg.init_logit_std / np.sqrt(max(trace_power, 1e-9)), (n, 2))
+    config["w_out"] = w_out.astype(np.float32)
+    return config, stats
+
+
+def _softmax(logits: np.ndarray) -> np.ndarray:
+    z = logits - logits.max(axis=1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=1, keepdims=True)
+
+
+class EpropReadoutLearner:
+    """Online e-prop readout learning on a fixed reservoir (Eq. 1)."""
+
+    def __init__(self, config: dict[str, np.ndarray], trace_power: float, cfg: EpropConfig, seed: int) -> None:
+        self.config = dict(config)
+        self.cfg = cfg
+        self.w_out = np.asarray(config["w_out"], dtype=np.float64).copy()
+        self.b_out = np.asarray(config["b_out"], dtype=np.float64).copy()
+        self.alpha = cfg.learning_rate / max(trace_power, 1e-9)
+        self.beta = cfg.critic_learning_rate / max(trace_power, 1e-9)
+        self.w_value = np.zeros(self.w_out.shape[0])
+        self.chip = ChipBatch(self.config, cfg.update_every_trials)
+        self.policy_rng = np.random.default_rng([seed, 31337])
+
+    def export(self) -> dict[str, np.ndarray]:
+        out = dict(self.config)
+        out["w_out"] = self.w_out.astype(np.float32)
+        out["b_out"] = self.b_out.astype(np.float32)
+        return validate_config(out)
+
+    def run_trials(self, init: np.ndarray) -> tuple[list[dict], dict]:
+        """Run ``len(init)`` trials in parallel with the current readout."""
+        n_trials = init.shape[0]
+        env = AirHockeyBatch(init)
+        self.chip.reset(n_trials)
+        rows = np.arange(n_trials)
+        obs = env.observe()
+        traj = [{"trace": [], "probs": [], "action": [], "reward": []} for _ in range(n_trials)]
+        while rows.size:
+            trace = self.chip.step(obs[rows]).astype(np.float64)
+            probs = _softmax(trace @ self.w_out + self.b_out)
+            actions = (self.policy_rng.random(rows.size) < probs[:, 1]).astype(np.int64)
+            full = np.zeros(n_trials, dtype=np.int64)
+            full[rows] = actions
+            obs, reward, done, info = env.step(full)
+            for j, r in enumerate(rows):
+                traj[r]["trace"].append(trace[j].copy())
+                traj[r]["probs"].append(probs[j])
+                traj[r]["action"].append(actions[j])
+                traj[r]["reward"].append(reward[r])
+            keep = ~done[rows]
+            if not np.all(keep):
+                self.chip.keep(np.flatnonzero(keep))
+                rows = rows[keep]
+        return traj, info
+
+    def update(self, trajectories: list[dict]) -> None:
+        """Apply Eq. 1 summed over the trials since the last update.
+
+        sum_t r^t sum_{t'<=t} gamma^(t-t') x^t' = sum_t' G^t' x^t' with the
+        discounted return-to-go G^t' = sum_{t>=t'} gamma^(t-t') r^t, so the
+        update below is Eq. 1 evaluated exactly.
+        """
         grad = np.zeros_like(self.w_out)
-        for episode in episodes:
-            returns = []
-            g = 0.0
-            for item in reversed(episode):
-                g = float(item["reward"]) + cfg.gamma * g
-                returns.append(g)
-            returns.reverse()
-            if cfg.center_returns and len(returns) > 1:
-                returns_array = np.asarray(returns, dtype=np.float64)
-                returns_array = (returns_array - returns_array.mean()) / (returns_array.std() + 1e-6)
-                returns = returns_array.tolist()
-            for item, ret in zip(episode, returns):
-                probs = np.asarray(item["probs"], dtype=np.float64)
-                chosen = int(item["action"])
-                error = probs.copy()
-                error[chosen] -= 1.0
-                grad += ret * np.outer(np.asarray(item["trace"], dtype=np.float64), error)
-        scale = max(1, sum(len(ep) for ep in episodes))
-        self.w_out -= cfg.learning_rate * grad / scale
+        value_grad = np.zeros_like(self.w_value)
+        for tr in trajectories:
+            s = np.asarray(tr["trace"])
+            p = np.asarray(tr["probs"])
+            a = np.asarray(tr["action"], dtype=np.int64)
+            r = np.asarray(tr["reward"], dtype=np.float64)
+            g = np.zeros_like(r)
+            run = 0.0
+            for t in range(len(r) - 1, -1, -1):
+                run = r[t] + self.cfg.gamma * run
+                g[t] = run
+            signal = g
+            if self.beta > 0.0:
+                value = s @ self.w_value
+                signal = g - value
+                value_grad += s.T @ (g - value)
+            err = p.copy()
+            err[np.arange(len(a)), a] -= 1.0
+            grad += s.T @ (signal[:, None] * err)
+        self.w_out -= self.alpha * grad
+        if self.beta > 0.0:
+            self.w_value += self.beta * value_grad
 
-    def save(self, path: str) -> None:
-        np.savez_compressed(
-            path,
-            w_out=self.w_out,
-            v=self.v,
-            trace=self.trace,
-            prev_spikes=self.prev_spikes,
-        )
+
+def train_controller(
+    condition: str,
+    seed: int,
+    episodes: int,
+    cfg: EpropConfig,
+    checkpoints: tuple[int, ...] = (),
+    on_checkpoint: Callable[[int, dict[str, np.ndarray]], None] | None = None,
+    log: Callable[[str], None] | None = None,
+) -> tuple[dict[str, np.ndarray], dict]:
+    """Train one reservoir seed online for ``episodes`` trials."""
+    config, stats = build_reservoir(seed, condition, cfg)
+    learner = EpropReadoutLearner(config, stats["trace_power"], cfg, seed)
+    env_rng = np.random.default_rng([seed, 2601, 21548])
+    successes: list[int] = []
+    hits: list[int] = []
+    lengths: list[int] = []
+    pair = cfg.update_every_trials
+    done_episodes = 0
+    if on_checkpoint is not None and 0 in checkpoints:
+        on_checkpoint(0, learner.export())
+    while done_episodes < episodes:
+        n = min(pair, episodes - done_episodes)
+        init = sample_initial_conditions(condition, env_rng, n)
+        traj, info = learner.run_trials(init)
+        learner.update(traj)
+        successes.extend(int(x) for x in info["success"])
+        hits.extend(int(x) for x in info["hit"])
+        lengths.extend(int(x) for x in info["steps"])
+        prev = done_episodes
+        done_episodes += n
+        for c in checkpoints:
+            if prev < c <= done_episodes and c > 0 and on_checkpoint is not None:
+                on_checkpoint(c, learner.export())
+        if log is not None and (done_episodes // 500) != (prev // 500):
+            window = successes[-200:]
+            log(f"{condition} seed={seed} episodes={done_episodes} online_success(last200)={np.mean(window):.3f}")
+    history = {
+        "online_success": "".join(str(s) for s in successes),
+        "online_hit": "".join(str(h) for h in hits),
+        "episode_steps": lengths,
+        "reservoir": stats,
+    }
+    return learner.export(), history

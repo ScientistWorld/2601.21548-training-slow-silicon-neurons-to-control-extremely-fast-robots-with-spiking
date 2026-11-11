@@ -1,15 +1,12 @@
 #!/bin/bash
-# Verify the packaged scoring surface over existing reproduction artifacts.
+# Hardening job: reproduce the reference with the restored paper settings, run
+# better/weaker variants and shortcut cases through the unmodified evaluators,
+# and regenerate the reference-only scoring files.  Resumable by stage.
 
 set -e
 
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
 
-mkdir -p scoring
-rm -f scoring/scores.json scoring/scores_train.json scoring/scores_test.json
-
-bash scripts/evaluate.sh
-bash scripts/evaluate_train.sh
-bash scripts/evaluate_test.sh
-python validate.py --compare
+python redteam/hardening/run_hardening.py

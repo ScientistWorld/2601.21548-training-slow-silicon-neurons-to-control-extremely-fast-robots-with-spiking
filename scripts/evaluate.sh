@@ -1,24 +1,18 @@
 #!/bin/bash
-# Evaluation script — the standard way to evaluate work in this environment.
+# Evaluation script - the standard way to evaluate work in this environment.
 #
-# This script must be SELF-CONTAINED using only code in eval/.
-# Do NOT import from method/ — evaluate.sh must work even when the
-# paper's method code is hidden from a scientist agent.
+# Executes every submitted controller found under outputs/<method>/ in closed
+# loop on public validation episodes and writes scoring/scores.json.  Uses only
+# eval/ and the public task assets in data/; it never imports method/.
 #
-# Design it so that anyone following the same output format can run
-# this script to evaluate their results.
+# Submission contract (per method and experiment):
+#   outputs/<method>/<experiment>/seed_<k>.npz   k = 0..4
+# Each file is a controller configuration in the format documented in
+# data/neuromorphic_chip.py.  Experiments: randomized_air_hockey,
+# velocity_range_wide, velocity_range_extreme.
 #
-# OUTPUT CONTRACT: This script MUST write scoring/scores.json containing
-# a JSON dict nested by experiment, e.g.:
-#   {"experiments": {"randomized_air_hockey": {"results": {"method": {"success_rate": 0.96}}}}}
-# Experiment and metric names must match the keys in scoring/reference.json.
-# This file is read by the system for automated comparison.
-#
-# Example usage:
+# Usage:
 #   bash scripts/evaluate.sh
-#   bash scripts/evaluate.sh --artifacts outputs/spiking_eprop_random_position_speed.json
-#
-# Called from run.sh after training, or independently.
 
 set -e
 

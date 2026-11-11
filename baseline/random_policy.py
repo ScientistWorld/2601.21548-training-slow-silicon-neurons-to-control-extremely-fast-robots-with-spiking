@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Random-action baseline for the air-hockey task."""
+"""Reference (non-learning) behaviours on the public task simulator.
+
+The scored baselines ``random_policy`` (uniform random primitive each 20 ms)
+and ``always_forward`` (strike immediately) are computed by the evaluators
+themselves, so they cannot be altered by editing this file.  This script runs
+the same behaviours on public episodes for quick inspection and writes a
+summary to ``logs/baselines.json``.
+"""
 
 from __future__ import annotations
 
@@ -9,44 +16,34 @@ from pathlib import Path
 
 import numpy as np
 
-from data.air_hockey_env import AirHockeyInterceptionEnv
+from data.air_hockey_env import AirHockeyBatch, sample_initial_conditions
+
+CONDITIONS = ("random_position_speed", "speed_wide", "speed_extreme")
+
+
+def run(condition: str, policy: str, episodes: int, seed: int) -> dict:
+    rng = np.random.default_rng([seed, CONDITIONS.index(condition)])
+    env = AirHockeyBatch(sample_initial_conditions(condition, rng, episodes))
+    while not np.all(env.done):
+        if policy == "random_policy":
+            actions = rng.integers(0, 2, size=episodes)
+        else:
+            actions = np.ones(episodes, dtype=np.int64)
+        env.step(actions)
+    return {"success_rate": float(env.success.mean()), "hit_rate": float(env.hit.mean())}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--condition", default="random_position_speed")
-    parser.add_argument("--episodes", type=int, default=300)
-    parser.add_argument("--seeds", type=int, default=3)
-    parser.add_argument("--output", default="outputs/random_policy_random_position_speed.json")
+    parser.add_argument("--episodes", type=int, default=1000)
+    parser.add_argument("--seed", type=int, default=5000)
+    parser.add_argument("--output", default="logs/baselines.json")
     args = parser.parse_args()
-    success_by_seed = []
-    hit_by_seed = []
-    for seed in range(args.seeds):
-        rng = np.random.default_rng(seed)
-        env = AirHockeyInterceptionEnv(condition=args.condition, seed=5000 + seed)
-        records = []
-        for _ in range(args.episodes):
-            env.reset()
-            done = False
-            info = {"success": False, "hit": False}
-            while not done:
-                _, _, done, info = env.step(int(rng.integers(0, 2)))
-            records.append(info)
-        success_by_seed.append(float(np.mean([r["success"] for r in records])))
-        hit_by_seed.append(float(np.mean([r["hit"] for r in records])))
-    result = {
-        "method": "random_policy",
-        "condition": args.condition,
-        "episodes": args.episodes,
-        "seeds": args.seeds,
-        "success_rate": float(np.mean(success_by_seed)),
-        "success_rate_iqr": float(np.subtract(*np.percentile(success_by_seed, [75, 25]))),
-        "hit_rate": float(np.mean(hit_by_seed)),
-        "eval_success_by_seed": success_by_seed,
-    }
-    out = Path(args.output)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(result, indent=2) + "\n")
+    summary = {c: {p: run(c, p, args.episodes, args.seed) for p in ("random_policy", "always_forward")}
+               for c in CONDITIONS}
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.output).write_text(json.dumps(summary, indent=2) + "\n")
+    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

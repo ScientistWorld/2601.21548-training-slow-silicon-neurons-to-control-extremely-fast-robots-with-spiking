@@ -1,138 +1,238 @@
 #!/usr/bin/env python3
-"""Held-out test-slice scoring from emitted method artifacts.
+"""Held-out test scoring for neuromorphic air-hockey interception controllers.
 
-The test slice reads the same artifact interface as the train slice, but it
-uses held-out evaluation summaries instead of training-tail summaries. When
-scores_train.json exists, this evaluator scores the same method/experiment
-pairs that appeared on train.
+Every method directory under ``outputs/`` is scored, together with every
+``proposed`` method of ``scoring/reference.json`` (so a missing submission is
+scored as failed rather than skipped).  For each experiment a method must
+provide ``outputs/<method>/<experiment>/seed_<k>.npz`` for k = 0..4: five
+independently trained controller configurations.  The evaluator executes each
+controller in closed loop on held-out episodes that exist only here, with its
+own frozen copies of the task simulator and of the controller runtime, and
+computes every metric from those rollouts.  Numbers written by a method are
+never read.
+
+A (method, experiment) pair fails - and receives the worst value of every
+metric - when a controller is missing, unreadable, malformed, non-finite, out
+of physical bounds, larger than the 1020-unit budget, or duplicated across
+the five seeds.  Baselines are computed here, not read from disk.
 """
 
 from __future__ import annotations
 
-import argparse
+import hashlib
 import json
+import sys
+import time
+import traceback
 from pathlib import Path
-from typing import Any
 
+import numpy as np
 
-CONDITION_TO_EXPERIMENT = {
-    "random_position_speed": "randomized_air_hockey",
-    "speed_wide": "velocity_range_wide",
+from eval.test.chip_runtime import MAX_HIDDEN_UNITS, ChipBatch, ConfigError, controller_units, load_config
+from eval.test.task_sim import AirHockeyBatch, sample_initial_conditions
+
+ROOT = Path(__file__).resolve().parents[2]
+OUTPUTS = ROOT / "outputs"
+SCORES = ROOT / "scoring" / "scores_test.json"
+REFERENCE = ROOT / "scoring" / "reference.json"
+
+EXPERIMENTS = {
+    "randomized_air_hockey": "random_position_speed",
+    "velocity_range_wide": "speed_wide",
+    "velocity_range_extreme": "speed_extreme",
+}
+N_CONTROLLERS = 5
+N_EPISODES = 1000
+BATCH = 500
+EPISODE_SEED = 918_273_645_501
+BASELINES = ("random_policy", "always_forward")
+WORST = {
+    "success_rate": 0.0,
+    "hit_rate": 0.0,
+    "seed_worst_success": 0.0,
+    "controller_units": float(MAX_HIDDEN_UNITS),
 }
 
 
-def _artifact_paths(paths: list[str] | None) -> list[Path]:
-    if paths:
-        return [Path(p) for p in paths]
-    return sorted(Path("outputs").glob("*.json"))
+def held_out_episodes(experiment: str) -> np.ndarray:
+    index = list(EXPERIMENTS).index(experiment)
+    rng = np.random.default_rng([EPISODE_SEED, index])
+    return sample_initial_conditions(EXPERIMENTS[experiment], rng, N_EPISODES)
 
 
-def _experiment_name(data: dict[str, Any], path: Path) -> str:
-    condition = str(data.get("condition", ""))
-    return CONDITION_TO_EXPERIMENT.get(condition, condition or path.stem)
+def _run(init: np.ndarray, choose) -> tuple[np.ndarray, np.ndarray]:
+    env = AirHockeyBatch(init)
+    rows = np.arange(env.batch)
+    obs = env.observe()
+    state = choose(None, rows, None)
+    while rows.size:
+        actions = np.zeros(env.batch, dtype=np.int64)
+        actions[rows] = choose(obs[rows], rows, state)
+        obs, _, done, info = env.step(actions)
+        keep = ~done[rows]
+        if not np.all(keep):
+            rows = rows[keep]
+            if state is not None and hasattr(state, "keep"):
+                state.keep(np.flatnonzero(keep))
+    return info["success"].copy(), info["hit"].copy()
 
 
-def _as_float(data: dict[str, Any], key: str) -> float | None:
-    value = data.get(key)
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return float(value)
-    return None
+def rollout_controller(config: dict, init: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    succ, hit = [], []
+    for start in range(0, init.shape[0], BATCH):
+        part = init[start:start + BATCH]
+
+        def choose(obs, rows, chip):
+            if obs is None:
+                return ChipBatch(config, part.shape[0])
+            return np.argmax(chip.scores(chip.step(obs)), axis=1)
+
+        s, h = _run(part, choose)
+        succ.append(s)
+        hit.append(h)
+    return np.concatenate(succ), np.concatenate(hit)
 
 
-def _float_list(data: dict[str, Any], key: str) -> list[float] | None:
-    value = data.get(key)
-    if not isinstance(value, list):
-        return None
-    out: list[float] = []
-    for item in value:
-        if not isinstance(item, (int, float)) or isinstance(item, bool):
+def rollout_baseline(name: str, init: np.ndarray, stream: int, experiment: str) -> tuple[np.ndarray, np.ndarray]:
+    rng = np.random.default_rng([EPISODE_SEED, list(EXPERIMENTS).index(experiment), stream, 99])
+
+    def choose(obs, rows, state):
+        if obs is None:
             return None
-        out.append(float(item))
-    return out or None
+        if name == "random_policy":
+            return rng.integers(0, 2, size=rows.size)
+        return np.ones(rows.size, dtype=np.int64)
+
+    return _run(init, choose)
 
 
-def _required_pairs(train_scores_path: Path) -> set[tuple[str, str]] | None:
-    if not train_scores_path.exists():
-        return None
-    scores = json.loads(train_scores_path.read_text())
-    pairs: set[tuple[str, str]] = set()
-    for experiment, payload in scores.get("experiments", {}).items():
-        if not isinstance(payload, dict):
-            continue
-        results = payload.get("results", {})
-        if not isinstance(results, dict):
-            continue
-        for method in results:
-            if not str(method).startswith("_"):
-                pairs.add((experiment, str(method)))
-    return pairs or None
+def _digest(config: dict) -> str:
+    h = hashlib.sha256()
+    for key in sorted(config):
+        h.update(key.encode())
+        h.update(np.ascontiguousarray(config[key]).tobytes())
+    return h.hexdigest()
 
 
-def _seed_worst_success(data: dict[str, Any]) -> float | None:
-    values = _float_list(data, "eval_success_by_seed")
-    if values:
-        return min(values)
-    return None
+def load_controllers(method_dir: Path, experiment: str) -> list[dict]:
+    configs = []
+    for k in range(N_CONTROLLERS):
+        path = method_dir / experiment / f"seed_{k}.npz"
+        if not path.is_file():
+            raise ConfigError(f"missing {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
+        configs.append(load_config(path))
+    digests = [_digest(c) for c in configs]
+    if len(set(digests)) != len(digests):
+        raise ConfigError("controllers of different seeds are identical")
+    return configs
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--artifacts", nargs="+", default=None)
-    parser.add_argument("--output", default="scoring/scores_test.json")
-    parser.add_argument("--train-scores", default="scoring/scores_train.json")
-    args = parser.parse_args()
+def evaluate_method_experiment(method_dir: Path, experiment: str) -> dict:
+    """Per-controller held-out outcomes for one method directory."""
+    configs = load_controllers(method_dir, experiment)
+    init = held_out_episodes(experiment)
+    per_success, per_hit = [], []
+    for config in configs:
+        s, h = rollout_controller(config, init)
+        per_success.append(s)
+        per_hit.append(h)
+    return {
+        "success": np.stack(per_success),
+        "hit": np.stack(per_hit),
+        "units": [controller_units(c) for c in configs],
+    }
 
-    required = None if args.artifacts else _required_pairs(Path(args.train_scores))
-    scored_pairs: set[tuple[str, str]] = set()
-    experiments: dict[str, dict[str, Any]] = {}
 
-    for path in _artifact_paths(args.artifacts):
-        if not path.exists():
-            continue
-        data = json.loads(path.read_text())
-        method = str(data.get("method", path.stem))
-        experiment = _experiment_name(data, path)
-        pair = (experiment, method)
-        if required is not None and pair not in required:
-            continue
+def evaluate_baseline(name: str, experiment: str) -> dict:
+    init = held_out_episodes(experiment)
+    per_success, per_hit = [], []
+    for k in range(N_CONTROLLERS):
+        s, h = rollout_baseline(name, init, k, experiment)
+        per_success.append(s)
+        per_hit.append(h)
+    return {"success": np.stack(per_success), "hit": np.stack(per_hit), "units": [0] * N_CONTROLLERS}
 
-        success = _as_float(data, "success_rate")
-        if success is None:
-            raise KeyError(f"{path} is missing success_rate")
 
-        result: dict[str, float] = {"success_rate": success}
+def summarize(outcome: dict) -> dict[str, float]:
+    success = outcome["success"].astype(np.float64)
+    hit = outcome["hit"].astype(np.float64)
+    return {
+        "success_rate": float(success.mean()),
+        "hit_rate": float(hit.mean()),
+        "seed_worst_success": float(success.mean(axis=1).min()),
+        "controller_units": float(max(outcome["units"])),
+    }
 
-        hit_rate = _as_float(data, "hit_rate")
-        if hit_rate is not None:
-            result["hit_rate"] = hit_rate
 
-        controller_units = _as_float(data, "controller_units")
-        if controller_units is not None:
-            result["controller_units"] = controller_units
+def discover_methods() -> tuple[list[str], dict[str, str]]:
+    notes: dict[str, str] = {}
+    names: set[str] = set()
+    if OUTPUTS.is_dir():
+        for path in OUTPUTS.iterdir():
+            if not path.is_dir() or path.name.startswith((".", "_")):
+                continue
+            if path.name in BASELINES:
+                notes[path.name] = "directory name is reserved for an evaluator baseline; ignored"
+                continue
+            names.add(path.name)
+    try:
+        reference = json.loads(REFERENCE.read_text())
+        for payload in reference.get("experiments", {}).values():
+            for name, result in payload.get("results", {}).items():
+                if isinstance(result, dict) and result.get("type") == "proposed" \
+                        and not name.startswith("_") and name not in BASELINES:
+                    names.add(name)
+    except (OSError, ValueError, AttributeError):
+        pass
+    return sorted(names), notes
 
-        success_iqr = _as_float(data, "success_rate_iqr")
-        if success_iqr is not None:
-            result["success_rate_iqr"] = success_iqr
 
-        worst_success = _seed_worst_success(data)
-        if worst_success is not None:
-            result["seed_worst_success"] = worst_success
-
-        experiments.setdefault(experiment, {"results": {}})
-        experiments[experiment]["results"][method] = result
-        scored_pairs.add(pair)
-
-    if required is not None:
-        missing = sorted(required - scored_pairs)
-        if missing:
-            formatted = ", ".join(f"{exp}/{method}" for exp, method in missing)
-            raise SystemExit(f"missing test artifacts for train-scored pairs: {formatted}")
-
-    scores = {"slice": "test", "experiments": experiments}
-    out = Path(args.output)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(scores, indent=2) + "\n")
+def main() -> int:
+    SCORES.parent.mkdir(parents=True, exist_ok=True)
+    if SCORES.exists():
+        SCORES.unlink()
+    methods, notes = discover_methods()
+    experiments: dict[str, dict] = {exp: {"results": {}} for exp in EXPERIMENTS}
+    diagnostics: dict[str, dict] = {name: {"note": note} for name, note in notes.items()}
+    for method in methods:
+        diag = diagnostics.setdefault(method, {})
+        for experiment in EXPERIMENTS:
+            start = time.time()
+            try:
+                outcome = evaluate_method_experiment(OUTPUTS / method, experiment)
+                metrics = summarize(outcome)
+                diag[experiment] = {
+                    "status": "ok",
+                    "per_controller_success": [float(x) for x in outcome["success"].mean(axis=1)],
+                }
+            except ConfigError as exc:
+                metrics = dict(WORST)
+                diag[experiment] = {"status": "failed", "reason": str(exc)}
+            except Exception as exc:  # a submission must never crash scoring
+                metrics = dict(WORST)
+                diag[experiment] = {"status": "failed", "reason": f"{type(exc).__name__}: {exc}",
+                                    "traceback": traceback.format_exc(limit=3)}
+            experiments[experiment]["results"][method] = metrics
+            print(f"[test] {method}/{experiment}: {metrics} ({time.time() - start:.0f}s)", file=sys.stderr, flush=True)
+    for name in BASELINES:
+        for experiment in EXPERIMENTS:
+            experiments[experiment]["results"][name] = summarize(evaluate_baseline(name, experiment))
+    payload = {
+        "slice": "test",
+        "experiments": experiments,
+        "diagnostics": diagnostics,
+        "protocol": {
+            "controllers_per_experiment": N_CONTROLLERS,
+            "episodes_per_controller": N_EPISODES,
+            "unit_budget": MAX_HIDDEN_UNITS,
+            "action_selection": "argmax of readout scores",
+        },
+    }
+    tmp = SCORES.with_suffix(".json.partial")
+    tmp.write_text(json.dumps(payload, indent=2) + "\n")
+    tmp.replace(SCORES)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

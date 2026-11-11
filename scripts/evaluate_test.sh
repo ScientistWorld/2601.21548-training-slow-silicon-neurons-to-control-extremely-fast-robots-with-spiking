@@ -1,9 +1,10 @@
 #!/bin/bash
-# Held-out test-slice evaluator.
+# Held-out test-slice evaluator (no arguments).
 #
-# Mirrors scripts/evaluate.sh's artifact contract while writing
-# scoring/scores_test.json. By default it reads scoring/scores_train.json and
-# scores the same method/experiment entries on the held-out test slice.
+# Scores every method directory under outputs/ (plus the proposed methods of
+# scoring/reference.json) by running its controllers on held-out episodes with
+# frozen copies of the task simulator and controller runtime; writes
+# scoring/scores_test.json.  Does not import method/.
 
 set -e
 
@@ -12,4 +13,4 @@ export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 mkdir -p scoring
 
-python eval/test/evaluate.py "$@"
+python eval/test/evaluate.py

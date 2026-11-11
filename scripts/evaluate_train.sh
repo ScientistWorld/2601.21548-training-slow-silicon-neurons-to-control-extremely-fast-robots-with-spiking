@@ -1,9 +1,9 @@
 #!/bin/bash
 # Visible train-slice evaluator.
 #
-# Mirrors scripts/evaluate.sh's artifact contract while writing
-# scoring/scores_train.json. This script enumerates method artifacts from
-# outputs/ by default and does not import or execute method code.
+# Scores every method directory under outputs/ (plus the proposed methods of
+# scoring/reference.json) by running its controllers on public validation
+# episodes; writes scoring/scores_train.json.  Does not import method/.
 
 set -e
 
@@ -12,4 +12,4 @@ export PYTHONPATH=/home/user:${PYTHONPATH:-}
 
 mkdir -p scoring
 
-python eval/train/evaluate.py "$@"
+python eval/train/evaluate.py
