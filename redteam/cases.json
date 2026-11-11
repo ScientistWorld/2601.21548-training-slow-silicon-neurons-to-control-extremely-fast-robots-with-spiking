@@ -21,5 +21,8 @@
   "shortcut_replace_simulator",
   "shortcut_move_baseline",
   "shortcut_task_failure_capacity_bonus",
-  "shortcut_stale_null_failure"
+  "shortcut_stale_null_failure",
+  "shortcut_constant_forward_seed0",
+  "shortcut_replace_simulator_relaxed",
+  "shortcut_failed_task_other_metrics"
 ]

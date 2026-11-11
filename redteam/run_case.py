@@ -70,13 +70,18 @@ def main():
         elif kind == 'learned_timing':
             artifacts = learned_timing()
         elif kind in ('forward', 'home', 'random', 'bruteforce', 'seed_lookup'):
-            artifacts = rollouts(kind, folder, units=0 if kind in ('forward', 'home', 'random') else 1020)
+            seeds = range(3) if 'seed' not in cfg else [cfg['seed']]
+            artifacts = rollouts(kind, folder, seeds=seeds,
+                                 units=0 if kind in ('forward', 'home', 'random') else 1020)
             if kind == 'seed_lookup':
                 off_seed = rollouts(kind, folder / 'off_seed', seeds=range(20, 23), count=100)
                 write_json(folder / 'off_seed_evidence.json', off_seed)
-        elif kind == 'replace_simulator':
+        elif kind in ('replace_simulator', 'replace_simulator_relaxed'):
             path = ROOT / 'data/air_hockey_env.py'
-            path.write_text(path.read_text().replace('puck_radius: float = 0.04', 'puck_radius: float = 10.0'))
+            code = path.read_text().replace('puck_radius: float = 0.04', 'puck_radius: float = 10.0')
+            if kind == 'replace_simulator_relaxed':
+                code = code.replace('swing_active_start: int = 4', 'swing_active_start: int = 0')
+            path.write_text(code)
             # This is a new process so the modified public simulator is loaded.
             artifacts = []
             for condition in CONDITIONS:
@@ -122,6 +127,14 @@ def main():
                              '--episodes', '100', '--seeds', '1', '--output',
                              str(folder / f'replaced_baseline_{condition}.json')], folder,
                             f'moved_baseline_{condition}')
+        elif kind == 'failed_task_other_metrics':
+            artifacts = rollouts('home', folder, units=1020)
+            write_json(folder / 'actual_failed_controller_results.json', artifacts)
+            for artifact in artifacts:
+                # Success remains honestly zero. The two unrelated benefit
+                # fields are forged; there is no range or consistency check.
+                artifact['hit_rate'] = 1000000.0
+                artifact['eval_success_by_seed'] = [1000000.0]
         elif kind in ('empty_submission', 'task_failure_capacity_bonus'):
             artifacts = []
             if kind == 'task_failure_capacity_bonus':
