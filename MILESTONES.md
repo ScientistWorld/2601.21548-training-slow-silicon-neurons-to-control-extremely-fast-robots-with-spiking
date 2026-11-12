@@ -35,3 +35,10 @@
 ### [2026-06-02 17:29] - core_claim
 - Re-ran final verification checks; `scripts/run.sh` and `validate.py --compare` pass over the packaged artifacts.
 - Added explicit notes that random-policy reference values are local sanity baselines and removed method-family wording from the high-level research-direction guidance.
+
+### [2026-11-12] - core_claim (hardening)
+- Rebuilt the task in the paper's geometry: lateral puck launch, spline primitives, 1 ms physics, 100-step episodes.
+- Submissions are now controller configurations, which the evaluators execute on held-out episodes. Every number is recomputed; failures get worst values.
+- Restored Eq. 1 exactly, 1 ms spiking dynamics, feedforward random synapses and 10 reservoir seeds. Learning rate 0.012 was chosen on the visible slice.
+- Reference held-out success: 0.9997 / 0.9992 / 0.974 / 0.931 (main / wide [0.7,1.5] / extreme [0.5,2.0] / 256-unit extreme); random 0.10, always-forward 0.
+- Shortcut outcomes, leftovers and the headroom analysis are in `HARDENING.md`.

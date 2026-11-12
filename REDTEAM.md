@@ -1,3 +1,5 @@
+> **Superseded.** This document describes the gym before the final hardening iteration (head-on simulator, self-reported JSON scores, two experiments). The task, submission interface, evaluators and scoring changed; see `HARDENING.md`.
+
 # Does this gym reward better research?
 
 Honest improvements score higher on the substitute task, and the no-learning ablation scores lower, both beyond the measured seed spread. **The gym nevertheless fails to distinguish scientific contribution from shortcuts.** The substitute task does not establish the paper's learned robotic timing effect: every trained reference controller chooses the same constant forward action, and enumerating just 31 waiting times solves every evaluated episode. The test is too small and too trusting to support the paper's claim.

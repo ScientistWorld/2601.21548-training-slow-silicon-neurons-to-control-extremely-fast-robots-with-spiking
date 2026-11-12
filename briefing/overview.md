@@ -7,10 +7,16 @@
 
 ## Short Summary
 
-The work studies whether neuromorphic reinforcement learning can scale from simple game benchmarks to real-time robotic air hockey. The controller observes a 6D continuous state, encodes it as spikes, processes it through a fixed random reservoir, and learns a two-action readout online. The reported system reaches high success rates under randomized puck speeds and initial positions while using only 1020 hidden neurons.
+The work asks whether neuromorphic reinforcement learning can scale from simple game benchmarks to real-time robotic air hockey. The controller observes a 6D continuous state and encodes it as spikes. A fixed random reservoir processes the spikes, and a two-action readout learns online. The reported system reaches high success under randomized puck speeds and launch positions with only 1020 hidden neurons.
 
 ## Key Results
 
-- Randomized speed and position setting stabilizes above 98% success after about 1300 episodes.
-- Randomized speed alone reaches above 96% success after about 1500 episodes.
-- Velocity-range tests show graceful degradation from above 97% success on narrow ranges to about 93% on the widest main range.
+- In the randomized speed-and-position setting, success stabilizes above 98% after about 1300 episodes.
+- With randomized speed alone, success reaches above 96% after about 1500 episodes.
+- Velocity-range tests show graceful degradation: above 97% for narrow ranges, about 93% for the widest main range, and 86% for [0.5, 2.0] m/s.
+
+## This Gym
+
+- **Substitute task:** a task-level air-hockey simulator in the paper's geometry: lateral puck launch, spline motion primitives, 1 ms physics.
+- **Substitute hardware:** a software spiking substrate standing in for the DYNAP-SE chip.
+- **What is scored:** submitted controller configurations, executed by the evaluator on held-out episodes. There are four experiments, including a 256-unit "single core" setting where capacity limits performance.

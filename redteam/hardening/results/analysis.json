@@ -1,0 +1,690 @@
+{
+  "scales": {
+    "randomized_air_hockey/success_rate": 0.4325474012509178,
+    "randomized_air_hockey/seed_worst_success": 0.40934273473478333,
+    "randomized_air_hockey/hit_rate": 0.44648631399207594,
+    "randomized_air_hockey/controller_units": 420.4729985778888,
+    "velocity_range_wide/success_rate": 0.38768033696242166,
+    "velocity_range_wide/seed_worst_success": 0.34573395259004425,
+    "velocity_range_wide/hit_rate": 0.40610111505901325,
+    "velocity_range_wide/controller_units": 420.4729985778888,
+    "velocity_range_extreme/success_rate": 0.36794411817839867,
+    "velocity_range_extreme/seed_worst_success": 0.3172020996504978,
+    "velocity_range_extreme/hit_rate": 0.39212391168762234,
+    "velocity_range_extreme/controller_units": 420.4729985778888,
+    "single_core_extreme/success_rate": 0.3659785722032224,
+    "single_core_extreme/seed_worst_success": 0.31291522735160493,
+    "single_core_extreme/hit_rate": 0.3894445403149162,
+    "single_core_extreme/controller_units": 105.34534081656405
+  },
+  "methods": {
+    "oracle_distilled": {
+      "rank_vs_reference": -0.5784,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.1799,
+        "randomized_air_hockey/seed_worst_success": -0.235,
+        "randomized_air_hockey/hit_rate": -0.0171,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.175,
+        "velocity_range_wide/seed_worst_success": -0.221,
+        "velocity_range_wide/hit_rate": -0.0059,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.1498,
+        "velocity_range_extreme/seed_worst_success": -0.108,
+        "velocity_range_extreme/hit_rate": -0.0073,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.1392,
+        "single_core_extreme/seed_worst_success": -0.17,
+        "single_core_extreme/hit_rate": -0.0356,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {
+        "randomized_air_hockey": {
+          "success_diff": -0.1799,
+          "se": 0.0112,
+          "z": -16.06,
+          "pairing": "independent"
+        },
+        "velocity_range_wide": {
+          "success_diff": -0.175,
+          "se": 0.008,
+          "z": -22.0,
+          "pairing": "independent"
+        },
+        "velocity_range_extreme": {
+          "success_diff": -0.1498,
+          "se": 0.0109,
+          "z": -13.71,
+          "pairing": "independent"
+        },
+        "single_core_extreme": {
+          "success_diff": -0.1392,
+          "se": 0.0243,
+          "z": -5.74,
+          "pairing": "independent"
+        }
+      }
+    },
+    "spiking_eprop": {
+      "rank_vs_reference": 0.0,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": 0.0,
+        "randomized_air_hockey/seed_worst_success": 0.0,
+        "randomized_air_hockey/hit_rate": 0.0,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": 0.0,
+        "velocity_range_wide/seed_worst_success": 0.0,
+        "velocity_range_wide/hit_rate": 0.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": 0.0,
+        "velocity_range_extreme/seed_worst_success": 0.0,
+        "velocity_range_extreme/hit_rate": 0.0,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": 0.0,
+        "single_core_extreme/seed_worst_success": 0.0,
+        "single_core_extreme/hit_rate": 0.0,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "spiking_eprop_4000ep": {
+      "rank_vs_reference": 0.0261,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": 0.0003,
+        "randomized_air_hockey/seed_worst_success": 0.003,
+        "randomized_air_hockey/hit_rate": 0.0001,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": 0.0008,
+        "velocity_range_wide/seed_worst_success": 0.004,
+        "velocity_range_wide/hit_rate": 0.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": 0.0129,
+        "velocity_range_extreme/seed_worst_success": 0.0,
+        "velocity_range_extreme/hit_rate": -0.0017,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": 0.0349,
+        "single_core_extreme/seed_worst_success": -0.015,
+        "single_core_extreme/hit_rate": 0.0134,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {
+        "randomized_air_hockey": {
+          "success_diff": 0.0003,
+          "se": 0.0003,
+          "z": 1.0,
+          "pairing": "same seeds"
+        },
+        "velocity_range_wide": {
+          "success_diff": 0.0008,
+          "se": 0.0005,
+          "z": 1.71,
+          "pairing": "same seeds"
+        },
+        "velocity_range_extreme": {
+          "success_diff": 0.0129,
+          "se": 0.0154,
+          "z": 0.84,
+          "pairing": "same seeds"
+        },
+        "single_core_extreme": {
+          "success_diff": 0.0349,
+          "se": 0.0194,
+          "z": 1.8,
+          "pairing": "same seeds"
+        }
+      }
+    },
+    "spiking_eprop_500ep": {
+      "rank_vs_reference": -1.6245,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.118,
+        "randomized_air_hockey/seed_worst_success": -0.571,
+        "randomized_air_hockey/hit_rate": -0.0698,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.3684,
+        "velocity_range_wide/seed_worst_success": -0.965,
+        "velocity_range_wide/hit_rate": -0.2936,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.5733,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.5393,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.4997,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.4656,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {
+        "randomized_air_hockey": {
+          "success_diff": -0.118,
+          "se": 0.062,
+          "z": -1.9,
+          "pairing": "same seeds"
+        },
+        "velocity_range_wide": {
+          "success_diff": -0.3684,
+          "se": 0.0929,
+          "z": -3.97,
+          "pairing": "same seeds"
+        },
+        "velocity_range_extreme": {
+          "success_diff": -0.5733,
+          "se": 0.115,
+          "z": -4.99,
+          "pairing": "same seeds"
+        },
+        "single_core_extreme": {
+          "success_diff": -0.4997,
+          "se": 0.1172,
+          "z": -4.27,
+          "pairing": "same seeds"
+        }
+      }
+    },
+    "spiking_eprop_conjunctive": {
+      "rank_vs_reference": -0.2245,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.0595,
+        "randomized_air_hockey/seed_worst_success": -0.145,
+        "randomized_air_hockey/hit_rate": -0.0179,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.0664,
+        "velocity_range_wide/seed_worst_success": -0.122,
+        "velocity_range_wide/hit_rate": -0.0232,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.1494,
+        "velocity_range_extreme/seed_worst_success": -0.176,
+        "velocity_range_extreme/hit_rate": -0.0442,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": 0.0535,
+        "single_core_extreme/seed_worst_success": 0.094,
+        "single_core_extreme/hit_rate": 0.0132,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {
+        "randomized_air_hockey": {
+          "success_diff": -0.0595,
+          "se": 0.0164,
+          "z": -3.63,
+          "pairing": "independent"
+        },
+        "velocity_range_wide": {
+          "success_diff": -0.0664,
+          "se": 0.0114,
+          "z": -5.84,
+          "pairing": "independent"
+        },
+        "velocity_range_extreme": {
+          "success_diff": -0.1494,
+          "se": 0.0244,
+          "z": -6.13,
+          "pairing": "independent"
+        },
+        "single_core_extreme": {
+          "success_diff": 0.0535,
+          "se": 0.0174,
+          "z": 3.08,
+          "pairing": "independent"
+        }
+      }
+    },
+    "spiking_eprop_critic": {
+      "rank_vs_reference": -0.7094,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": 0.0003,
+        "randomized_air_hockey/seed_worst_success": 0.003,
+        "randomized_air_hockey/hit_rate": 0.0001,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.0992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -0.1,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.0914,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.0968,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.1553,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.166,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {
+        "randomized_air_hockey": {
+          "success_diff": 0.0003,
+          "se": 0.0003,
+          "z": 1.0,
+          "pairing": "independent"
+        },
+        "velocity_range_wide": {
+          "success_diff": -0.0992,
+          "se": 0.1,
+          "z": -0.99,
+          "pairing": "independent"
+        },
+        "velocity_range_extreme": {
+          "success_diff": -0.0914,
+          "se": 0.099,
+          "z": -0.92,
+          "pairing": "independent"
+        },
+        "single_core_extreme": {
+          "success_diff": -0.1553,
+          "se": 0.1125,
+          "z": -1.38,
+          "pairing": "independent"
+        }
+      }
+    },
+    "spiking_eprop_untrained": {
+      "rank_vs_reference": -3.1571,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.857,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.8285,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.8581,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -0.8328,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.8691,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.8533,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.8216,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.838,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {
+        "randomized_air_hockey": {
+          "success_diff": -0.857,
+          "se": 0.0651,
+          "z": -13.17,
+          "pairing": "same seeds"
+        },
+        "velocity_range_wide": {
+          "success_diff": -0.8581,
+          "se": 0.0758,
+          "z": -11.32,
+          "pairing": "same seeds"
+        },
+        "velocity_range_extreme": {
+          "success_diff": -0.8691,
+          "se": 0.0602,
+          "z": -14.44,
+          "pairing": "same seeds"
+        },
+        "single_core_extreme": {
+          "success_diff": -0.8216,
+          "se": 0.0564,
+          "z": -14.57,
+          "pairing": "same seeds"
+        }
+      }
+    },
+    "random_policy": {
+      "rank_vs_reference": -2.9157,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.902,
+        "randomized_air_hockey/seed_worst_success": -0.908,
+        "randomized_air_hockey/hit_rate": -0.8567,
+        "randomized_air_hockey/controller_units": 1020.0,
+        "velocity_range_wide/success_rate": -0.8987,
+        "velocity_range_wide/seed_worst_success": -0.908,
+        "velocity_range_wide/hit_rate": -0.8588,
+        "velocity_range_wide/controller_units": 1020.0,
+        "velocity_range_extreme/success_rate": -0.8765,
+        "velocity_range_extreme/seed_worst_success": -0.823,
+        "velocity_range_extreme/hit_rate": -0.8531,
+        "velocity_range_extreme/controller_units": 1020.0,
+        "single_core_extreme/success_rate": -0.8308,
+        "single_core_extreme/seed_worst_success": -0.756,
+        "single_core_extreme/hit_rate": -0.8417,
+        "single_core_extreme/controller_units": 256.0
+      },
+      "seed_noise": {}
+    },
+    "always_forward": {
+      "rank_vs_reference": -3.2742,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": 1020.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": 1020.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": 1020.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": 256.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:fabricated_metrics": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:impossible_values": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:empty_submission": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:nonfinite_weights": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:over_budget_double_units": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:duplicate_seed_controllers": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:missing_experiments": {
+      "rank_vs_reference": -2.2106,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": 0.0,
+        "randomized_air_hockey/seed_worst_success": 0.0,
+        "randomized_air_hockey/hit_rate": 0.0,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:constant_forward": {
+      "rank_vs_reference": -3.2746,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": 1019.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": 1019.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": 1019.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": 255.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:corrupt_file_with_stale_scores": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:out_of_bounds_parameters": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:extra_unlisted_method": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:extra_unlisted_method:unlisted_home_controller": {
+      "rank_vs_reference": -3.2746,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": 1019.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": 1019.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": 1019.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": 255.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:full_size_controller_in_single_core": {
+      "rank_vs_reference": -3.5169,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": -0.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": -0.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": -0.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": -0.0
+      },
+      "seed_noise": {}
+    },
+    "shortcut:replace_public_simulator": {
+      "rank_vs_reference": -3.2746,
+      "directed_deltas": {
+        "randomized_air_hockey/success_rate": -0.9997,
+        "randomized_air_hockey/seed_worst_success": -0.997,
+        "randomized_air_hockey/hit_rate": -0.9999,
+        "randomized_air_hockey/controller_units": 1019.0,
+        "velocity_range_wide/success_rate": -0.9992,
+        "velocity_range_wide/seed_worst_success": -0.996,
+        "velocity_range_wide/hit_rate": -1.0,
+        "velocity_range_wide/controller_units": 1019.0,
+        "velocity_range_extreme/success_rate": -0.9741,
+        "velocity_range_extreme/seed_worst_success": -0.907,
+        "velocity_range_extreme/hit_rate": -0.9911,
+        "velocity_range_extreme/controller_units": 1019.0,
+        "single_core_extreme/success_rate": -0.9312,
+        "single_core_extreme/seed_worst_success": -0.845,
+        "single_core_extreme/hit_rate": -0.9829,
+        "single_core_extreme/controller_units": 255.0
+      },
+      "seed_noise": {}
+    }
+  },
+  "composed": {
+    "spiking_eprop_4000ep (1020-unit experiments) + spiking_eprop_conjunctive (single_core_extreme)": {
+      "rank_vs_reference": 0.0571,
+      "per_experiment_contribution": {
+        "randomized_air_hockey": 0.0012,
+        "velocity_range_wide": 0.0011,
+        "velocity_range_extreme": 0.0069,
+        "single_core_extreme": 0.0479
+      },
+      "note": "per-experiment controllers are scored independently on the same held-out episodes, so this is the score that submission would receive"
+    }
+  }
+}

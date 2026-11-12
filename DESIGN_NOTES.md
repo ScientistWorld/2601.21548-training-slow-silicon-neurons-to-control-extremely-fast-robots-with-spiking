@@ -1,3 +1,5 @@
+> **Superseded.** This document describes the gym before the final hardening iteration (head-on simulator, self-reported JSON scores, two experiments). The task, submission interface, evaluators and scoring changed; see `HARDENING.md`.
+
 # Train/Test Evaluation Design Notes
 
 ## Checked

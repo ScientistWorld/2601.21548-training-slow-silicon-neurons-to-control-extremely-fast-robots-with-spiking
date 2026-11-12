@@ -1,8 +1,6 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: core_claim
-notes: "Hardening job 3: 10 reservoir seeds per experiment (paper procedure) - train reference seeds 5-9 (lr 0.012, snapshots), critic seeds 5-9, conjunctive-reservoir variant seeds 0-9, distill seeds 5-9; rescore reference (train+test), variants and shortcuts through the unmodified evaluators; final reference-only scoring + validate."
+notes: "Hardened gym: paper-geometry task, evaluator executes submitted spiking controllers on held-out episodes (10 seeds x 1000 episodes, per-experiment unit budgets, worst values on failure), Eq. 1 restored; reference 0.9997/0.9992/0.974/0.931; all REDTEAM shortcuts now score 0; seed cherry-picking and planner/hand-rule distillation left to the grader (HARDENING.md)."
