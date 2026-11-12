@@ -1,0 +1,3 @@
+{
+  "note": "reference reservoirs (untrained snapshot), readout fit by ridge regression to the actions of a per-episode delay-enumeration teacher (out of bounds per DIRECTION.md)"
+}

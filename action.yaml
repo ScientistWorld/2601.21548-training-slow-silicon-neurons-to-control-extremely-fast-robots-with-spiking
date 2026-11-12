@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Hardening job: smoke test, Eq.1 learning-rate sweep, reference training (3 conditions x 5 reservoir seeds, snapshots 0/500/2000/4000), variants (20-cell encoding, critic), planner distillation, all variants and shortcuts through the unmodified held-out evaluator, final reference-only scoring + validate. Resumable by stage."
+notes: "Hardening job 2: Eq.1 reference for lr in {0.007,0.012,0.025} on 4 experiments (incl. 256-unit single-core), lr chosen on visible slice; variants (20-cell, critic, 500/4000 ep, untrained), seed cherry-pick, planner distillation, shortcuts and private search through unmodified evaluators; final reference-only scoring + validate."

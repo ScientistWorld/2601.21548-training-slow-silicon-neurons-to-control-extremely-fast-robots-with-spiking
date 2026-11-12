@@ -1,0 +1,8 @@
+{
+  "learning_rates": [
+    0.007,
+    0.012,
+    0.025
+  ],
+  "failed_commands": []
+}

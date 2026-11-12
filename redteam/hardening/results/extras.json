@@ -1,0 +1,9 @@
+{
+  "learning_rate": 0.012,
+  "failed_commands": [],
+  "variants": {
+    "spiking_eprop_20cells": "same rule, reservoir size and budget; 20 instead of 10 population cells per state variable",
+    "spiking_eprop_critic": "same reservoir; return minus a learned value readout (actor-critic e-prop), not Eq. 1",
+    "cherry_seeds": "reference recipe with reservoir seeds 5-9, used for the seed cherry-picking shortcut"
+  }
+}

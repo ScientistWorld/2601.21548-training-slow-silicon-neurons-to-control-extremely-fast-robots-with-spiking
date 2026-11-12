@@ -1,0 +1,308 @@
+{
+  "validate_exit_code": 0,
+  "validate_stdout": "\u2500\u2500 Scoring \u2500\u2500\n  reference.json \u2014 OK (4 experiments, 12 methods)\n  scores.json \u2014 OK (4 experiments, 9 methods)\n  scores_train.json \u2014 OK (4 experiments, 9 methods)\n  scores_test.json \u2014 OK (4 experiments, 9 methods)\n  split-mode artifacts \u2014 OK (all 6 present)\n  scores \u2194 paper consistency \u2014 OK (checked scores.json, scores_train.json, scores_test.json)\n\n\u2500\u2500 Structure \u2500\u2500\n  import separation \u2014 OK (eval/ and data/ do not import from method/)\n  eval reads method outputs \u2014 3 warning(s):\n    \u26a0 eval/test/evaluate.py: looks detached from the method \u2014 found 'np.random.default_rng' (regenerating the experiment) and no reference to any path that looks like a method output (predictions, outputs, checkpoints, state_dict, etc.). If a future agent edits method/ and these scores don't change, eval is broken. Read the method's artifacts; do not rerun the science yourself.\n    \u26a0 eval/test/task_sim.py: looks detached from the method \u2014 found 'np.random.default_rng' (regenerating the experiment) and no reference to any path that looks like a method output (predictions, outputs, checkpoints, state_dict, etc.). If a future agent edits method/ and these scores don't change, eval is broken. Read the method's artifacts; do not rerun the science yourself.\n    \u26a0 eval/train/evaluate.py: looks detached from the method \u2014 found 'np.random.default_rng' (regenerating the experiment) and no reference to any path that looks like a method output (predictions, outputs, checkpoints, state_dict, etc.). If a future agent edits method/ and these scores don't change, eval is broken. Read the method's artifacts; do not rerun the science yourself.\n  gitignored imports \u2014 OK (all eval/method/baseline imports resolve to tracked files)\n  eval/train \u2194 eval/test independence \u2014 OK\n  shared/ references \u2014 OK (no shared/ paths in committed code)\n  evaluate_{train,test}.sh rewiring \u2014 OK\n  evaluate_{train,test}.sh method defaults \u2014 OK (no hardcoded method name)\n  scores_train.json \u2194 scores_test.json method keys \u2014 OK\n  scores_train.json \u2194 scores_test.json value differentiation \u2014 OK\n  primary metric train/test differentiation \u2014 OK\n  primary metric discriminates methods on train \u2014 OK\n\nAll checks passed.\n",
+  "train": {
+    "slice": "train",
+    "experiments": {
+      "randomized_air_hockey": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 1.0,
+            "hit_rate": 1.0,
+            "seed_worst_success": 1.0,
+            "controller_units": 1020.0
+          },
+          "random_policy": {
+            "success_rate": 0.1036,
+            "hit_rate": 0.1548,
+            "seed_worst_success": 0.092,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      },
+      "velocity_range_wide": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 0.9996,
+            "hit_rate": 1.0,
+            "seed_worst_success": 0.998,
+            "controller_units": 1020.0
+          },
+          "random_policy": {
+            "success_rate": 0.0956,
+            "hit_rate": 0.1402,
+            "seed_worst_success": 0.081,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      },
+      "velocity_range_extreme": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 0.9752,
+            "hit_rate": 0.9904,
+            "seed_worst_success": 0.952,
+            "controller_units": 1020.0
+          },
+          "random_policy": {
+            "success_rate": 0.0984,
+            "hit_rate": 0.1434,
+            "seed_worst_success": 0.087,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      },
+      "single_core_extreme": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 0.9362,
+            "hit_rate": 0.9876,
+            "seed_worst_success": 0.881,
+            "controller_units": 256.0
+          },
+          "random_policy": {
+            "success_rate": 0.0934,
+            "hit_rate": 0.1302,
+            "seed_worst_success": 0.079,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "spiking_eprop": {
+        "randomized_air_hockey": {
+          "status": "ok",
+          "per_controller_success": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "seconds": 55.4
+        },
+        "velocity_range_wide": {
+          "status": "ok",
+          "per_controller_success": [
+            0.998,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "seconds": 61.1
+        },
+        "velocity_range_extreme": {
+          "status": "ok",
+          "per_controller_success": [
+            1.0,
+            0.97,
+            0.952,
+            0.955,
+            0.999
+          ],
+          "seconds": 99.7
+        },
+        "single_core_extreme": {
+          "status": "ok",
+          "per_controller_success": [
+            0.985,
+            1.0,
+            0.912,
+            0.881,
+            0.903
+          ],
+          "seconds": 50.6
+        }
+      }
+    },
+    "protocol": {
+      "controllers_per_experiment": 5,
+      "episodes_per_controller": 1000,
+      "unit_budget": {
+        "randomized_air_hockey": 1020,
+        "velocity_range_wide": 1020,
+        "velocity_range_extreme": 1020,
+        "single_core_extreme": 256
+      },
+      "action_selection": "argmax of readout scores"
+    }
+  },
+  "test": {
+    "slice": "test",
+    "experiments": {
+      "randomized_air_hockey": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 1.0,
+            "hit_rate": 1.0,
+            "seed_worst_success": 1.0,
+            "controller_units": 1020.0
+          },
+          "random_policy": {
+            "success_rate": 0.0962,
+            "hit_rate": 0.1398,
+            "seed_worst_success": 0.089,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      },
+      "velocity_range_wide": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 0.9992,
+            "hit_rate": 1.0,
+            "seed_worst_success": 0.996,
+            "controller_units": 1020.0
+          },
+          "random_policy": {
+            "success_rate": 0.0994,
+            "hit_rate": 0.1416,
+            "seed_worst_success": 0.094,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      },
+      "velocity_range_extreme": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 0.9716,
+            "hit_rate": 0.9882,
+            "seed_worst_success": 0.945,
+            "controller_units": 1020.0
+          },
+          "random_policy": {
+            "success_rate": 0.0954,
+            "hit_rate": 0.138,
+            "seed_worst_success": 0.084,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      },
+      "single_core_extreme": {
+        "results": {
+          "spiking_eprop": {
+            "success_rate": 0.9292,
+            "hit_rate": 0.9848,
+            "seed_worst_success": 0.885,
+            "controller_units": 256.0
+          },
+          "random_policy": {
+            "success_rate": 0.1026,
+            "hit_rate": 0.1416,
+            "seed_worst_success": 0.09,
+            "controller_units": 0.0
+          },
+          "always_forward": {
+            "success_rate": 0.0,
+            "hit_rate": 0.0,
+            "seed_worst_success": 0.0,
+            "controller_units": 0.0
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "spiking_eprop": {
+        "randomized_air_hockey": {
+          "status": "ok",
+          "per_controller_success": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "seconds": 66.3
+        },
+        "velocity_range_wide": {
+          "status": "ok",
+          "per_controller_success": [
+            0.996,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "seconds": 36.8
+        },
+        "velocity_range_extreme": {
+          "status": "ok",
+          "per_controller_success": [
+            1.0,
+            0.963,
+            0.945,
+            0.952,
+            0.998
+          ],
+          "seconds": 67.5
+        },
+        "single_core_extreme": {
+          "status": "ok",
+          "per_controller_success": [
+            0.975,
+            0.999,
+            0.9,
+            0.887,
+            0.885
+          ],
+          "seconds": 29.8
+        }
+      }
+    },
+    "protocol": {
+      "controllers_per_experiment": 5,
+      "episodes_per_controller": 1000,
+      "unit_budget": {
+        "randomized_air_hockey": 1020,
+        "velocity_range_wide": 1020,
+        "velocity_range_extreme": 1020,
+        "single_core_extreme": 256
+      },
+      "action_selection": "argmax of readout scores"
+    }
+  }
+}

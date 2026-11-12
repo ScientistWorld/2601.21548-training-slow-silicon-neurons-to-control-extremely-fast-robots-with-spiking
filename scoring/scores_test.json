@@ -4,9 +4,9 @@
     "randomized_air_hockey": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.9956,
-          "hit_rate": 0.9978,
-          "seed_worst_success": 0.983,
+          "success_rate": 1.0,
+          "hit_rate": 1.0,
+          "seed_worst_success": 1.0,
           "controller_units": 1020.0
         },
         "random_policy": {
@@ -26,9 +26,9 @@
     "velocity_range_wide": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.7896,
-          "hit_rate": 0.7994,
-          "seed_worst_success": 0.0,
+          "success_rate": 0.9992,
+          "hit_rate": 1.0,
+          "seed_worst_success": 0.996,
           "controller_units": 1020.0
         },
         "random_policy": {
@@ -48,15 +48,37 @@
     "velocity_range_extreme": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.7722,
-          "hit_rate": 0.7854,
-          "seed_worst_success": 0.0,
+          "success_rate": 0.9716,
+          "hit_rate": 0.9882,
+          "seed_worst_success": 0.945,
           "controller_units": 1020.0
         },
         "random_policy": {
           "success_rate": 0.0954,
           "hit_rate": 0.138,
           "seed_worst_success": 0.084,
+          "controller_units": 0.0
+        },
+        "always_forward": {
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "controller_units": 0.0
+        }
+      }
+    },
+    "single_core_extreme": {
+      "results": {
+        "spiking_eprop": {
+          "success_rate": 0.9292,
+          "hit_rate": 0.9848,
+          "seed_worst_success": 0.885,
+          "controller_units": 256.0
+        },
+        "random_policy": {
+          "success_rate": 0.1026,
+          "hit_rate": 0.1416,
+          "seed_worst_success": 0.09,
           "controller_units": 0.0
         },
         "always_forward": {
@@ -73,39 +95,58 @@
       "randomized_air_hockey": {
         "status": "ok",
         "per_controller_success": [
-          0.998,
           1.0,
-          0.983,
           1.0,
-          0.997
-        ]
+          1.0,
+          1.0,
+          1.0
+        ],
+        "seconds": 66.3
       },
       "velocity_range_wide": {
         "status": "ok",
         "per_controller_success": [
-          0.0,
+          0.996,
           1.0,
           1.0,
           1.0,
-          0.948
-        ]
+          1.0
+        ],
+        "seconds": 36.8
       },
       "velocity_range_extreme": {
         "status": "ok",
         "per_controller_success": [
-          0.99,
           1.0,
-          0.971,
+          0.963,
+          0.945,
+          0.952,
+          0.998
+        ],
+        "seconds": 67.5
+      },
+      "single_core_extreme": {
+        "status": "ok",
+        "per_controller_success": [
+          0.975,
+          0.999,
           0.9,
-          0.0
-        ]
+          0.887,
+          0.885
+        ],
+        "seconds": 29.8
       }
     }
   },
   "protocol": {
     "controllers_per_experiment": 5,
     "episodes_per_controller": 1000,
-    "unit_budget": 1020,
+    "unit_budget": {
+      "randomized_air_hockey": 1020,
+      "velocity_range_wide": 1020,
+      "velocity_range_extreme": 1020,
+      "single_core_extreme": 256
+    },
     "action_selection": "argmax of readout scores"
   }
 }

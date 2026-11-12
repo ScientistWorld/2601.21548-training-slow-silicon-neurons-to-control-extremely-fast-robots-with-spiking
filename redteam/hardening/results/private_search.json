@@ -1,0 +1,25 @@
+{
+  "note": "enumerating wait-then-strike delays per held-out episode with a copy of the simulator; not expressible through the controller interface",
+  "results": {
+    "randomized_air_hockey": {
+      "per_episode_enumeration_success": 1.0,
+      "candidates_per_episode": 60,
+      "seconds": 16.7
+    },
+    "velocity_range_wide": {
+      "per_episode_enumeration_success": 1.0,
+      "candidates_per_episode": 60,
+      "seconds": 17.5
+    },
+    "velocity_range_extreme": {
+      "per_episode_enumeration_success": 1.0,
+      "candidates_per_episode": 60,
+      "seconds": 27.0
+    },
+    "single_core_extreme": {
+      "per_episode_enumeration_success": 1.0,
+      "candidates_per_episode": 60,
+      "seconds": 29.9
+    }
+  }
+}
