@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Hardening job 2: Eq.1 reference for lr in {0.007,0.012,0.025} on 4 experiments (incl. 256-unit single-core), lr chosen on visible slice; variants (20-cell, critic, 500/4000 ep, untrained), seed cherry-pick, planner distillation, shortcuts and private search through unmodified evaluators; final reference-only scoring + validate."
+notes: "Hardening job 3: 10 reservoir seeds per experiment (paper procedure) - train reference seeds 5-9 (lr 0.012, snapshots), critic seeds 5-9, conjunctive-reservoir variant seeds 0-9, distill seeds 5-9; rescore reference (train+test), variants and shortcuts through the unmodified evaluators; final reference-only scoring + validate."

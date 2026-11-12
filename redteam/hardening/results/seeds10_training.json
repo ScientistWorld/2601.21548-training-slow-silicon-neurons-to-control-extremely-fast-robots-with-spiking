@@ -1,0 +1,7 @@
+{
+  "learning_rate": 0.012,
+  "failed_commands": [],
+  "variants": {
+    "spiking_eprop_conjunctive": "same Eq. 1 readout learning and budget; hidden units are coincidence detectors over (lateral puck position, lateral puck velocity) cells instead of random sparse input synapses"
+  }
+}
