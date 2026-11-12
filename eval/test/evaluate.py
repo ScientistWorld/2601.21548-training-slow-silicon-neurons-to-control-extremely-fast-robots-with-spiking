@@ -4,8 +4,9 @@
 Every method directory under ``outputs/`` is scored, together with every
 ``proposed`` method of ``scoring/reference.json`` (so a missing submission is
 scored as failed rather than skipped).  For each experiment a method must
-provide ``outputs/<method>/<experiment>/seed_<k>.npz`` for k = 0..4: five
-independently trained controller configurations.  The evaluator executes each
+provide ``outputs/<method>/<experiment>/seed_<k>.npz`` for k = 0..9: ten
+independently trained controller configurations (the paper repeats every
+run with 10 reservoir seeds).  The evaluator executes each
 controller in closed loop on held-out episodes that exist only here, with its
 own frozen copies of the task simulator and of the controller runtime, and
 computes every metric from those rollouts.  Numbers written by a method are
@@ -14,7 +15,7 @@ never read.
 A (method, experiment) pair fails - and receives the worst value of every
 metric - when a controller is missing, unreadable, malformed, non-finite, out
 of physical bounds, larger than the experiment's unit budget, or duplicated
-across the five seeds.  Baselines are computed here, not read from disk.
+across the ten seeds.  Baselines are computed here, not read from disk.
 """
 
 from __future__ import annotations
@@ -48,7 +49,7 @@ EXPERIMENTS = {
     "velocity_range_extreme": ("speed_extreme", 1020),
     "single_core_extreme": ("speed_extreme", 256),
 }
-N_CONTROLLERS = 5
+N_CONTROLLERS = 10
 N_EPISODES = 1000
 BATCH = 500
 EPISODE_SEED = 918_273_645_501

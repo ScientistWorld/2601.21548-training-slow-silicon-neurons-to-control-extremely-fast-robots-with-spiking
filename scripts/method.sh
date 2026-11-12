@@ -1,12 +1,12 @@
 #!/bin/bash
 # Run the paper's proposed method: fixed random spiking reservoir with online
-# e-prop readout learning (Eq. 1), 2000 episodes, 5 reservoir seeds, for each
+# e-prop readout learning (Eq. 1), 2000 episodes, 10 reservoir seeds, for each
 # scored condition.  Writes outputs/spiking_eprop/<experiment>/seed_<k>.npz and
 # then scores them on the visible slice.
 #
 # Usage:
-#   bash scripts/method.sh            # all conditions, seeds 0-4
-#   bash scripts/method.sh --conditions random_position_speed --seeds 0
+#   bash scripts/method.sh            # all experiments, seeds 0-9
+#   bash scripts/method.sh --experiments randomized_air_hockey --seeds 0
 
 set -e
 

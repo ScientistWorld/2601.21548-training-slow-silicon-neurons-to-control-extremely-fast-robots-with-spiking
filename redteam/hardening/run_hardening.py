@@ -231,18 +231,7 @@ def stage_select() -> float:
     chosen = max(LR_CANDIDATES, key=lambda lr: score[lr])
     if REF.exists():
         shutil.rmtree(REF)
-    for exp in EXPERIMENTS:
-        (REF / exp).mkdir(parents=True)
-        for seed in SEEDS:
-            shutil.copy2(ref_dir(chosen, 2000) / exp / f"seed_{seed}.npz", REF / exp / f"seed_{seed}.npz")
-            hist = json.loads((ref_dir(chosen, 4000) / exp / f"training_seed_{seed}.json").read_text())
-            online = np.array([int(c) for c in hist["online_success"][:2000]])
-            hist.update({"episodes": 2000, "online_success": hist["online_success"][:2000],
-                         "online_hit": hist["online_hit"][:2000], "episode_steps": hist["episode_steps"][:2000],
-                         "online_success_last200": float(online[-200:].mean()), "method": "spiking_eprop",
-                         "note": "first 2000 episodes of the uninterrupted 4000-episode training run"})
-            hist.pop("wall_seconds", None)
-            (REF / exp / f"training_seed_{seed}.json").write_text(json.dumps(hist) + "\n")
+    install_reference(chosen, SEEDS)
     curves = {}
     for lr in LR_CANDIDATES:
         for exp in EXPERIMENTS:
@@ -259,6 +248,49 @@ def stage_select() -> float:
                          "chosen_learning_rate": chosen, "online_curves": curves})
     log(f"learning-rate selection: {score} -> {chosen}")
     return chosen
+
+
+def install_reference(lr: float, seeds) -> None:
+    """Copy the 2000-episode snapshots of the chosen learning rate into outputs/spiking_eprop."""
+    for exp in EXPERIMENTS:
+        (REF / exp).mkdir(parents=True, exist_ok=True)
+        for seed in seeds:
+            shutil.copy2(ref_dir(lr, 2000) / exp / f"seed_{seed}.npz", REF / exp / f"seed_{seed}.npz")
+            hist = json.loads((ref_dir(lr, 4000) / exp / f"training_seed_{seed}.json").read_text())
+            online = np.array([int(c) for c in hist["online_success"][:2000]])
+            hist.update({"episodes": 2000, "online_success": hist["online_success"][:2000],
+                         "online_hit": hist["online_hit"][:2000], "episode_steps": hist["episode_steps"][:2000],
+                         "online_success_last200": float(online[-200:].mean()), "method": "spiking_eprop",
+                         "note": "first 2000 episodes of the uninterrupted 4000-episode training run"})
+            hist.pop("wall_seconds", None)
+            (REF / exp / f"training_seed_{seed}.json").write_text(json.dumps(hist) + "\n")
+
+
+SEEDS10 = list(range(10))
+
+
+def stage_seeds10(lr: float) -> None:
+    """Paper procedure: 10 reservoir seeds per run.  Train seeds 5-9 and the conjunctive variant."""
+    if done("seeds10_training"):
+        return
+    new = [5, 6, 7, 8, 9]
+    snaps = [f"0={ref_dir(lr, 0)}", f"500={ref_dir(lr, 500)}", f"2000={ref_dir(lr, 2000)}"]
+    cmds = train_cmds(ref_dir(lr, 4000), lr, 4000, snapshots=snaps, seeds=new)
+    cmds += train_cmds(STAGING / "spiking_eprop_critic", lr, 2000, seeds=new,
+                       extra=["--critic-learning-rate", repr(CRITIC_LR)])
+    for exp in EXPERIMENTS:
+        for seed in SEEDS10:
+            cmds.append([sys.executable, "redteam/hardening/variants.py", "--experiment", exp, "--seed", str(seed),
+                         "--episodes", "2000", "--learning-rate", repr(lr),
+                         "--output-dir", str(STAGING / "spiking_eprop_conjunctive")])
+    failures = run_pool(cmds)
+    install_reference(lr, new)
+    pmap(_distill_task, [(lr, e, s) for e in EXPERIMENTS for s in new])
+    record("seeds10_training", {"learning_rate": lr, "failed_commands": failures, "variants": {
+        "spiking_eprop_conjunctive": "same Eq. 1 readout learning and budget; hidden units are coincidence "
+                                     "detectors over (lateral puck position, lateral puck velocity) cells "
+                                     "instead of random sparse input synapses",
+    }})
 
 
 def stage_extras(lr: float) -> None:
@@ -337,11 +369,9 @@ def variant_dirs(lr: float) -> dict[str, Path]:
         "spiking_eprop_untrained": ref_dir(lr, 0),
         "spiking_eprop_500ep": ref_dir(lr, 500),
         "spiking_eprop_4000ep": ref_dir(lr, 4000),
-        "spiking_eprop_20cells": STAGING / "spiking_eprop_20cells",
         "spiking_eprop_critic": STAGING / "spiking_eprop_critic",
+        "spiking_eprop_conjunctive": STAGING / "spiking_eprop_conjunctive",
         "oracle_distilled": STAGING / "oracle_distilled",
-        "seed_cherry_pick": STAGING / "seed_cherry_pick",
-        **{f"spiking_eprop_lr{c}": ref_dir(c, 2000) for c in LR_CANDIDATES if c != lr},
     }
 
 
@@ -392,7 +422,7 @@ def build_shortcut_cases() -> dict[str, Path]:
     per_neuron = ("w_in", "bias", "tau_mem_ms", "tau_syn_ms", "tau_adapt_ms", "adapt_increment",
                   "threshold", "refractory_ms", "tau_trace_ms", "w_out")
     for exp in EXPERIMENTS:
-        for seed in SEEDS:
+        for seed in SEEDS10:
             ref = load_config(REF / exp / f"seed_{seed}.npz")
             path = lambda n, m="spiking_eprop": dirs[n] / m / exp / f"seed_{seed}.npz"  # noqa: E731
             for n in ("nonfinite_weights", "over_budget_double_units", "out_of_bounds_parameters",
@@ -506,10 +536,11 @@ def main() -> None:
     stage_smoke()
     stage_candidates()
     lr = stage_select()
-    stage_eval_reference()
     stage_extras(lr)
     stage_cherry_pick()
-    stage_distill(lr)
+    stage_seeds10(lr)
+    install_reference(lr, SEEDS10)
+    stage_eval_reference()
     stage_eval_variants(lr)
     stage_shortcuts()
     stage_private_search()

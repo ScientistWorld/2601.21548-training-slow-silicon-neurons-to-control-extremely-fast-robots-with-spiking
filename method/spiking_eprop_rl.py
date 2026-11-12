@@ -44,7 +44,7 @@ class EpropConfig:
     mismatch_cv: float = 0.2
     # alpha of Eq. 1, expressed in units of 1 / E[||sbar||^2] of the untrained
     # reservoir so one value transfers across reservoir samples.
-    learning_rate: float = 0.01
+    learning_rate: float = 0.012
     gamma: float = 0.95
     update_every_trials: int = 2
     init_logit_std: float = 0.1

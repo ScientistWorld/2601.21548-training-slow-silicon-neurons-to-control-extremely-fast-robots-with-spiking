@@ -40,7 +40,7 @@ def parse_snapshots(specs: list[str]) -> dict[int, Path]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--experiments", nargs="+", default=list(EXPERIMENTS), choices=list(EXPERIMENTS))
-    parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
+    parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
     parser.add_argument("--episodes", type=int, default=2000)
     parser.add_argument("--output-dir", default="outputs/spiking_eprop")
     parser.add_argument("--snapshot", action="append", default=[])
