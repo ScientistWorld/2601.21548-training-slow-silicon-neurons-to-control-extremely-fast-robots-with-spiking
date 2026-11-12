@@ -1,0 +1,33 @@
+{
+  "seed": 100,
+  "condition": "random_position_speed",
+  "episodes": 2000,
+  "results": {
+    "0.002": {
+      "greedy_validation_success": 0.9366666666666666,
+      "online_last200": 0.725,
+      "online_first200": 0.345,
+      "wall_seconds": 153.24890208244324
+    },
+    "0.007": {
+      "greedy_validation_success": 1.0,
+      "online_last200": 0.98,
+      "online_first200": 0.505,
+      "wall_seconds": 107.80207300186157
+    },
+    "0.025": {
+      "greedy_validation_success": 1.0,
+      "online_last200": 0.995,
+      "online_first200": 0.46,
+      "wall_seconds": 84.68119525909424
+    },
+    "0.08": {
+      "greedy_validation_success": 0.0,
+      "online_last200": 0.0,
+      "online_first200": 0.01,
+      "wall_seconds": 186.75009775161743
+    }
+  },
+  "chosen_learning_rate": 0.025,
+  "note": "selection on public validation episodes, never on the held-out test"
+}

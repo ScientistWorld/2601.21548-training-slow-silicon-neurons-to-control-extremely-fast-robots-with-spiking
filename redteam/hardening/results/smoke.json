@@ -1,0 +1,22 @@
+{
+  "same_source": {
+    "env": true,
+    "chip": true
+  },
+  "timing": {
+    "random_success_main": 0.09375,
+    "random_success_extreme": 0.046875,
+    "tiny_train_s": 0.8452684879302979,
+    "train_20_episodes_1020_units_s": 2.202336311340332,
+    "reservoir": {
+      "gain": 0.015730654844477627,
+      "trace_power": 272.2172477436628,
+      "mean_rate_hz": 7.438122790099646,
+      "active_fraction_target": 0.25
+    },
+    "eval_500_episodes_1020_units_s": 6.910623073577881,
+    "eval_success_untrained": 0.0
+  },
+  "workers": 8,
+  "numpy": "2.4.6"
+}
