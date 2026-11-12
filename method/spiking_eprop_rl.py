@@ -236,6 +236,7 @@ class EpropReadoutLearner:
         """
         grad = np.zeros_like(self.w_out)
         value_grad = np.zeros_like(self.w_value)
+        n_steps = 0
         for tr in trajectories:
             s = np.asarray(tr["trace"])
             p = np.asarray(tr["probs"])
@@ -251,12 +252,14 @@ class EpropReadoutLearner:
                 value = s @ self.w_value
                 signal = g - value
                 value_grad += s.T @ (g - value)
+            n_steps += len(r)
             err = p.copy()
             err[np.arange(len(a)), a] -= 1.0
             grad += s.T @ (signal[:, None] * err)
         self.w_out -= self.alpha * grad
         if self.beta > 0.0:
-            self.w_value += self.beta * value_grad
+            # Normalised LMS step for the value readout (variant only).
+            self.w_value += self.beta * value_grad / max(1, n_steps)
 
 
 def train_controller(

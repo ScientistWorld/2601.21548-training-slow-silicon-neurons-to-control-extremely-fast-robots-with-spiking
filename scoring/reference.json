@@ -3,7 +3,7 @@
     "randomized_air_hockey": {
       "description": "Lateral puck interception with randomized launch position (0.10 m window) and speed (1.0-1.5 m/s), the paper's headline generalization setting (Sec. III-A, Fig. 2c right).",
       "notes": "spiking_eprop values are paper-reported: >98% online success after ~1300 of 2000 episodes with 1020 silicon neurons, MuJoCo robot and DYNAP-SE hardware. The gym runs a task-level simulator and a software spiking substrate and scores the final greedy controller of each of 5 reservoir seeds on held-out episodes, so local values are not expected to equal the paper's online rate. The paper reports no hit rate. random_policy and always_forward values are local sanity baselines computed by the evaluator (not paper numbers).",
-      "weight": 0.5,
+      "weight": 0.4,
       "primary_metric": "success_rate",
       "metrics": {
         "success_rate": {
@@ -35,8 +35,8 @@
         },
         "random_policy": {
           "type": "baseline",
-          "success_rate": 0.14,
-          "hit_rate": 0.19,
+          "success_rate": 0.096,
+          "hit_rate": 0.14,
           "controller_units": 0.0
         },
         "always_forward": {
@@ -50,7 +50,7 @@
     "velocity_range_wide": {
       "description": "Encoding-range scalability: lateral launch speed drawn from the widest main range [0.7, 1.5] m/s with the same 1020-unit budget (Sec. III-B, Fig. 2c left).",
       "notes": "spiking_eprop value is the paper-reported ~93% asymptotic online success for the widest main range (down from 97% for [0.7, 0.9] m/s). Local values come from a task-level simulator and software substrate, scored on held-out episodes. random_policy and always_forward values are local evaluator baselines.",
-      "weight": 0.25,
+      "weight": 0.2,
       "primary_metric": "success_rate",
       "metrics": {
         "success_rate": {
@@ -82,8 +82,8 @@
         },
         "random_policy": {
           "type": "baseline",
-          "success_rate": 0.1,
-          "hit_rate": 0.15,
+          "success_rate": 0.099,
+          "hit_rate": 0.142,
           "controller_units": 0.0
         },
         "always_forward": {
@@ -97,7 +97,7 @@
     "velocity_range_extreme": {
       "description": "Where the fixed-size network falls short: launch speed drawn from [0.5, 2.0] m/s with the same 1020-unit budget (Sec. IV, discussion of encoding-range limits).",
       "notes": "spiking_eprop value is the paper-reported 86% success for the [0.5, 2.0] m/s range, which the paper attributes to the finite resolution of a fixed 1020-neuron network. This experiment carries the gym's headroom. Local values come from a task-level simulator and software substrate, scored on held-out episodes. random_policy and always_forward values are local evaluator baselines.",
-      "weight": 0.25,
+      "weight": 0.2,
       "primary_metric": "success_rate",
       "metrics": {
         "success_rate": {
@@ -129,8 +129,55 @@
         },
         "random_policy": {
           "type": "baseline",
-          "success_rate": 0.085,
-          "hit_rate": 0.11,
+          "success_rate": 0.095,
+          "hit_rate": 0.138,
+          "controller_units": 0.0
+        },
+        "always_forward": {
+          "type": "baseline",
+          "success_rate": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 0.0
+        }
+      }
+    },
+    "single_core_extreme": {
+      "description": "Capacity limit: the [0.5, 2.0] m/s speed range with a 256-unit budget (one DYNAP-SE core) instead of 1020. The paper attributes its wide-range losses to the finite resolution of a fixed-size network and expects more cores to restore performance (Sec. III-B, IV); this experiment measures performance per unit of controller capacity where that limit binds.",
+      "notes": "Not run in the paper: spiking_eprop values are the local reference (the paper's method at a quarter of its neuron count), not paper-reported numbers. Controllers above 256 hidden units fail. random_policy and always_forward values are local evaluator baselines.",
+      "weight": 0.2,
+      "primary_metric": "success_rate",
+      "metrics": {
+        "success_rate": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "Fraction of held-out episodes, pooled over the five submitted controllers, in which the puck crosses x > 1.5 m with v_x > 0.1 m/s."
+        },
+        "seed_worst_success": {
+          "higher_is_better": true,
+          "coefficient": 0.3,
+          "description": "Lowest per-controller success rate among the five independently trained controllers."
+        },
+        "hit_rate": {
+          "higher_is_better": true,
+          "coefficient": 0.1,
+          "description": "Fraction of held-out episodes with puck-mallet contact."
+        },
+        "controller_units": {
+          "higher_is_better": false,
+          "coefficient": 0.1,
+          "description": "Hidden units of the largest submitted controller; above the 256-unit budget of this experiment the run fails."
+        }
+      },
+      "results": {
+        "spiking_eprop": {
+          "type": "proposed",
+          "success_rate": 0.9,
+          "controller_units": 256.0
+        },
+        "random_policy": {
+          "type": "baseline",
+          "success_rate": 0.095,
+          "hit_rate": 0.138,
           "controller_units": 0.0
         },
         "always_forward": {

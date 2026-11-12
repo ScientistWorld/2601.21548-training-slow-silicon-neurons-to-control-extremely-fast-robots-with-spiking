@@ -15,51 +15,61 @@ metric from those rollouts.  Numbers written by a method are never read.
 
 A (method, experiment) pair fails - and receives the worst value of every
 metric - when a controller is missing, unreadable, malformed, non-finite, out
-of physical bounds, larger than the 1020-unit budget, or duplicated across
-the five seeds.  Baselines are computed here, not read from disk.
+of physical bounds, larger than the experiment's unit budget, or duplicated
+across the five seeds.  Baselines are computed here, not read from disk.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import multiprocessing
+import os
 import sys
 import time
 import traceback
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-import numpy as np
+os.environ.setdefault("OMP_NUM_THREADS", "1")
 
-from data.air_hockey_env import AirHockeyBatch, sample_initial_conditions
-from data.neuromorphic_chip import MAX_HIDDEN_UNITS, ChipBatch, ConfigError, controller_units, load_config
+import numpy as np  # noqa: E402
+
+from data.air_hockey_env import AirHockeyBatch, sample_initial_conditions  # noqa: E402
+from data.neuromorphic_chip import ChipBatch, ConfigError, controller_units, load_config  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUTS = ROOT / "outputs"
 SCORES = ROOT / "scoring" / "scores_train.json"
 REFERENCE = ROOT / "scoring" / "reference.json"
 
+# experiment -> (task condition, hidden-unit budget)
 EXPERIMENTS = {
-    "randomized_air_hockey": "random_position_speed",
-    "velocity_range_wide": "speed_wide",
-    "velocity_range_extreme": "speed_extreme",
+    "randomized_air_hockey": ("random_position_speed", 1020),
+    "velocity_range_wide": ("speed_wide", 1020),
+    "velocity_range_extreme": ("speed_extreme", 1020),
+    "single_core_extreme": ("speed_extreme", 256),
 }
 N_CONTROLLERS = 5
 N_EPISODES = 1000
 BATCH = 500
 EPISODE_SEED = 20_260_601
 BASELINES = ("random_policy", "always_forward")
-WORST = {
-    "success_rate": 0.0,
-    "hit_rate": 0.0,
-    "seed_worst_success": 0.0,
-    "controller_units": float(MAX_HIDDEN_UNITS),
-}
+
+
+def worst(experiment: str) -> dict[str, float]:
+    return {
+        "success_rate": 0.0,
+        "hit_rate": 0.0,
+        "seed_worst_success": 0.0,
+        "controller_units": float(EXPERIMENTS[experiment][1]),
+    }
 
 
 def validation_episodes(experiment: str) -> np.ndarray:
     index = list(EXPERIMENTS).index(experiment)
     rng = np.random.default_rng([EPISODE_SEED, index])
-    return sample_initial_conditions(EXPERIMENTS[experiment], rng, N_EPISODES)
+    return sample_initial_conditions(EXPERIMENTS[experiment][0], rng, N_EPISODES)
 
 
 def _run(init: np.ndarray, choose) -> tuple[np.ndarray, np.ndarray]:
@@ -122,7 +132,12 @@ def load_controllers(method_dir: Path, experiment: str) -> list[dict]:
         path = method_dir / experiment / f"seed_{k}.npz"
         if not path.is_file():
             raise ConfigError(f"missing {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
-        configs.append(load_config(path))
+        config = load_config(path)
+        budget = EXPERIMENTS[experiment][1]
+        if controller_units(config) > budget:
+            raise ConfigError(f"seed_{k}: {controller_units(config)} hidden units exceed the "
+                              f"{budget}-unit budget of {experiment}")
+        configs.append(config)
     digests = [_digest(c) for c in configs]
     if len(set(digests)) != len(digests):
         raise ConfigError("controllers of different seeds are identical")
@@ -189,6 +204,33 @@ def discover_methods() -> tuple[list[str], dict[str, str]]:
     return sorted(names), notes
 
 
+def score_task(task: tuple[str, str, bool]) -> tuple[str, str, dict, dict]:
+    """Score one (method, experiment) pair; never raises."""
+    method, experiment, is_baseline = task
+    start = time.time()
+    if is_baseline:
+        return method, experiment, summarize(evaluate_baseline(method, experiment)), {}
+    try:
+        outcome = evaluate_method_experiment(OUTPUTS / method, experiment)
+        metrics = summarize(outcome)
+        diag = {"status": "ok", "per_controller_success": [float(x) for x in outcome["success"].mean(axis=1)]}
+    except ConfigError as exc:
+        metrics, diag = worst(experiment), {"status": "failed", "reason": str(exc)}
+    except Exception as exc:  # a submission must never crash scoring
+        metrics = worst(experiment)
+        diag = {"status": "failed", "reason": f"{type(exc).__name__}: {exc}",
+                "traceback": traceback.format_exc(limit=3)}
+    diag["seconds"] = round(time.time() - start, 1)
+    return method, experiment, metrics, diag
+
+
+def _workers() -> int:
+    try:
+        return max(1, len(os.sched_getaffinity(0)))
+    except AttributeError:
+        return max(1, os.cpu_count() or 1)
+
+
 def main(argv: list[str] | None = None) -> int:
     global SCORES
     import argparse
@@ -200,31 +242,22 @@ def main(argv: list[str] | None = None) -> int:
     if SCORES.exists():
         SCORES.unlink()
     methods, notes = discover_methods()
+    tasks = [(m, e, False) for m in methods for e in EXPERIMENTS] + \
+            [(b, e, True) for b in BASELINES for e in EXPERIMENTS]
+    n = min(_workers(), len(tasks))
+    if n > 1:
+        with ProcessPoolExecutor(max_workers=n, mp_context=multiprocessing.get_context("fork")) as pool:
+            done = list(pool.map(score_task, tasks))
+    else:
+        done = [score_task(t) for t in tasks]
     experiments: dict[str, dict] = {exp: {"results": {}} for exp in EXPERIMENTS}
     diagnostics: dict[str, dict] = {name: {"note": note} for name, note in notes.items()}
-    for method in methods:
-        diag = diagnostics.setdefault(method, {})
-        for experiment in EXPERIMENTS:
-            start = time.time()
-            try:
-                outcome = evaluate_method_experiment(OUTPUTS / method, experiment)
-                metrics = summarize(outcome)
-                diag[experiment] = {
-                    "status": "ok",
-                    "per_controller_success": [float(x) for x in outcome["success"].mean(axis=1)],
-                }
-            except ConfigError as exc:
-                metrics = dict(WORST)
-                diag[experiment] = {"status": "failed", "reason": str(exc)}
-            except Exception as exc:  # a submission must never crash scoring
-                metrics = dict(WORST)
-                diag[experiment] = {"status": "failed", "reason": f"{type(exc).__name__}: {exc}",
-                                    "traceback": traceback.format_exc(limit=3)}
-            experiments[experiment]["results"][method] = metrics
-            print(f"[train] {method}/{experiment}: {metrics} ({time.time() - start:.0f}s)", file=sys.stderr, flush=True)
-    for name in BASELINES:
-        for experiment in EXPERIMENTS:
-            experiments[experiment]["results"][name] = summarize(evaluate_baseline(name, experiment))
+    for method, experiment, metrics, diag in done:
+        experiments[experiment]["results"][method] = metrics
+        if diag:
+            diagnostics.setdefault(method, {})[experiment] = diag
+            print(f"[train] {method}/{experiment}: {metrics} {diag.get('status')} ({diag['seconds']}s)",
+                  file=sys.stderr, flush=True)
     payload = {
         "slice": "train",
         "experiments": experiments,
@@ -232,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
         "protocol": {
             "controllers_per_experiment": N_CONTROLLERS,
             "episodes_per_controller": N_EPISODES,
-            "unit_budget": MAX_HIDDEN_UNITS,
+            "unit_budget": {e: b for e, (_, b) in EXPERIMENTS.items()},
             "action_selection": "argmax of readout scores",
         },
     }
