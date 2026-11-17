@@ -1,6 +1,5 @@
 #!/bin/bash
-# Finish the combined audit; resume raw scoring after worker preemptions.
-# Restore the end-to-end reference entry point after the audit completes.
+# One combined scientific audit; all training finishes before hidden scoring.
 set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}

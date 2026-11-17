@@ -12,7 +12,7 @@ from method.spiking_eprop_rl import EpropConfig, build_reservoir
 from data.neuromorphic_chip import load_config, save_config
 
 ROOT=Path(__file__).resolve().parents[1]
-PLAN=[('speed_extreme',1020),('speed_extreme',256),('sensor_robustness',256)]
+PLAN=[('speed_extreme',1020),('speed_extreme',256),('sensor_robustness',1020)]
 def main():
     for condition,units in PLAN:
         for seed in range(10):

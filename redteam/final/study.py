@@ -22,14 +22,11 @@ EXPS=['velocity_range_extreme','single_core_extreme','sensor_robustness']
 def launch(task):
     mode,e,seed=task
     command=[sys.executable,'method/train.py','--experiments',e,'--seeds',str(seed)]
-    if mode=='long':
-        command+=['--episodes','8000','--average-after','2000','--output-dir','outputs/averaged_readout',
-                  '--snapshot','0=outputs/untrained','--snapshot','500=outputs/weak_500',
-                  '--snapshot','2000=outputs/spiking_eprop','--snapshot','4000=outputs/training_4000','--snapshot','8000=outputs/long_training']
-    else:
-        command+=['--episodes','4000','--critic-learning-rate','0.01',
-                  '--output-dir','outputs/value_baseline']
-    log=STUDY/'logs'/f'{mode}_{e}_{seed}.log'
+    if mode!='long': raise ValueError(mode)
+    command+=['--episodes','64000','--average-after','32000','--output-dir','outputs/averaged_readout',
+              '--snapshot','0=outputs/untrained','--snapshot','2000=outputs/weak_2000',
+              '--snapshot','32000=outputs/spiking_eprop','--snapshot','64000=outputs/long_training']
+    log=STUDY/'logs_v2'/f'{mode}_{e}_{seed}.log'
     log.parent.mkdir(exist_ok=True)
     with log.open('w') as out:
         result=subprocess.run(command,cwd=ROOT,stdout=out,stderr=subprocess.STDOUT,check=False)
@@ -59,7 +56,7 @@ def attacks():
             config['w_out']=config['w_out'].copy()+np.float32(k*1e-8)
             save_config(ROOT/'outputs'/'seed_copy_jitter'/e/f'seed_{k}.npz',config)
             path=ROOT/'outputs'/'constant_forward'/e/f'seed_{k}.npz'
-            config=load_config(path); config['w_out'][:]=0; config['b_out'][:]=[0,1]
+            config=load_config(path); config['w_out'][:]=0; config['b_out'][:]=[0,100]
             save_config(path,config)
     src=ROOT/'outputs'/'spiking_eprop'/'velocity_range_extreme'/'seed_0.npz'
     shutil.copyfile(src,ROOT/'outputs'/'over_capacity'/'single_core_extreme'/'seed_0.npz')
@@ -85,14 +82,19 @@ def distill():
         init=sample_initial_conditions(condition,rng,256)
         candidates=[]
         for lead in [.08,.12,.16,.20,.24,.28,.32,.36]:
-            env=AirHockeyBatch(init)
-            while not env.done.all():
-                o=env.observe()
-                action=((o[:,1]*o[:,3]<0)&(abs(o[:,1])<lead*abs(o[:,3]))).astype(int)
-                env.step(action)
-            candidates.append((float(env.success.mean()),lead))
-        _,lead=max(candidates)
-        selected[e]={'lead_seconds':lead,'visible_success':max(candidates)[0]}
+            for smoothing in [0.,.04,.08]:
+                env=AirHockeyBatch(init)
+                filtered=env.observe().copy()
+                decay=np.exp(-.02/smoothing) if smoothing>0 else 0.
+                while not env.done.all():
+                    o=env.observe()
+                    filtered=decay*filtered+(1-decay)*o
+                    action=((filtered[:,1]*filtered[:,3]<0)&(abs(filtered[:,1])<lead*abs(filtered[:,3]))).astype(int)
+                    env.step(action)
+                candidates.append((float(env.success.mean()),lead,smoothing))
+        _,lead,smoothing=max(candidates)
+        selected[e]={'lead_seconds':lead,'smoothing_seconds':smoothing,'visible_success':max(candidates)[0],
+                     'readout_logit_scale':32}
         for k in range(10):
             config=load_config(ROOT/'data'/'backbones'/f'{condition}_{units}'/f'seed_{k}.npz')
             # Ridge imitation from closed-loop state occupancy with random
@@ -104,10 +106,13 @@ def distill():
             gram=np.eye(units+1)*.5
             rhs=np.zeros(units+1)
             obs=env.observe()
+            filtered=obs.copy()
+            decay=np.exp(-.02/smoothing) if smoothing>0 else 0.
             while len(rows):
                 trace=chip.step(obs[rows]).astype(float)
                 feature=np.column_stack((trace,np.ones(len(rows))))
-                o=obs[rows]
+                filtered[rows]=decay*filtered[rows]+(1-decay)*obs[rows]
+                o=filtered[rows]
                 label=((o[:,1]*o[:,3]<0)&(abs(o[:,1])<lead*abs(o[:,3]))).astype(float)
                 gram+=feature.T@feature
                 rhs+=feature.T@(2*label-1)
@@ -118,8 +123,8 @@ def distill():
                 if not keep.all():
                     chip.keep(np.flatnonzero(keep)); rows=rows[keep]
             w=np.linalg.solve(gram,rhs)
-            config['w_out']=np.column_stack((-w[:-1],w[:-1])).astype(np.float32)
-            config['b_out']=np.array([-w[-1],w[-1]],dtype=np.float32)
+            config['w_out']=(32*np.column_stack((-w[:-1],w[:-1]))).astype(np.float32)
+            config['b_out']=32*np.array([-w[-1],w[-1]],dtype=np.float32)
             save_config(ROOT/'outputs'/'rule_distillation'/e/f'seed_{k}.npz',config)
     (STUDY/'rule_selection.json').write_text(json.dumps(selected,indent=2)+'\n')
 
@@ -130,7 +135,7 @@ def summarize_audit(scores):
     methods=list(next(iter(scores['experiments'].values()))['results'])
     report={}
     for method in methods:
-        if method in ['spiking_eprop',*evaluator.BASELINES]: continue
+        if method=='spiking_eprop': continue
         by_exp={}
         for e in EXPS:
             def raw(name):
@@ -153,9 +158,56 @@ def summarize_audit(scores):
     (STUDY/'paired_comparisons.json').write_text(json.dumps(report,indent=2)+'\n')
 
 
+
+def snapshot_histories():
+    # These snapshots share the exact reference trajectory; retain the matching
+    # online diagnostics instead of implying the averaged 64k log is the ref.
+    for e in EXPS:
+        for k in range(10):
+            full=json.loads((ROOT/'outputs'/'averaged_readout'/e/f'training_seed_{k}.json').read_text())
+            for name,episodes in [('spiking_eprop',32000),('weak_2000',2000),('long_training',64000)]:
+                history=dict(full)
+                for key in ['online_success','online_hit','episode_steps']:
+                    history[key]=full[key][:episodes]
+                history.pop('averaged_updates',None)
+                history.pop('wall_seconds',None)
+                history.update(method=name,episodes=episodes,
+                    online_success_first200=float(np.mean([int(x) for x in history['online_success'][:200]])),
+                    online_success_last200=float(np.mean([int(x) for x in history['online_success'][-200:]])))
+                target=ROOT/'outputs'/name/e/f'training_seed_{k}.json'
+                target.write_text(json.dumps(history)+'\n')
+
+
+def scientific_checks(scores,reference):
+    from eval.rank import rank
+    ranks=rank(scores,reference)
+    paired=json.loads((STUDY/'paired_comparisons.json').read_text())
+    lower={}
+    for method in ['long_training','averaged_readout']:
+        bound=0.
+        for e,spec in reference['experiments'].items():
+            values=[r['success_rate'] for r in scores['experiments'][e]['results'].values()]
+            scale=float(np.std(values))
+            bound+=spec['weight']*paired[method][e]['conservative_95_lower']/scale if scale else 0.
+        lower[method]=bound
+    rules=['rule_distillation','intercept_rule']
+    report={'ranks':ranks,'honest_paired_95_lower_rank_gain':lower,
+            'honest_gain_exceeds_paired_noise':max(lower.values())>0.,
+            'timing_rules_below_reference':all(ranks[m]<0 for m in rules),
+            'weak_and_simple_below_reference':all(ranks[m]<0 for m in ['weak_2000','untrained','random_policy','always_forward']),
+            'reference_at_bound':{e:spec['results']['spiking_eprop']['success_rate']==1.
+                                  for e,spec in reference['experiments'].items()},
+            'honest_variant_at_all_bounds':{m:all(scores['experiments'][e]['results'][m]['success_rate']==1.
+                                                for e in EXPS) for m in lower}}
+    report['passed']=(report['honest_gain_exceeds_paired_noise'] and report['timing_rules_below_reference']
+                      and report['weak_and_simple_below_reference'] and not any(report['honest_variant_at_all_bounds'].values()))
+    (STUDY/'scientific_checks.json').write_text(json.dumps(report,indent=2)+'\n')
+    print('SCIENTIFIC CHECKS',report,flush=True)
+
+
 def main():
     os.chdir(ROOT)
-    old=ROOT/'tmp'/'before_final_outputs'
+    old=ROOT/'tmp'/'rejected_robot_setup_outputs'
     # Existing outputs arose under different dynamics; never resume them.
     if not (STUDY/'started.json').exists():
         old.mkdir(parents=True,exist_ok=True)
@@ -163,11 +215,12 @@ def main():
             if path.is_dir(): shutil.move(str(path),str(old/path.name))
         (STUDY/'started.json').write_text('{"final_code_run":true}\n')
     subprocess.run([sys.executable,'redteam/final/check_resume.py'],check=True)
+    subprocess.run([sys.executable,'redteam/final/check_learning_resume.py'],check=True)
     if not (STUDY/'training_complete.json').exists():
         subprocess.run([sys.executable,'redteam/final/check_physics.py'],check=True)
         subprocess.run([sys.executable,'scripts/generate_backbones.py'],check=True)
         workers=min(8,len(os.sched_getaffinity(0)))
-        tasks=[(mode,e,k) for mode in ['long','critic'] for e in EXPS for k in range(10)]
+        tasks=[('long',e,k) for e in EXPS for k in range(10)]
         records=[]
         with futures.ProcessPoolExecutor(max_workers=workers) as pool:
             pending=[pool.submit(launch,task) for task in tasks]
@@ -182,6 +235,7 @@ def main():
             except BaseException:
                 for task in pending: task.cancel()
                 raise
+        snapshot_histories()
         distill()
         attacks()
         (STUDY/'training_complete.json').write_text('{"complete":true}\n')
@@ -209,7 +263,9 @@ def main():
     for e,spec in reference['experiments'].items():
         spec['results']={m:{'type':'proposed' if m=='spiking_eprop' else 'baseline',**v}
                          for m,v in final['experiments'][e]['results'].items()}
+    reference['_setup_note']=reference['_setup_note'].replace('Local reference results are populated after the combined audit; zero placeholders are not measured results.','Local reference results below were recomputed from isolated rollouts after all training completed.')
     (ROOT/'scoring'/'reference.json').write_text(json.dumps(reference,indent=2)+'\n')
+    scientific_checks(scores,reference)
     from eval.rank import rank
     (STUDY/'ranks.json').write_text(json.dumps(rank(scores,reference),indent=2)+'\n')
     subprocess.run([sys.executable,'validate.py'],check=True)

@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: method_runs
-notes: "Finish combined audit after worker preemptions: retain completed stable training, resume evaluator-owned raw rollouts with exact input/controller/source fingerprints, score all variants and repaired attacks, write isolated reference-only train/test scores and validate. Normal evaluators remain uncached."
+notes: "Combined revised scientific audit: exact Eq. 1 reference at 32000 trials, paired 64000-trial and averaged-readout variants, 2000-trial and untrained controls, filtered timing-rule imitation and repaired invalid submissions. Restore softmax-sampled evaluation and instantaneous reward; strengthen noisy sensing with full paper capacity. Check physics and bit-exact training resume, then regenerate isolated reference-only train/test scores, paired uncertainty, scientific checks and validation."

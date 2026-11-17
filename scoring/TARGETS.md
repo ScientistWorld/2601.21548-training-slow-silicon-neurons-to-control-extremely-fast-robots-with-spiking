@@ -8,7 +8,7 @@ All three experiments report the same four evaluator-derived metrics:
 |---|---|---:|---:|
 | velocity_range_extreme | reliable interception across 0.5–2.0 m/s | fixed 1020 units | 0.2 |
 | single_core_extreme | reliable interception at restricted capacity | fixed 256 units | 0.3 |
-| sensor_robustness | reliable interception under richer launches, state noise and latency | fixed 256 units | 0.5 |
+| sensor_robustness | reliable interception under richer launches, state noise and latency | fixed 1020 units | 0.5 |
 
 All ten assigned instances must be present and valid. A failed constraint
 sets every success metric to zero in every experiment. Final measured reference

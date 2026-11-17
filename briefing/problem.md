@@ -13,9 +13,9 @@ forward puck speed within 0.08 m of the mallet, and -0.1 otherwise. The mallet
 and puck radii are 0.04815 and 0.03165 m.
 
 The scored settings cover speeds 0.5–2.0 m/s with 1020 or 256 controller units,
-and a 256-unit robustness setting with launch positions 0.85–1.30 m,
+and a 1020-unit robustness setting with launch positions 0.80–1.35 m,
 headings tilted up to 0.30 rad toward the near end, noisy observations and
-20 ms observation latency. The first two settings launch laterally from x=1 m.
+40 ms observation latency. The first two settings launch laterally from x=1 m.
 The last setting extends the paper's discussion of sensing uncertainty.
 
 The research question is whether learning improves success across unseen

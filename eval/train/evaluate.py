@@ -20,7 +20,7 @@ EPISODE_SEED=202_606_01
 EXPERIMENTS={
     'velocity_range_extreme':('speed_extreme',1020),
     'single_core_extreme':('speed_extreme',256),
-    'sensor_robustness':('sensor_robustness',256),
+    'sensor_robustness':('sensor_robustness',1020),
 }
 N_CONTROLLERS=10
 N_EPISODES=4096
@@ -59,17 +59,39 @@ def rollout_controller(config,init):
     successes,hits=[],[]
     for start in range(0,len(init),BATCH):
         part=init[start:start+BATCH]
+        # Common random numbers: every controller sees the same action draws
+        # at a given episode/tick, as well as the same physical/noise inputs.
+        random=np.random.default_rng([EPISODE_SEED,int(part[0,3]),674383])
+        draws=random.random((len(part),100))
+        tick=0
         def choose(obs,rows,chip):
+            nonlocal tick
             if obs is None: return ChipBatch(config,len(part))
-            return np.argmax(chip.scores(chip.step(obs)),axis=1)
+            logits=chip.scores(chip.step(obs)).astype(np.float64)
+            logits-=logits.max(axis=1,keepdims=True)
+            probabilities=np.exp(logits)
+            probabilities/=probabilities.sum(axis=1,keepdims=True)
+            selected=(draws[rows,tick]<probabilities[:,1]).astype(int)
+            tick+=1
+            return selected
         s,h=_run(part,choose)
         successes.append(s); hits.append(h)
     return np.concatenate(successes),np.concatenate(hits)
 
-def rollout_baseline(name,init,stream,experiment,lead=.15):
+def rollout_baseline(name,init,stream,experiment,lead=.15,smoothing=0.):
     rng=np.random.default_rng([EPISODE_SEED,list(EXPERIMENTS).index(experiment),stream,99])
+    filtered=np.zeros((len(init),6))
+    initialized=False
+    decay=np.exp(-.02/smoothing) if smoothing>0 else 0.
     def choose(obs,rows,state):
+        nonlocal initialized
         if obs is None: return None
+        if not initialized:
+            filtered[rows]=obs
+            initialized=True
+        else:
+            filtered[rows]=decay*filtered[rows]+(1-decay)*obs
+        obs=filtered[rows]
         if name=='random_policy': return rng.integers(0,2,len(rows))
         if name=='always_forward': return np.ones(len(rows),dtype=int)
         # Fixed analytic intercept-time rule, no fitting on held-out outcomes.
@@ -105,8 +127,9 @@ def evaluate_baseline(name,experiment):
     if name=='intercept_rule':
         # Conservative comparator: best global member of a predeclared rule
         # bank. No per-episode oracle, no method-selected threshold.
-        candidates=[rollout_baseline(name,init,0,experiment,lead)
-                    for lead in [.08,.12,.16,.20,.24,.28,.32,.36,-1.]]
+        candidates=[rollout_baseline(name,init,0,experiment,lead,smoothing)
+                    for lead in [.08,.12,.16,.20,.24,.28,.32,.36,-1.]
+                    for smoothing in [0.,.04,.08]]
         results=[max(candidates,key=lambda result:float(result[0].mean()))]
     else:
         results=[rollout_baseline(name,init,k,experiment) for k in range(10 if name=='random_policy' else 1)]

@@ -24,7 +24,7 @@ from method.spiking_eprop_rl import EpropConfig, train_controller
 EXPERIMENTS = {
     "velocity_range_extreme": ("speed_extreme", 1020),
     "single_core_extreme": ("speed_extreme", 256),
-    "sensor_robustness": ("sensor_robustness", 256),
+    "sensor_robustness": ("sensor_robustness", 1020),
 }
 
 
@@ -40,7 +40,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--experiments", nargs="+", default=list(EXPERIMENTS), choices=list(EXPERIMENTS))
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
-    parser.add_argument("--episodes", type=int, default=2000)
+    parser.add_argument("--episodes", type=int, default=32000)
     parser.add_argument("--output-dir", default="outputs/spiking_eprop")
     parser.add_argument("--snapshot", action="append", default=[])
     parser.add_argument("--hidden-neurons", type=int, default=None,
@@ -85,6 +85,7 @@ def main() -> None:
                     condition, seed, args.episodes, cfg,
                     checkpoints=tuple(snap_paths), on_checkpoint=on_checkpoint,
                     log=lambda msg, _e=experiment: print(f"{_e}: {msg}", flush=True),
+                    resume_path=final_path.with_suffix(".resume.npz") if not args.force else None,
                 )
                 save_config(final_path, config)
             except ConfigError as exc:
@@ -108,6 +109,7 @@ def main() -> None:
             })
             log_path.parent.mkdir(parents=True, exist_ok=True)
             log_path.write_text(json.dumps(history) + "\n")
+            final_path.with_suffix(".resume.npz").unlink(missing_ok=True)
             print(f"done {experiment} seed {seed} [{status}] in {time.time() - start:.0f}s "
                   f"online first200={history['online_success_first200']:.3f} "
                   f"last200={history['online_success_last200']:.3f}", flush=True)

@@ -21,6 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 import json
+import hashlib
 from typing import Callable
 
 import numpy as np
@@ -275,6 +276,8 @@ def train_controller(
     checkpoints: tuple[int, ...] = (),
     on_checkpoint: Callable[[int, dict[str, np.ndarray]], None] | None = None,
     log: Callable[[str], None] | None = None,
+    resume_path: Path | None = None,
+    checkpoint_every_trials: int = 500,
 ) -> tuple[dict[str, np.ndarray], dict]:
     """Train one reservoir seed online for ``episodes`` trials."""
     config, stats = build_reservoir(seed, condition, cfg)
@@ -287,7 +290,54 @@ def train_controller(
     done_episodes = 0
     average = np.zeros_like(learner.w_out)
     average_count = 0
-    if on_checkpoint is not None and 0 in checkpoints:
+    # A checkpoint is taken only between complete two-trial updates. The chip
+    # resets at each pair already, so these arrays and RNG states completely
+    # determine continuation. No elapsed-time limit or load-dependent decision.
+    digest = hashlib.sha256(json.dumps({
+        "condition": condition, "seed": seed, "episodes": episodes,
+        "config": vars(cfg)}, sort_keys=True).encode())
+    root = Path(__file__).resolve().parents[1]
+    for relative in ["method/spiking_eprop_rl.py", "method/train.py",
+                     "data/air_hockey_env.py", "data/neuromorphic_chip.py",
+                     "data/robot/air_hockey.xml"]:
+        digest.update((root / relative).read_bytes())
+    for key, value in sorted(config.items()):
+        digest.update(key.encode())
+        digest.update(np.ascontiguousarray(value).tobytes())
+    digest.update(json.dumps(stats,sort_keys=True).encode())
+    fingerprint = digest.hexdigest()
+    if resume_path is not None and resume_path.exists():
+        with np.load(resume_path, allow_pickle=False) as saved:
+            meta = json.loads(saved["metadata"].tobytes())
+            if meta["fingerprint"] != fingerprint:
+                raise ValueError("training checkpoint belongs to different code/configuration")
+            learner.w_out = saved["w_out"].copy()
+            learner.w_value = saved["w_value"].copy()
+            average = saved["average"].copy()
+            successes = saved["success"].astype(int).tolist()
+            hits = saved["hit"].astype(int).tolist()
+            lengths = saved["lengths"].astype(int).tolist()
+        done_episodes = len(successes)
+        average_count = meta["average_count"]
+        learner.policy_rng.bit_generator.state = meta["policy_rng"]
+        env_rng.bit_generator.state = meta["env_rng"]
+        if log is not None: log(f"resume {condition} seed={seed} episodes={done_episodes}")
+
+    def save_progress():
+        if resume_path is None: return
+        meta = {"fingerprint": fingerprint, "average_count": average_count,
+                "policy_rng": learner.policy_rng.bit_generator.state,
+                "env_rng": env_rng.bit_generator.state}
+        resume_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = resume_path.with_suffix(".tmp")
+        with temporary.open("wb") as stream:
+            np.savez_compressed(stream, w_out=learner.w_out, w_value=learner.w_value,
+                                average=average, success=np.array(successes,dtype=np.uint8),
+                                hit=np.array(hits,dtype=np.uint8),lengths=np.array(lengths,dtype=np.int16),
+                                metadata=np.frombuffer(json.dumps(meta).encode(),dtype=np.uint8))
+        temporary.replace(resume_path)
+
+    if done_episodes == 0 and on_checkpoint is not None and 0 in checkpoints:
         on_checkpoint(0, learner.export())
     while done_episodes < episodes:
         n = min(pair, episodes - done_episodes)
@@ -305,9 +355,12 @@ def train_controller(
         for c in checkpoints:
             if prev < c <= done_episodes and c > 0 and on_checkpoint is not None:
                 on_checkpoint(c, learner.export())
-        if log is not None and (done_episodes // 500) != (prev // 500):
-            window = successes[-200:]
-            log(f"{condition} seed={seed} episodes={done_episodes} online_success(last200)={np.mean(window):.3f}")
+        if (done_episodes // checkpoint_every_trials) != (prev // checkpoint_every_trials):
+            save_progress()
+            if log is not None:
+                window = successes[-200:]
+                log(f"{condition} seed={seed} episodes={done_episodes} online_success(last200)={np.mean(window):.3f}")
+    save_progress()
     history = {
         "online_success": "".join(str(s) for s in successes),
         "online_hit": "".join(str(h) for h in hits),

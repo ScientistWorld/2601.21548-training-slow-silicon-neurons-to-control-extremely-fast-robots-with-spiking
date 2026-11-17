@@ -44,9 +44,9 @@ CONDITIONS = {
     "speed_wide": {"puck_x": (1.,1.), "speed": (.7,1.5)},
     "speed_extreme": {"puck_x": (1.,1.), "speed": (.5,2.)},
     # Robustness extension motivated by the paper's future-work discussion:
-    # richer launches, noisy state estimation, and one control tick latency.
-    "sensor_robustness": {"puck_x": (.85,1.30), "speed": (.5,2.),
-                          "angle": .30, "noise": .01, "latency": 1},
+    # richer launches, noisy state estimation, and two control ticks latency.
+    "sensor_robustness": {"puck_x": (.80,1.35), "speed": (.5,2.),
+                          "angle": .30, "noise": .035, "latency": 2},
 }
 
 def sample_initial_conditions(condition, rng, n):
@@ -101,16 +101,18 @@ class AirHockeyBatch:
         self.my = np.zeros(self.batch)
         self.mvx = np.zeros(self.batch)
         self._true_obs = np.column_stack((self.state[:,1:3],self.state[:,6:8],self.mx,self.my))
-        self._previous_obs = self._true_obs.copy()
+        self._latency = init[:,5].astype(int)
+        if np.any(self._latency < 0) or np.any(self._latency > 10):
+            raise ValueError("observation latency must be 0..10 control ticks")
+        self._history = np.repeat(self._true_obs[:,None,:],int(self._latency.max())+1,axis=1)
         self._noise = np.zeros((self.batch,self.cfg.max_steps+1,6))
         for i in range(self.batch):
             rng = np.random.default_rng(int(init[i,3]))
             scale = np.array([1,1,10,10,1,1])*init[i,4]
             self._noise[i] = rng.normal(size=(self.cfg.max_steps+1,6))*scale
-        self._latency = init[:,5].astype(bool)
 
     def observe(self):
-        obs = np.where(self._latency[:,None],self._previous_obs,self._true_obs)
+        obs = self._history[np.arange(self.batch),self._history.shape[1]-1-self._latency]
         return obs + self._noise[np.arange(self.batch),self.steps]
 
     def step(self, actions):
@@ -162,9 +164,11 @@ class AirHockeyBatch:
         self.hit[idx] |= contact
         sensor = sensors[:,-1]
         self.mx[idx],self.my[idx],self.mvx[idx] = sensor[:,6],sensor[:,7],sensor[:,9]
-        self._previous_obs[idx] = self._true_obs[idx]
         self._true_obs[idx] = sensor[:,[0,1,3,4,6,7]]
-        near = np.min(np.linalg.norm(sensors[:,:,:2]-sensors[:,:,6:8],axis=2),axis=1) <= .08
+        self._history[idx,:-1] = self._history[idx,1:]
+        self._history[idx,-1] = self._true_obs[idx]
+        # Eq. 2 uses the instantaneous distance and velocity at the control tick.
+        near = np.linalg.norm(sensor[:,:2]-sensor[:,6:8],axis=1) <= .08
         reward[idx] = np.where(scored,cfg.terminal_reward,
                              np.where(near,cfg.contact_reward_scale*sensor[:,3],cfg.step_penalty))
         self.done[idx] = self.success[idx] | (self.steps[idx]>=cfg.max_steps)

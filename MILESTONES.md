@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: core_claim**
+**Current: method_runs**
 
 ## Progress Log
 
@@ -42,3 +42,11 @@
 - Restored Eq. 1 exactly, 1 ms spiking dynamics, feedforward random synapses and 10 reservoir seeds. Learning rate 0.012 was chosen on the visible slice.
 - Reference held-out success: 0.9997 / 0.9992 / 0.974 / 0.931 (main / wide [0.7,1.5] / extreme [0.5,2.0] / 256-unit extreme); random 0.10, always-forward 0.
 - Shortcut outcomes, leftovers and the headroom analysis are in `HARDENING.md`.
+
+
+### [2026-11-17] - method_runs
+- The earlier milestone entries describe superseded toy dynamics. Robot audit
+  results show the 2000-trial controller below a timing rule, so final scientific
+  hardening is not yet demonstrated. The new combined audit must establish it.
+- Eq. 1 runs on the software spiking substrate and torque-limited robot.
+  Extended training and the sensing-robustness setting remain under evaluation.

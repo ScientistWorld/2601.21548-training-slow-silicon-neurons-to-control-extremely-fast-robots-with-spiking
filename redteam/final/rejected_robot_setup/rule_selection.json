@@ -1,0 +1,14 @@
+{
+  "velocity_range_extreme": {
+    "lead_seconds": 0.24,
+    "visible_success": 1.0
+  },
+  "single_core_extreme": {
+    "lead_seconds": 0.24,
+    "visible_success": 1.0
+  },
+  "sensor_robustness": {
+    "lead_seconds": 0.24,
+    "visible_success": 0.796875
+  }
+}

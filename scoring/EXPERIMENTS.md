@@ -19,8 +19,8 @@ restricted fixed controller capacity. Violating that capacity fails the run.
 ## sensor_robustness
 
 Tests forward interception across wider launch positions and oblique incoming
-headings, with 0.01 m position noise, 0.10 m/s velocity noise, and one control
-tick observation latency. This extends the sensing and mechanical robustness
+headings, with 0.035 m position noise, 0.35 m/s velocity noise, and two control
+ticks of observation latency. This extends the sensing and mechanical robustness
 questions raised by the paper, where timing is uncertain and simple launch
 schedules are less reliable. It carries half the experiment weight.
 
@@ -28,7 +28,8 @@ schedules are less reliable. It carries half the experiment weight.
 
 Every experiment includes a uniformly random action policy, an immediate
 forward commitment, and the strongest global member of a fixed bank of short intercept-time rules.
-The bank uses eight fixed lead times plus a distance-based travel-time estimate;
+The bank crosses eight fixed lead times plus a distance-based travel-time estimate
+with observation smoothing constants 0, 40 and 80 ms;
 reporting its best global member favors this simple comparison conservatively. These measure
 whether improved success reflects learning beyond basic control schedules.
 They are computed by the evaluator, never read from submitted logs.

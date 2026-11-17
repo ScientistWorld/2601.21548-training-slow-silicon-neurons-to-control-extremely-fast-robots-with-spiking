@@ -10,7 +10,6 @@ import hashlib
 import importlib
 import json
 from pathlib import Path
-import subprocess
 import sys
 import numpy as np
 
@@ -86,44 +85,6 @@ class RawResume:
         print(f'audit raw completed {key[:12]}', flush=True)
         return result
 
-    def adopt_cancelled_run(self):
-        """Import the nine completed rollouts from the unchanged final setup.
-
-        These were made by our cancelled, stable audit, before fingerprints
-        were introduced. Refuse adoption if any evaluator source differs from
-        that run's commit. This one-off migration is never used by the gym.
-        """
-        evaluator = self.evaluator
-        marker = self.directory / 'legacy_adopted.json'
-        if marker.exists() or not evaluator.__name__.startswith('eval.test.'):
-            return
-        for path in source_files(evaluator):
-            previous = subprocess.check_output(
-                ['git', 'show', '8b99f32:' + str(path.relative_to(ROOT))], cwd=ROOT)
-            if previous != path.read_bytes():
-                raise RuntimeError('cancelled-run evaluator changed; cannot adopt old raw outcomes')
-        imported = []
-        for method in evaluator.discover_methods():
-            tag = hashlib.sha256(method.encode()).hexdigest()[:24]
-            for experiment in evaluator.EXPERIMENTS:
-                path = evaluator.RAW / f'{tag}_{experiment}.npz'
-                if not path.exists():
-                    continue
-                configs = evaluator.load_controllers(evaluator.OUTPUTS / method, experiment)
-                init = evaluator.held_out_episodes(experiment)
-                with np.load(path, allow_pickle=False) as saved:
-                    outcome = {name: saved[name].copy() for name in saved.files}
-                evaluator.summarize(outcome)
-                units = np.array([evaluator.controller_units(c) for c in configs])
-                if not np.array_equal(outcome['units'], units):
-                    raise ValueError('legacy raw unit count differs from actual controllers')
-                for k, config in enumerate(configs):
-                    self.store(self.key('controller', init, config),
-                               (outcome['success'][k], outcome['hit'][k]), len(init))
-                imported.append(str(path.relative_to(evaluator.RAW)))
-        marker.write_text(json.dumps({'origin_job': 'be37540d-3d6', 'raw_files': imported}, indent=2) + '\n')
-        print(f'adopted {len(imported)} complete raw experiments from cancelled stable audit', flush=True)
-
     def install(self):
         evaluator = self.evaluator
         controller = evaluator.rollout_controller
@@ -144,9 +105,9 @@ class RawResume:
             return self.obtain(self.key('controller', init, config), len(init),
                                lambda: controller(config, init))
 
-        def run_baseline(name, init, stream, experiment, lead=.15):
-            key = self.key('baseline', init, arguments=(name, stream, experiment, lead))
-            return self.obtain(key, len(init), lambda: baseline(name, init, stream, experiment, lead))
+        def run_baseline(name, init, stream, experiment, lead=.15, smoothing=0.):
+            key = self.key('baseline', init, arguments=(name, stream, experiment, lead, smoothing))
+            return self.obtain(key, len(init), lambda: baseline(name, init, stream, experiment, lead, smoothing))
 
         def run_task(task):
             method, experiment, is_baseline = task
@@ -165,7 +126,6 @@ def main(split):
         raise ValueError('unknown split')
     evaluator = importlib.import_module(f'eval.{split}.evaluate')
     resume = RawResume(evaluator)
-    resume.adopt_cancelled_run()
     resume.install()
     return evaluator.main()
 

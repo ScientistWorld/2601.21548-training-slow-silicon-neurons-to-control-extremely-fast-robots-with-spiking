@@ -81,3 +81,28 @@ individual raw rollouts using exact input, controller and source fingerprints;
 normal train/test evaluators remain uncached. Completed stable controllers and
 raw outputs are retained. The next job finishes scoring and validation without
 retraining or changing the scientific setup.
+
+
+The resumed audit (c296f89d-453) exposed a scientific failure and was cancelled:
+rule imitation scored 0.99993 / 0.98975 / 0.75591, versus the 2000-trial robot
+reference 0.53442 / 0.48931 / 0.21348. The 8000-trial variant was still learning
+and scored 0.92188 / 0.92441 / 0.65393. These are rejected setup diagnostics,
+archived under redteam/final/rejected_robot_setup/, not final reference scores.
+
+All next changes are fixed together before the next combined job: retain
+Eq. 1, extend reference training to 32000 trials, compare its exact trajectory
+with 64000 trials and late readout averaging, and use a 2000-trial weak control.
+Restore softmax action sampling at evaluation, with paired uniform draws;
+use instantaneous distance for the paper's Eq. 2 shaping reward. The robustness
+extension now uses 1020 units, broader launch positions, 0.035 m position and
+0.35 m/s velocity noise, and two observation ticks of latency. A 27-member
+filtered timing-rule bank and sharpened rule imitation challenge it. Exact
+training/RNG checkpoints permit continuation across worker drains; a job-side
+bit-identity check compares interrupted and uninterrupted learning. Changed
+reference/variants and fixed baselines will all run from final code. Old raw
+outcomes cannot be reused because evaluator source fingerprints changed.
+
+Local source parsing and shell syntax checks pass. validate.py currently
+rejects the stale pre-audit score schema and incomplete all-variant test file;
+the combined job replaces all three score files with reference-only runs and
+then runs validate.py. No validation logic or paper-reported result is changed.

@@ -5,19 +5,20 @@ assigned the chip in `data/backbones/<condition>_<units>/seed_<k>.npz`.
 Supply its full configuration with your own `w_out` and `b_out` arrays. Every
 other array must match the assigned instance exactly. The public runtime in
 `data/neuromorphic_chip.py` defines the file format and bounded values.
-The evaluator executes this configuration and chooses the larger action score.
+The evaluator executes this configuration and samples the softmax action probabilities,
+using identical uniform draws for every method at each episode and tick.
 Any learning procedure may produce the readout. Evaluation never trains.
 
 | Experiment | Condition | Units | Weight |
 |---|---|---:|---:|
 | `velocity_range_extreme` | lateral speeds 0.5–2.0 m/s | 1020 | 0.2 |
 | `single_core_extreme` | same speeds | 256 | 0.3 |
-| `sensor_robustness` | varied positions/headings, state noise and latency | 256 | 0.5 |
+| `sensor_robustness` | varied positions/headings, state noise and latency | 1020 | 0.5 |
 
 Each of ten controllers sees the same 4096 episodes. All methods see the same
-inputs, including the same observation-noise draws. Position noise has standard
-deviation 0.01 m and velocity noise 0.10 m/s in the robustness setting. Its
-observations arrive one control tick late. Train and test use independently
+inputs, including the same observation-noise and action-sampling draws. Position noise has standard
+deviation 0.035 m and velocity noise 0.35 m/s in the robustness setting. Its
+observations arrive two control ticks (40 ms) late. Train and test use independently
 drawn episodes of identical difficulty and separate evaluator implementations.
 
 `success_rate` is the scored metric (higher is better; coefficient 1).
@@ -46,4 +47,4 @@ The test uses its own frozen assets. Only bounded numeric configurations cross
 its interface, so a method cannot query hidden trajectories with a private
 simulator during evaluation. Baselines and their candidate operating points are fixed by
 the evaluator. The intercept baseline reports the best global rule in a fixed
-nine-rule bank, giving the simple comparison a conservative advantage. There are no wall-clock scoring metrics or method time limits.
+27-rule bank with three observation smoothing constants (0, 40, 80 ms), giving the simple comparison a conservative advantage. There are no wall-clock scoring metrics or method time limits.

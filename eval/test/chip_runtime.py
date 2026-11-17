@@ -20,7 +20,7 @@ Network executed for every 20 ms control step (1 ms resolution):
   subtractive spike-frequency adaptation, absolute refractory period and an
   optional recurrent weight matrix;
 * readout: filtered hidden spike trains (``trace``) times ``w_out`` plus
-  ``b_out`` give two action scores; evaluators pick the larger score.
+  ``b_out`` give two action scores; evaluators sample their softmax probabilities.
 
 Configuration keys (all numeric arrays; N hidden units, K cells per input dim)::
 

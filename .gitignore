@@ -242,3 +242,5 @@ redteam/final/started.json
 redteam/final/training_complete.json
 redteam/final/audit_complete.json
 MUJOCO_LOG.TXT
+
+redteam/final/logs_v2/

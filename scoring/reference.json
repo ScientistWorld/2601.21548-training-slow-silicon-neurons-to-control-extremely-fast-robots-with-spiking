@@ -6,7 +6,7 @@
         "success_rate": 0.98,
         "controller_units": 1020.0
       },
-      "notes": "spiking_eprop values are paper-reported: >98% online success after ~1300 of 2000 episodes with 1020 silicon neurons, MuJoCo robot and DYNAP-SE hardware. The gym runs a task-level simulator and a software spiking substrate and scores the final greedy controllers on held-out episodes, so local values are not expected to equal the paper's online rate. The paper reports no hit rate. random_policy and always_forward values are local baselines computed by the evaluator (not paper numbers). Scored protocol: each method submits 10 independently trained controllers (the paper's 10 reservoir seeds); each is executed greedily on 1000 held-out episodes and success is pooled."
+      "notes": "Paper-reported >98% online success after about 1300 of 2000 trials, with 1020 silicon neurons. These numbers are retained for provenance and are not scored targets on the local software scale."
     },
     "velocity_range_wide": {
       "results": {
@@ -14,7 +14,7 @@
         "success_rate": 0.93,
         "controller_units": 1020.0
       },
-      "notes": "spiking_eprop value is the paper-reported ~93% asymptotic online success for the widest main range (down from 97% for [0.7, 0.9] m/s). Local values come from a task-level simulator and software substrate, scored on held-out episodes; the substitute is easier at this range than the paper's robot (local reference ~0.999). random_policy and always_forward values are local evaluator baselines. Scored protocol: each method submits 10 independently trained controllers (the paper's 10 reservoir seeds); each is executed greedily on 1000 held-out episodes and success is pooled."
+      "notes": "Paper-reported approximately 93% asymptotic online success on [0.7, 1.5] m/s, versus 97% on [0.7, 0.9] m/s. These numbers are retained for provenance and are not scored targets on the local software scale."
     },
     "velocity_range_extreme": {
       "results": {
@@ -22,14 +22,14 @@
         "success_rate": 0.86,
         "controller_units": 1020.0
       },
-      "notes": "spiking_eprop value is the paper-reported 86% success for the [0.5, 2.0] m/s range, which the paper attributes to the finite resolution of a fixed 1020-neuron network (local reference ~0.974). random_policy and always_forward values are local evaluator baselines. Scored protocol: each method submits 10 independently trained controllers (the paper's 10 reservoir seeds); each is executed greedily on 1000 held-out episodes and success is pooled."
+      "notes": "Paper-reported 86% online success on [0.5, 2.0] m/s, attributed to finite encoding resolution. These numbers are retained for provenance and are not scored targets on the local software scale."
     }
   },
-  "_setup_note": "Paper values are preserved verbatim above. They are not targets on the software robot scale. Local reference results below are populated by the final isolated reference run.",
+  "_setup_note": "Paper-reported numbers above are unchanged. The local software robot uses Eq. 1 for 32000 trials per chip (paper: 2000), 10 fixed chip instances, and final softmax-sampled held-out rollouts. Noise robustness uses 1020 units, 0.035 m position noise, 0.35 m/s velocity noise and 40 ms latency. Local reference results are populated after the combined audit; zero placeholders are not measured results.",
   "experiments": {
     "velocity_range_extreme": {
       "description": "Interception across the full 0.5\u20132.0 m/s speed range.",
-      "notes": "Local software robot and spiking substrate. These are not silicon measurements or paper numbers. Final reference and evaluator baselines are regenerated from the final code. Ten fixed chips, 4096 paired episodes each; readout training is open. Coefficient zero means diagnostic only.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 32000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
       "weight": 0.2,
       "primary_metric": "success_rate",
       "metrics": {
@@ -66,7 +66,7 @@
     },
     "single_core_extreme": {
       "description": "Interception across 0.5\u20132.0 m/s with a single 256-unit instance.",
-      "notes": "Local software robot and spiking substrate. These are not silicon measurements or paper numbers. Final reference and evaluator baselines are regenerated from the final code. Ten fixed chips, 4096 paired episodes each; readout training is open. Coefficient zero means diagnostic only.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 32000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
       "weight": 0.3,
       "primary_metric": "success_rate",
       "metrics": {
@@ -103,7 +103,7 @@
     },
     "sensor_robustness": {
       "description": "Interception with broad launch positions and directions, noisy state estimates and one-tick observation latency.",
-      "notes": "Local software robot and spiking substrate. These are not silicon measurements or paper numbers. Final reference and evaluator baselines are regenerated from the final code. Ten fixed chips, 4096 paired episodes each; readout training is open. Coefficient zero means diagnostic only.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 32000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
       "weight": 0.5,
       "primary_metric": "success_rate",
       "metrics": {
@@ -125,7 +125,7 @@
         "controller_units": {
           "higher_is_better": false,
           "coefficient": 0.0,
-          "description": "Counted hidden units; must equal the assigned 256-unit fixed instance. A violation fails every experiment."
+          "description": "Counted hidden units; must equal the assigned 1020-unit fixed instance. A violation fails every experiment."
         }
       },
       "results": {
@@ -134,7 +134,7 @@
           "success_rate": 0.0,
           "seed_worst_success": 0.0,
           "hit_rate": 0.0,
-          "controller_units": 256
+          "controller_units": 1020
         }
       }
     }
