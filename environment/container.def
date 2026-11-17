@@ -42,7 +42,7 @@ From: python:3.11-slim
 
 %post
     apt-get update && apt-get install -y --no-install-recommends \
-        tmux nano vim-tiny less curl wget git && \
+        tmux nano vim-tiny less curl wget git libgl1 libegl1 && \
     ln -sf /usr/bin/vim.tiny /usr/bin/vim && \
     rm -rf /var/lib/apt/lists/*
 
@@ -50,7 +50,7 @@ From: python:3.11-slim
     # apt-get update && apt-get install -y --no-install-recommends \
     #     python3 python3-pip python3-dev \
     #     libomp-dev libgl1-mesa-glx libglib2.0-0 \
-    #     tmux nano vim-tiny less curl wget git && \
+    #     tmux nano vim-tiny less curl wget git libgl1 libegl1 && \
     # ln -sf /usr/bin/vim.tiny /usr/bin/vim && \
     # rm -rf /var/lib/apt/lists/*
 

@@ -1,15 +1,34 @@
-# Experiment Overview
+# Experiments
 
-Every experiment scores 10 independently trained controllers per method. The evaluator executes them on 1000 episodes it holds itself, and reports pooled success, the weakest controller's success, the contact rate, and the measured controller size.
-
-## randomized_air_hockey
-The headline setting. Can a compact controller reliably intercept a fast puck whose launch position and speed both vary? It measures timing quality under the paper's main randomized condition with a 1020-unit budget.
-
-## velocity_range_wide
-Does a controller of the same size stay effective when the puck speed distribution is widened? This tests whether the timing adapts across a broader range of arrival times.
+Every experiment evaluates ten assigned controller instances on 4096 identical
+paired launches per instance. It reports task success, weakest-instance
+success, physical contact frequency and measured controller size. Only task
+success contributes to rank. Invalid submissions receive worst values across
+all experiments. All baselines use the same launches and observation noise.
 
 ## velocity_range_extreme
-The broadest speed range the paper discusses, where it reports a clear loss for a fixed-size controller. Here, small timing errors at the fastest and slowest launches decide the score. This is where improvements over the reference are expected to show.
+
+Tests successful forward interception across the broad 0.5–2.0 m/s speed range
+where the paper reports losses. The 1020-unit limit retains the paper's scale.
 
 ## single_core_extreme
-The same broad speed range with a quarter of the capacity (256 units, one neuromorphic core). It measures how much interception performance a method extracts per unit of controller capacity, which is the compactness the paper's claim rests on. Exceeding the budget fails the run.
+
+Tests the same range under a 256-unit limit. It asks how well learning uses a
+restricted fixed controller capacity. Violating that capacity fails the run.
+
+## sensor_robustness
+
+Tests forward interception across wider launch positions and oblique incoming
+headings, with 0.01 m position noise, 0.10 m/s velocity noise, and one control
+tick observation latency. This extends the sensing and mechanical robustness
+questions raised by the paper, where timing is uncertain and simple launch
+schedules are less reliable. It carries half the experiment weight.
+
+## Fixed comparisons
+
+Every experiment includes a uniformly random action policy, an immediate
+forward commitment, and the strongest global member of a fixed bank of short intercept-time rules.
+The bank uses eight fixed lead times plus a distance-based travel-time estimate;
+reporting its best global member favors this simple comparison conservatively. These measure
+whether improved success reflects learning beyond basic control schedules.
+They are computed by the evaluator, never read from submitted logs.

@@ -17,6 +17,9 @@ The work asks whether neuromorphic reinforcement learning can scale from simple 
 
 ## This Gym
 
-- **Substitute task:** a task-level air-hockey simulator in the paper's geometry: lateral puck launch, spline motion primitives, 1 ms physics.
-- **Substitute hardware:** a software spiking substrate standing in for the DYNAP-SE chip.
-- **What is scored:** submitted controller configurations, executed by the evaluator on held-out episodes. There are four experiments, including a 256-unit "single core" setting where capacity limits performance.
+- Software substitute: a torque-limited three-joint MuJoCo arm and a software
+  spiking substrate; the authors' silicon and exact robot are not reproduced.
+- Three scored settings: broad puck speeds, restricted controller capacity,
+  and a noise/latency extension motivated by the paper's robustness discussion.
+- Every method learns readouts for the same ten assigned controller instances.
+- The evaluator recomputes closed-loop success on unseen, paired launches.

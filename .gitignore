@@ -231,3 +231,11 @@ tmp/
 protocol.md
 *.egg-info
 core.[0-9]*
+
+# Final hardening: generated trajectories remain on their respective split.
+eval/test/raw/
+eval/train/raw/
+!data/backbones/**/*.npz
+!eval/test/backbones/**/*.npz
+redteam/final/logs/
+redteam/final/started.json

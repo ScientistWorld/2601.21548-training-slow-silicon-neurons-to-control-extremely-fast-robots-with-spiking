@@ -19,12 +19,14 @@ configuration format.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
+import json
 from typing import Callable
 
 import numpy as np
 
 from data.air_hockey_env import CONDITIONS, AirHockeyBatch, sample_initial_conditions
-from data.neuromorphic_chip import ChipBatch, validate_config
+from data.neuromorphic_chip import ChipBatch, validate_config, load_config
 
 
 @dataclass
@@ -88,6 +90,9 @@ def _random_rollout_states(condition: str, rng: np.random.Generator, episodes: i
 
 def build_reservoir(seed: int, condition: str, cfg: EpropConfig) -> tuple[dict[str, np.ndarray], dict]:
     """Sample a fixed random reservoir ("chip instance") and an untrained readout."""
+    frozen = Path(__file__).resolve().parents[1] / "data" / "backbones" / f"{condition}_{cfg.hidden_neurons}" / f"seed_{seed}.npz"
+    if frozen.exists() and not cfg.extra.get("generate_backbone", False):
+        return load_config(frozen), json.loads(frozen.with_suffix(".json").read_text())
     rng = np.random.default_rng([seed, 7919])
     k = cfg.cells_per_dim
     n = cfg.hidden_neurons
@@ -280,6 +285,8 @@ def train_controller(
     lengths: list[int] = []
     pair = cfg.update_every_trials
     done_episodes = 0
+    average = np.zeros_like(learner.w_out)
+    average_count = 0
     if on_checkpoint is not None and 0 in checkpoints:
         on_checkpoint(0, learner.export())
     while done_episodes < episodes:
@@ -292,6 +299,9 @@ def train_controller(
         lengths.extend(int(x) for x in info["steps"])
         prev = done_episodes
         done_episodes += n
+        if cfg.extra.get("average_after", 0) and done_episodes > cfg.extra["average_after"]:
+            average += learner.w_out
+            average_count += 1
         for c in checkpoints:
             if prev < c <= done_episodes and c > 0 and on_checkpoint is not None:
                 on_checkpoint(c, learner.export())
@@ -304,4 +314,7 @@ def train_controller(
         "episode_steps": lengths,
         "reservoir": stats,
     }
+    if average_count:
+        learner.w_out = average / average_count
+        history["averaged_updates"] = average_count
     return learner.export(), history

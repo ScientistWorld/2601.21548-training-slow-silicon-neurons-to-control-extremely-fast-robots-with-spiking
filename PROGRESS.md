@@ -55,3 +55,14 @@
 - Environment substitution: the paper uses the MuJoCo Air Hockey robot environment; this reproduction uses a tracked task-level simulator with the same 6D state, two primitive targets, contact threshold, reward, and success definition because the exact MuJoCo stack is not provided.
 - Scale for first job: the submitted run uses fewer seeds than the paper's 10 independent reservoir samples to establish the core claim within the initial compute budget. The algorithm and training procedure are unchanged.
 - Optimization stabilization: the reproduction centers discounted returns within each two-trial update batch. This is a policy-gradient variance-control addition around the paper's e-prop eligibility update, introduced because the software task-level simulator produced very sparse successes.
+
+## Final hardening implementation
+
+Read paper, REDTEAM.md and REVIEW.md. Replaced kinematic mallet with a documented
+MuJoCo three-joint substitute; kept the actual Eq. 1 training rule. Fixed chip
+instances remove reservoir seed selection, and capacity becomes a hard
+constraint with no auxiliary score reward. Retired saturated settings from
+rank, added noisy/latent observations and richer launches, and enlarged paired
+evaluation. One combined CPU job will generate calibrated chip assets, train
+reference and honest/weak alternatives, audit affected shortcuts, and finish
+with isolated reference-only scoring. Empirical outcome remains pending.

@@ -22,10 +22,9 @@ from method.spiking_eprop_rl import EpropConfig, train_controller
 
 # experiment -> (task condition, hidden units of the paper's controller)
 EXPERIMENTS = {
-    "randomized_air_hockey": ("random_position_speed", 1020),
-    "velocity_range_wide": ("speed_wide", 1020),
     "velocity_range_extreme": ("speed_extreme", 1020),
     "single_core_extreme": ("speed_extreme", 256),
+    "sensor_robustness": ("sensor_robustness", 256),
 }
 
 
@@ -50,6 +49,7 @@ def main() -> None:
     parser.add_argument("--learning-rate", type=float, default=EpropConfig.learning_rate)
     parser.add_argument("--gamma", type=float, default=EpropConfig.gamma)
     parser.add_argument("--critic-learning-rate", type=float, default=0.0)
+    parser.add_argument("--average-after", type=int, default=0, help="variant only: average readouts after this trial")
     parser.add_argument("--force", action="store_true", help="retrain even if outputs exist")
     args = parser.parse_args()
 
@@ -64,12 +64,13 @@ def main() -> None:
             learning_rate=args.learning_rate,
             gamma=args.gamma,
             critic_learning_rate=args.critic_learning_rate,
+            extra={"average_after": args.average_after},
         )
         for seed in args.seeds:
             final_path = out_root / experiment / f"seed_{seed}.npz"
             log_path = out_root / experiment / f"training_seed_{seed}.json"
             snap_paths = {e: d / experiment / f"seed_{seed}.npz" for e, d in snapshots.items()}
-            if not args.force and log_path.exists() and all(p.exists() for p in snap_paths.values()):
+            if not args.force and final_path.exists() and log_path.exists() and all(p.exists() for p in snap_paths.values()):
                 print(f"skip {experiment} seed {seed}: outputs exist", flush=True)
                 continue
             start = time.time()

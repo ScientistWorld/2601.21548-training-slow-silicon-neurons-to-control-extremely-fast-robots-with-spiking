@@ -1,253 +1,172 @@
-"""Task-level air-hockey interception simulator (public training environment).
+"""Public air-hockey environment: torque-limited planar robot in MuJoCo.
 
-The paper (Sec. II-A, II-C, Fig. 1, Table I) trains in a MuJoCo air-hockey
-environment with a robot arm whose end effector executes open-loop spline
-primitives.  The robot and the DYNAP-SE hardware are not available here, so
-this module reproduces the task at the level the controller interacts with:
-
-* robot frame at the near end of a 1.948 m x 1.038 m table; x points forward
-  along the table, y is lateral;
-* puck radius 0.03165 m, mallet radius 0.04815 m (contact distance 0.0798 m);
-* the puck is generated in the band x in [0.95, 1.05] m at the table edge
-  and launched *laterally* across the table (the "pucks' generation area" of
-  Fig. 1); it moves without friction and bounces elastically off the walls;
-* two motion primitives: action 0 drives the end effector to the home point
-  (0.70, 0), action 1 to the forward point (1.50, 0).  A primitive is an
-  open-loop cubic spline in task space from the current end-effector position
-  and velocity to the target, ending at rest; a new spline starts only when
-  the selected target changes, so corrective maneuvers are compositions of
-  primitives;
-* 50 Hz decisions, 1 ms physics integration, elastic puck-mallet collisions;
-* reward of Eq. 2 and success ``x_p > 1.5 m and v_x > 0.1 m/s``; an episode
-  lasts at most 100 control steps (2 s).
-
-Everything is vectorised over a batch of independent episodes, so the same
-code serves single-episode online learning and batched evaluation.  The module
-is method-agnostic.
+The six observations, two task-space cubic primitives, 50 Hz decisions,
+1 kHz physics, reward (Eq. 2), and success event follow the paper. The robot
+geometry is an explicitly documented software substitute; see robot/README.md.
+No labels, test instances, fitted policies, or test seeds are stored here.
 """
-
 from __future__ import annotations
-
 from dataclasses import dataclass
-
+from functools import lru_cache
+from pathlib import Path
 import numpy as np
-
+import mujoco
+from mujoco import rollout
 
 @dataclass(frozen=True)
 class AirHockeyConfig:
     table_length: float = 1.948
     table_width: float = 1.038
-    puck_radius: float = 0.03165
-    mallet_radius: float = 0.04815
-    home_x: float = 0.70
+    puck_radius: float = .03165
+    mallet_radius: float = .04815
+    home_x: float = .70
     forward_x: float = 1.50
-    launch_y: float = 0.45
+    launch_y: float = .45
     goal_x: float = 1.5
-    goal_vx: float = 0.1
-    control_dt: float = 0.02
+    goal_vx: float = .1
+    control_dt: float = .02
     physics_substeps: int = 20
-    mallet_mean_speed: float = 2.0
-    min_primitive_s: float = 0.10
-    max_primitive_s: float = 0.60
-    restitution: float = 1.0
+    mallet_mean_speed: float = 2.
+    min_primitive_s: float = .10
+    max_primitive_s: float = .60
     max_steps: int = 100
-    terminal_reward: float = 20.0
-    contact_reward_scale: float = 0.2
-    step_penalty: float = -0.1
+    terminal_reward: float = 20.
+    contact_reward_scale: float = .2
+    step_penalty: float = -.1
 
-
-# Initial-condition distributions of the paper's experimental conditions
-# (Sec. III).  ``puck_x`` is the launch position along the table inside the
-# generation band, ``speed`` the lateral launch speed in m/s.
 CONDITIONS = {
-    "stationary_1m": {"puck_x": (1.00, 1.00), "speed": (0.0, 0.0)},
-    "constant_speed": {"puck_x": (1.00, 1.00), "speed": (1.2, 1.2)},
-    "variable_speed": {"puck_x": (1.00, 1.00), "speed": (1.0, 1.5)},
-    "random_position_speed": {"puck_x": (0.95, 1.05), "speed": (1.0, 1.5)},
-    "speed_narrow": {"puck_x": (1.00, 1.00), "speed": (0.7, 0.9)},
-    "speed_medium": {"puck_x": (1.00, 1.00), "speed": (0.7, 1.2)},
-    "speed_wide": {"puck_x": (1.00, 1.00), "speed": (0.7, 1.5)},
-    "speed_extreme": {"puck_x": (1.00, 1.00), "speed": (0.5, 2.0)},
+    "stationary_1m": {"puck_x": (1.,1.), "speed": (0.,0.)},
+    "constant_speed": {"puck_x": (1.,1.), "speed": (1.2,1.2)},
+    "variable_speed": {"puck_x": (1.,1.), "speed": (1.,1.5)},
+    "random_position_speed": {"puck_x": (.95,1.05), "speed": (1.,1.5)},
+    "speed_narrow": {"puck_x": (1.,1.), "speed": (.7,.9)},
+    "speed_medium": {"puck_x": (1.,1.), "speed": (.7,1.2)},
+    "speed_wide": {"puck_x": (1.,1.), "speed": (.7,1.5)},
+    "speed_extreme": {"puck_x": (1.,1.), "speed": (.5,2.)},
+    # Robustness extension motivated by the paper's future-work discussion:
+    # richer launches, noisy state estimation, and one control tick latency.
+    "sensor_robustness": {"puck_x": (.85,1.30), "speed": (.5,2.),
+                          "angle": .30, "noise": .01, "latency": 1},
 }
 
-
-def sample_initial_conditions(condition: str, rng: np.random.Generator, n: int) -> np.ndarray:
-    """Return an ``(n, 2)`` array of (launch x, launch speed)."""
-    if condition not in CONDITIONS:
-        raise ValueError(f"unknown condition {condition!r}; choose from {sorted(CONDITIONS)}")
+def sample_initial_conditions(condition, rng, n):
     spec = CONDITIONS[condition]
-    x0 = rng.uniform(*spec["puck_x"], size=n)
-    speed = rng.uniform(*spec["speed"], size=n)
-    return np.stack([x0, speed], axis=1)
+    return np.column_stack((rng.uniform(*spec["puck_x"],n), rng.uniform(*spec["speed"],n),
+        rng.uniform(-spec.get("angle",0), 0,n),
+        rng.integers(0,2**32-1,n), np.full(n,spec.get("noise",0)),
+        np.full(n,spec.get("latency",0))))
 
+def inverse_kinematics(x, y):
+    wx = np.asarray(x) - .4
+    y = np.asarray(y)
+    c = np.clip((wx*wx+y*y-.75**2-.55**2)/(2*.75*.55), -.99999,.99999)
+    q2 = np.arccos(c)
+    q1 = np.arctan2(y,wx) - np.arctan2(.55*np.sin(q2), .75+.55*c)
+    return np.clip(np.stack((q1,q2,-q1-q2),axis=-1),-3.05,3.05)
+
+@lru_cache(maxsize=1)
+def _physics():
+    model = mujoco.MjModel.from_xml_path(str(Path(__file__).parent / 'robot' / 'air_hockey.xml'))
+    return model, mujoco.MjData(model), rollout.Rollout(nthread=0)
 
 class AirHockeyBatch:
-    """A batch of independent interception episodes advanced in lock-step."""
+    def __init__(self, init, config=None):
+        self.cfg = config or AirHockeyConfig()
+        init = np.asarray(init, dtype=np.float64)
+        if init.ndim != 2 or init.shape[1] not in (2,6):
+            raise ValueError('initial conditions must have 2 or 6 columns')
+        if init.shape[1] == 2:
+            init = np.column_stack((init,np.zeros((len(init),4))))
+        self.batch = len(init)
+        self.model, self.data, self.engine = _physics()
+        self.state = np.zeros((self.batch,1+self.model.nq+self.model.nv))
+        # FULLPHYSICS: time, qpos(puck x,y,robot angles), qvel.
+        self.state[:,1] = init[:,0]
+        self.state[:,2] = np.where(init[:,1]==0,0,self.cfg.launch_y)
+        self.state[:,3:6] = inverse_kinematics(np.full(self.batch,self.cfg.home_x),np.zeros(self.batch))
+        self.state[:,6] = init[:,1]*np.sin(init[:,2])
+        self.state[:,7] = -init[:,1]*np.cos(init[:,2])
+        self.time = np.zeros(self.batch)
+        self.steps = np.zeros(self.batch,dtype=int)
+        self.done = np.zeros(self.batch,dtype=bool)
+        self.success = self.done.copy()
+        self.hit = self.done.copy()
+        self.target = np.zeros(self.batch,dtype=int)
+        self.sp_t0 = np.zeros(self.batch)
+        self.sp_p0 = np.full(self.batch,self.cfg.home_x)
+        self.sp_v0 = np.zeros(self.batch)
+        self.sp_p1 = self.sp_p0.copy()
+        self.sp_T = np.ones(self.batch)
+        self.mx = self.sp_p0.copy()
+        self.my = np.zeros(self.batch)
+        self.mvx = np.zeros(self.batch)
+        self._true_obs = np.column_stack((self.state[:,1:3],self.state[:,6:8],self.mx,self.my))
+        self._previous_obs = self._true_obs.copy()
+        self._noise = np.zeros((self.batch,self.cfg.max_steps+1,6))
+        for i in range(self.batch):
+            rng = np.random.default_rng(int(init[i,3]))
+            scale = np.array([1,1,10,10,1,1])*init[i,4]
+            self._noise[i] = rng.normal(size=(self.cfg.max_steps+1,6))*scale
+        self._latency = init[:,5].astype(bool)
 
-    def __init__(self, init: np.ndarray, config: AirHockeyConfig | None = None) -> None:
-        cfg = config or AirHockeyConfig()
-        self.cfg = cfg
-        init = np.asarray(init, dtype=np.float64).reshape(-1, 2)
-        b = init.shape[0]
-        self.batch = b
-        self.px = init[:, 0].copy()
-        self.vy = -np.abs(init[:, 1])
-        self.py = np.where(init[:, 1] == 0.0, 0.0, cfg.launch_y)
-        self.vx = np.zeros(b)
-        self.mx = np.full(b, cfg.home_x)
-        self.mvx = np.zeros(b)
-        self.target = np.zeros(b, dtype=np.int64)
-        self.sp_t0 = np.zeros(b)
-        self.sp_p0 = np.full(b, cfg.home_x)
-        self.sp_v0 = np.zeros(b)
-        self.sp_p1 = np.full(b, cfg.home_x)
-        self.sp_T = np.ones(b)
-        self.time = np.zeros(b)
-        self.steps = np.zeros(b, dtype=np.int64)
-        self.hit = np.zeros(b, dtype=bool)
-        self.success = np.zeros(b, dtype=bool)
-        self.done = np.zeros(b, dtype=bool)
-        self._targets = np.array([cfg.home_x, cfg.forward_x])
-        self._dt = cfg.control_dt / cfg.physics_substeps
-        self._contact = cfg.puck_radius + cfg.mallet_radius
-        self._wall_y = 0.5 * cfg.table_width - cfg.puck_radius
-        self._wall_x_lo = cfg.puck_radius
-        self._wall_x_hi = cfg.table_length - cfg.puck_radius
+    def observe(self):
+        obs = np.where(self._latency[:,None],self._previous_obs,self._true_obs)
+        return obs + self._noise[np.arange(self.batch),self.steps]
 
-    def observe(self) -> np.ndarray:
-        """Observed 6D state ``[x_p, y_p, v_x, v_y, x_ee, y_ee]`` per episode."""
-        return np.stack([self.px, self.py, self.vx, self.vy, self.mx, np.zeros(self.batch)], axis=1)
-
-    def _mallet(self, idx: np.ndarray, t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        T = self.sp_T[idx]
-        s = np.clip((t - self.sp_t0[idx]) / T, 0.0, 1.0)
-        p0, v0, p1 = self.sp_p0[idx], self.sp_v0[idx], self.sp_p1[idx]
-        s2 = s * s
-        s3 = s2 * s
-        pos = (2 * s3 - 3 * s2 + 1) * p0 + (s3 - 2 * s2 + s) * T * v0 + (-2 * s3 + 3 * s2) * p1
-        vel = ((6 * s2 - 6 * s) * p0 + (3 * s2 - 4 * s + 1) * T * v0 + (-6 * s2 + 6 * s) * p1) / T
-        finished = s >= 1.0
-        pos = np.where(finished, p1, pos)
-        vel = np.where(finished, 0.0, vel)
-        return pos, vel
-
-    def step(self, actions: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, np.ndarray]]:
-        """Apply one 20 ms control step to every unfinished episode.
-
-        Returns ``(obs, reward, done, info)``; finished episodes are frozen and
-        receive zero reward.
-        """
+    def step(self, actions):
         cfg = self.cfg
-        actions = np.asarray(actions, dtype=np.int64).reshape(-1)
-        if actions.shape[0] != self.batch:
-            raise ValueError("one action per episode is required")
-        if np.any((actions < 0) | (actions > 1)):
-            raise ValueError("actions must be 0 (home) or 1 (forward)")
-        live = ~self.done
-        idx = np.flatnonzero(live)
+        actions = np.asarray(actions,dtype=int).reshape(-1)
+        if len(actions)!=self.batch or np.any((actions<0)|(actions>1)):
+            raise ValueError('one binary action per episode is required')
+        idx = np.flatnonzero(~self.done)
         reward = np.zeros(self.batch)
-        if idx.size == 0:
-            return self.observe(), reward, self.done.copy(), self._info()
-
-        # Start a new spline where the selected primitive changed.
-        changed = idx[actions[idx] != self.target[idx]]
-        if changed.size:
-            p1 = self._targets[actions[changed]]
-            dist = np.abs(p1 - self.mx[changed])
-            self.sp_T[changed] = np.clip(dist / cfg.mallet_mean_speed, cfg.min_primitive_s, cfg.max_primitive_s)
-            self.sp_t0[changed] = self.time[changed]
-            self.sp_p0[changed] = self.mx[changed]
-            self.sp_v0[changed] = self.mvx[changed]
-            self.sp_p1[changed] = p1
-            self.target[changed] = actions[changed]
-
-        min_dist = np.full(idx.size, np.inf)
-        moving = np.ones(idx.size, dtype=bool)
-        dt = self._dt
-        e1 = 1.0 + cfg.restitution
-        for _ in range(cfg.physics_substeps):
-            sub = idx[moving]
-            if sub.size == 0:
-                break
-            t = self.time[sub] + dt
-            self.time[sub] = t
-            mx, mvx = self._mallet(sub, t)
-            self.mx[sub] = mx
-            self.mvx[sub] = mvx
-            px = self.px[sub] + self.vx[sub] * dt
-            py = self.py[sub] + self.vy[sub] * dt
-            vx = self.vx[sub]
-            vy = self.vy[sub]
-            # Elastic, frictionless table walls.
-            over = py > self._wall_y
-            py = np.where(over, 2 * self._wall_y - py, py)
-            vy = np.where(over, -np.abs(vy), vy)
-            under = py < -self._wall_y
-            py = np.where(under, -2 * self._wall_y - py, py)
-            vy = np.where(under, np.abs(vy), vy)
-            low = px < self._wall_x_lo
-            px = np.where(low, 2 * self._wall_x_lo - px, px)
-            vx = np.where(low, np.abs(vx), vx)
-            high = px > self._wall_x_hi
-            px = np.where(high, 2 * self._wall_x_hi - px, px)
-            vx = np.where(high, -np.abs(vx), vx)
-            # Puck-mallet contact (mallet driven kinematically, infinite mass).
-            dx = px - mx
-            dy = py
-            dist = np.hypot(dx, dy)
-            pos_in_sub = np.flatnonzero(moving)
-            min_dist[pos_in_sub] = np.minimum(min_dist[pos_in_sub], dist)
-            safe = np.where(dist > 0.0, dist, 1.0)
-            nx = dx / safe
-            ny = dy / safe
-            rel = (vx - mvx) * nx + vy * ny
-            contact = (dist <= self._contact) & (dist > 0.0) & (rel < 0.0)
-            if np.any(contact):
-                vx = np.where(contact, vx - e1 * rel * nx, vx)
-                vy = np.where(contact, vy - e1 * rel * ny, vy)
-                px = np.where(contact, mx + nx * self._contact, px)
-                py = np.where(contact, ny * self._contact, py)
-                self.hit[sub[contact]] = True
-            self.px[sub] = px
-            self.py[sub] = py
-            self.vx[sub] = vx
-            self.vy[sub] = vy
-            scored = (px > cfg.goal_x) & (vx > cfg.goal_vx)
-            if np.any(scored):
-                self.success[sub[scored]] = True
-                moving[pos_in_sub[scored]] = False
-
+        if not len(idx):
+            return self.observe(),reward,self.done.copy(),self._info()
+        changed = idx[actions[idx]!=self.target[idx]]
+        self.sp_p0[changed] = self.mx[changed]
+        self.sp_v0[changed] = self.mvx[changed]
+        self.sp_p1[changed] = np.where(actions[changed],cfg.forward_x,cfg.home_x)
+        self.sp_T[changed] = np.clip(abs(self.sp_p1[changed]-self.mx[changed])/cfg.mallet_mean_speed,
+                                   cfg.min_primitive_s,cfg.max_primitive_s)
+        self.sp_t0[changed] = self.time[changed]
+        self.target[changed] = actions[changed]
+        t = self.time[idx,None]+np.arange(1,cfg.physics_substeps+1)*.001
+        T = self.sp_T[idx,None]
+        s = np.clip((t-self.sp_t0[idx,None])/T,0,1)
+        pos = (2*s**3-3*s*s+1)*self.sp_p0[idx,None] + (s**3-2*s*s+s)*T*self.sp_v0[idx,None] \
+              +(-2*s**3+3*s*s)*self.sp_p1[idx,None]
+        ctrl = inverse_kinematics(pos,np.zeros_like(pos))
+        states,sensors = self.engine.rollout(self.model,self.data,self.state[idx],ctrl)
+        if not np.all(np.isfinite(states)) or not np.all(np.isfinite(sensors)):
+            raise ValueError('nonfinite physical trajectory')
+        self.state[idx] = states[:,-1]
+        self.time[idx] += cfg.control_dt
         self.steps[idx] += 1
-        succ = self.success[idx]
-        near = min_dist <= self._contact
-        r = np.where(near, cfg.contact_reward_scale * self.vx[idx], cfg.step_penalty)
-        r = np.where(succ, cfg.terminal_reward, r)
-        reward[idx] = r
-        self.done[idx] = succ | (self.steps[idx] >= cfg.max_steps)
-        return self.observe(), reward, self.done.copy(), self._info()
+        # Sensor order: puck position/linear velocity, mallet position/velocity,touch.
+        scored = np.any((sensors[:,:,0]>cfg.goal_x)&(sensors[:,:,3]>cfg.goal_vx),axis=1)
+        contact = np.any(sensors[:,:,12]>0,axis=1)
+        self.success[idx] |= scored
+        self.hit[idx] |= contact
+        sensor = sensors[:,-1]
+        self.mx[idx],self.my[idx],self.mvx[idx] = sensor[:,6],sensor[:,7],sensor[:,9]
+        self._previous_obs[idx] = self._true_obs[idx]
+        self._true_obs[idx] = sensor[:,[0,1,3,4,6,7]]
+        near = np.min(np.linalg.norm(sensors[:,:,:2]-sensors[:,:,6:8],axis=2),axis=1) <= .0798
+        reward[idx] = np.where(scored,cfg.terminal_reward,
+                             np.where(near,cfg.contact_reward_scale*sensor[:,3],cfg.step_penalty))
+        self.done[idx] = self.success[idx] | (self.steps[idx]>=cfg.max_steps)
+        return self.observe(),reward,self.done.copy(),self._info()
 
-    def _info(self) -> dict[str, np.ndarray]:
-        return {"success": self.success.copy(), "hit": self.hit.copy(), "steps": self.steps.copy()}
-
+    def _info(self):
+        return dict(success=self.success.copy(),hit=self.hit.copy(),steps=self.steps.copy())
 
 class AirHockeyInterceptionEnv:
-    """Single-episode convenience wrapper with a gym-like interface."""
-
-    def __init__(self, condition: str = "random_position_speed", seed: int = 0,
-                 config: AirHockeyConfig | None = None) -> None:
-        if condition not in CONDITIONS:
-            raise ValueError(f"unknown condition {condition!r}; choose from {sorted(CONDITIONS)}")
-        self.condition = condition
-        self.config = config or AirHockeyConfig()
+    def __init__(self,condition='random_position_speed',seed=0,config=None):
+        self.condition,self.config = condition,config
         self.rng = np.random.default_rng(seed)
-        self._batch: AirHockeyBatch | None = None
-
-    def reset(self) -> np.ndarray:
-        init = sample_initial_conditions(self.condition, self.rng, 1)
-        self._batch = AirHockeyBatch(init, self.config)
+    def reset(self):
+        self._batch = AirHockeyBatch(sample_initial_conditions(self.condition,self.rng,1),self.config)
         return self._batch.observe()[0]
-
-    def step(self, action: int) -> tuple[np.ndarray, float, bool, dict]:
-        assert self._batch is not None, "call reset() first"
-        obs, reward, done, info = self._batch.step(np.array([int(action)]))
-        return obs[0], float(reward[0]), bool(done[0]), {k: v[0].item() for k, v in info.items()}
+    def step(self,action):
+        obs,r,d,info = self._batch.step([action])
+        return obs[0],float(r[0]),bool(d[0]),{k:v[0].item() for k,v in info.items()}

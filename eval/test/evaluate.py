@@ -1,272 +1,170 @@
-#!/usr/bin/env python3
-"""Held-out test scoring for neuromorphic air-hockey interception controllers.
+"""Closed-loop held-out scoring. Contains all hidden episode generation.
 
-Every method directory under ``outputs/`` is scored, together with every
-``proposed`` method of ``scoring/reference.json`` (so a missing submission is
-scored as failed rather than skipped).  For each experiment a method must
-provide ``outputs/<method>/<experiment>/seed_<k>.npz`` for k = 0..9: ten
-independently trained controller configurations (the paper repeats every
-run with 10 reservoir seeds).  The evaluator executes each
-controller in closed loop on held-out episodes that exist only here, with its
-own frozen copies of the task simulator and of the controller runtime, and
-computes every metric from those rollouts.  Numbers written by a method are
-never read.
-
-A (method, experiment) pair fails - and receives the worst value of every
-metric - when a controller is missing, unreadable, malformed, non-finite, out
-of physical bounds, larger than the experiment's unit budget, or duplicated
-across the ten seeds.  Baselines are computed here, not read from disk.
+Only raw bounded readout arrays cross the submission interface. No method
+code runs, so the hidden simulator and future noisy observations cannot be
+queried by private search. All methods see the same episodes and fixed chips.
 """
-
 from __future__ import annotations
-
-import hashlib
 import json
-import multiprocessing
 import os
-import sys
-import time
-import traceback
-from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-
-os.environ.setdefault("OMP_NUM_THREADS", "1")
-
-import numpy as np  # noqa: E402
-
+import numpy as np
 from eval.test.chip_runtime import ChipBatch, ConfigError, controller_units, load_config
 from eval.test.task_sim import AirHockeyBatch, sample_initial_conditions
-
-ROOT = Path(__file__).resolve().parents[2]
-OUTPUTS = ROOT / "outputs"
-SCORES = ROOT / "scoring" / "scores_test.json"
-REFERENCE = ROOT / "scoring" / "reference.json"
-
-# experiment -> (task condition, hidden-unit budget)
-EXPERIMENTS = {
-    "randomized_air_hockey": ("random_position_speed", 1020),
-    "velocity_range_wide": ("speed_wide", 1020),
-    "velocity_range_extreme": ("speed_extreme", 1020),
-    "single_core_extreme": ("speed_extreme", 256),
+ROOT=Path(__file__).resolve().parents[2]
+OUTPUTS=ROOT/'outputs'
+SCORES=ROOT/'scoring'/'scores_test.json'
+RAW=Path(__file__).parent/'raw'
+BACKBONES=Path(__file__).parent/'backbones'
+EPISODE_SEED=918_273_645_501
+EXPERIMENTS={
+    'velocity_range_extreme':('speed_extreme',1020),
+    'single_core_extreme':('speed_extreme',256),
+    'sensor_robustness':('sensor_robustness',256),
 }
-N_CONTROLLERS = 10
-N_EPISODES = 1000
-BATCH = 500
-EPISODE_SEED = 918_273_645_501
-BASELINES = ("random_policy", "always_forward")
+N_CONTROLLERS=10
+N_EPISODES=4096
+BATCH=128
+BASELINES=('random_policy','always_forward','intercept_rule')
+METRICS=('success_rate','seed_worst_success','hit_rate','controller_units')
 
+def worst(experiment):
+    return dict(success_rate=0.,seed_worst_success=0.,hit_rate=0.,
+                controller_units=float(EXPERIMENTS[experiment][1]))
 
-def worst(experiment: str) -> dict[str, float]:
-    return {
-        "success_rate": 0.0,
-        "hit_rate": 0.0,
-        "seed_worst_success": 0.0,
-        "controller_units": float(EXPERIMENTS[experiment][1]),
-    }
+def held_out_episodes(experiment):
+    rng=np.random.default_rng([EPISODE_SEED,list(EXPERIMENTS).index(experiment)])
+    return sample_initial_conditions(EXPERIMENTS[experiment][0],rng,N_EPISODES)
 
-
-def held_out_episodes(experiment: str) -> np.ndarray:
-    index = list(EXPERIMENTS).index(experiment)
-    rng = np.random.default_rng([EPISODE_SEED, index])
-    return sample_initial_conditions(EXPERIMENTS[experiment][0], rng, N_EPISODES)
-
-
-def _run(init: np.ndarray, choose) -> tuple[np.ndarray, np.ndarray]:
-    env = AirHockeyBatch(init)
-    rows = np.arange(env.batch)
-    obs = env.observe()
-    state = choose(None, rows, None)
+def _run(init,choose):
+    env=AirHockeyBatch(init)
+    rows=np.arange(env.batch)
+    obs=env.observe()
+    state=choose(None,rows,None)
     while rows.size:
-        actions = np.zeros(env.batch, dtype=np.int64)
-        actions[rows] = choose(obs[rows], rows, state)
-        obs, _, done, info = env.step(actions)
-        keep = ~done[rows]
+        actions=np.zeros(env.batch,dtype=int)
+        selected=np.asarray(choose(obs[rows],rows,state))
+        if selected.shape!=(len(rows),) or not np.all(np.isin(selected,[0,1])):
+            raise ConfigError('invalid actions')
+        actions[rows]=selected
+        obs,_,done,info=env.step(actions)
+        keep=~done[rows]
         if not np.all(keep):
-            rows = rows[keep]
-            if state is not None and hasattr(state, "keep"):
+            rows=rows[keep]
+            if state is not None and hasattr(state,'keep'):
                 state.keep(np.flatnonzero(keep))
-    return info["success"].copy(), info["hit"].copy()
+    return info['success'].copy(),info['hit'].copy()
 
+def rollout_controller(config,init):
+    successes,hits=[],[]
+    for start in range(0,len(init),BATCH):
+        part=init[start:start+BATCH]
+        def choose(obs,rows,chip):
+            if obs is None: return ChipBatch(config,len(part))
+            return np.argmax(chip.scores(chip.step(obs)),axis=1)
+        s,h=_run(part,choose)
+        successes.append(s); hits.append(h)
+    return np.concatenate(successes),np.concatenate(hits)
 
-def rollout_controller(config: dict, init: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    succ, hit = [], []
-    for start in range(0, init.shape[0], BATCH):
-        part = init[start:start + BATCH]
+def rollout_baseline(name,init,stream,experiment,lead=.15):
+    rng=np.random.default_rng([EPISODE_SEED,list(EXPERIMENTS).index(experiment),stream,99])
+    def choose(obs,rows,state):
+        if obs is None: return None
+        if name=='random_policy': return rng.integers(0,2,len(rows))
+        if name=='always_forward': return np.ones(len(rows),dtype=int)
+        # Fixed analytic intercept-time rule, no fitting on held-out outcomes.
+        # A fixed bank below covers the original hand rule and wider leads.
+        travel=np.clip((obs[:,0]-obs[:,4])/2.,0.,.4)
+        timing=lead if lead>=0 else travel+.06
+        return ((obs[:,1]*obs[:,3]<0)&(abs(obs[:,1])<timing*abs(obs[:,3]))).astype(int)
+    return _run(init,choose)
 
-        def choose(obs, rows, chip):
-            if obs is None:
-                return ChipBatch(config, part.shape[0])
-            return np.argmax(chip.scores(chip.step(obs)), axis=1)
-
-        s, h = _run(part, choose)
-        succ.append(s)
-        hit.append(h)
-    return np.concatenate(succ), np.concatenate(hit)
-
-
-def rollout_baseline(name: str, init: np.ndarray, stream: int, experiment: str) -> tuple[np.ndarray, np.ndarray]:
-    rng = np.random.default_rng([EPISODE_SEED, list(EXPERIMENTS).index(experiment), stream, 99])
-
-    def choose(obs, rows, state):
-        if obs is None:
-            return None
-        if name == "random_policy":
-            return rng.integers(0, 2, size=rows.size)
-        return np.ones(rows.size, dtype=np.int64)
-
-    return _run(init, choose)
-
-
-def _digest(config: dict) -> str:
-    h = hashlib.sha256()
-    for key in sorted(config):
-        h.update(key.encode())
-        h.update(np.ascontiguousarray(config[key]).tobytes())
-    return h.hexdigest()
-
-
-def load_controllers(method_dir: Path, experiment: str) -> list[dict]:
-    configs = []
+def load_controllers(method_dir,experiment):
+    condition,budget=EXPERIMENTS[experiment]
+    configs=[]
     for k in range(N_CONTROLLERS):
-        path = method_dir / experiment / f"seed_{k}.npz"
-        if not path.is_file():
-            raise ConfigError(f"missing {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
-        config = load_config(path)
-        budget = EXPERIMENTS[experiment][1]
-        if controller_units(config) > budget:
-            raise ConfigError(f"seed_{k}: {controller_units(config)} hidden units exceed the "
-                              f"{budget}-unit budget of {experiment}")
+        config=load_config(method_dir/experiment/f'seed_{k}.npz')
+        fixed=load_config(BACKBONES/f'{condition}_{budget}'/f'seed_{k}.npz')
+        if set(config)!=set(fixed): raise ConfigError('configuration fields differ from fixed instance')
+        for key in fixed:
+            if key not in ('w_out','b_out') and not np.array_equal(config[key],fixed[key]):
+                raise ConfigError(f'seed_{k}: {key} differs from assigned chip')
+        if controller_units(config)!=budget: raise ConfigError('wrong unit count')
         configs.append(config)
-    digests = [_digest(c) for c in configs]
-    if len(set(digests)) != len(digests):
-        raise ConfigError("controllers of different seeds are identical")
     return configs
 
+def evaluate_method_experiment(method_dir,experiment):
+    configs=load_controllers(method_dir,experiment)
+    init=held_out_episodes(experiment)
+    s,h=zip(*(rollout_controller(c,init) for c in configs))
+    return dict(success=np.stack(s),hit=np.stack(h),units=np.array([controller_units(c) for c in configs]))
 
-def evaluate_method_experiment(method_dir: Path, experiment: str) -> dict:
-    """Per-controller held-out outcomes for one method directory."""
-    configs = load_controllers(method_dir, experiment)
-    init = held_out_episodes(experiment)
-    per_success, per_hit = [], []
-    for config in configs:
-        s, h = rollout_controller(config, init)
-        per_success.append(s)
-        per_hit.append(h)
-    return {
-        "success": np.stack(per_success),
-        "hit": np.stack(per_hit),
-        "units": [controller_units(c) for c in configs],
-    }
-
-
-def evaluate_baseline(name: str, experiment: str) -> dict:
-    init = held_out_episodes(experiment)
-    per_success, per_hit = [], []
-    for k in range(N_CONTROLLERS):
-        s, h = rollout_baseline(name, init, k, experiment)
-        per_success.append(s)
-        per_hit.append(h)
-    return {"success": np.stack(per_success), "hit": np.stack(per_hit), "units": [0] * N_CONTROLLERS}
-
-
-def summarize(outcome: dict) -> dict[str, float]:
-    success = outcome["success"].astype(np.float64)
-    hit = outcome["hit"].astype(np.float64)
-    return {
-        "success_rate": float(success.mean()),
-        "hit_rate": float(hit.mean()),
-        "seed_worst_success": float(success.mean(axis=1).min()),
-        "controller_units": float(max(outcome["units"])),
-    }
-
-
-def discover_methods() -> tuple[list[str], dict[str, str]]:
-    notes: dict[str, str] = {}
-    names: set[str] = set()
-    if OUTPUTS.is_dir():
-        for path in OUTPUTS.iterdir():
-            if not path.is_dir() or path.name.startswith((".", "_")):
-                continue
-            if path.name in BASELINES:
-                notes[path.name] = "directory name is reserved for an evaluator baseline; ignored"
-                continue
-            names.add(path.name)
-    try:
-        reference = json.loads(REFERENCE.read_text())
-        for payload in reference.get("experiments", {}).values():
-            for name, result in payload.get("results", {}).items():
-                if isinstance(result, dict) and result.get("type") == "proposed" \
-                        and not name.startswith("_") and name not in BASELINES:
-                    names.add(name)
-    except (OSError, ValueError, AttributeError):
-        pass
-    return sorted(names), notes
-
-
-def score_task(task: tuple[str, str, bool]) -> tuple[str, str, dict, dict]:
-    """Score one (method, experiment) pair; never raises."""
-    method, experiment, is_baseline = task
-    start = time.time()
-    if is_baseline:
-        return method, experiment, summarize(evaluate_baseline(method, experiment)), {}
-    try:
-        outcome = evaluate_method_experiment(OUTPUTS / method, experiment)
-        metrics = summarize(outcome)
-        diag = {"status": "ok", "per_controller_success": [float(x) for x in outcome["success"].mean(axis=1)]}
-    except ConfigError as exc:
-        metrics, diag = worst(experiment), {"status": "failed", "reason": str(exc)}
-    except Exception as exc:  # a submission must never crash scoring
-        metrics = worst(experiment)
-        diag = {"status": "failed", "reason": f"{type(exc).__name__}: {exc}",
-                "traceback": traceback.format_exc(limit=3)}
-    diag["seconds"] = round(time.time() - start, 1)
-    return method, experiment, metrics, diag
-
-
-def _workers() -> int:
-    try:
-        return max(1, len(os.sched_getaffinity(0)))
-    except AttributeError:
-        return max(1, os.cpu_count() or 1)
-
-
-def main() -> int:
-    SCORES.parent.mkdir(parents=True, exist_ok=True)
-    if SCORES.exists():
-        SCORES.unlink()
-    methods, notes = discover_methods()
-    tasks = [(m, e, False) for m in methods for e in EXPERIMENTS] + \
-            [(b, e, True) for b in BASELINES for e in EXPERIMENTS]
-    n = min(_workers(), len(tasks))
-    if n > 1:
-        with ProcessPoolExecutor(max_workers=n, mp_context=multiprocessing.get_context("fork")) as pool:
-            done = list(pool.map(score_task, tasks))
+def evaluate_baseline(name,experiment):
+    init=held_out_episodes(experiment)
+    # Deterministic rules need only one rollout; random has ten fixed streams.
+    if name=='intercept_rule':
+        # Conservative comparator: best global member of a predeclared rule
+        # bank. No per-episode oracle, no method-selected threshold.
+        candidates=[rollout_baseline(name,init,0,experiment,lead)
+                    for lead in [.08,.12,.16,.20,.24,.28,.32,.36,-1.]]
+        results=[max(candidates,key=lambda result:float(result[0].mean()))]
     else:
-        done = [score_task(t) for t in tasks]
-    experiments: dict[str, dict] = {exp: {"results": {}} for exp in EXPERIMENTS}
-    diagnostics: dict[str, dict] = {name: {"note": note} for name, note in notes.items()}
-    for method, experiment, metrics, diag in done:
-        experiments[experiment]["results"][method] = metrics
-        if diag:
-            diagnostics.setdefault(method, {})[experiment] = diag
-            print(f"[test] {method}/{experiment}: {metrics} {diag.get('status')} ({diag['seconds']}s)",
-                  file=sys.stderr, flush=True)
-    payload = {
-        "slice": "test",
-        "experiments": experiments,
-        "diagnostics": diagnostics,
-        "protocol": {
-            "controllers_per_experiment": N_CONTROLLERS,
-            "episodes_per_controller": N_EPISODES,
-            "unit_budget": {e: b for e, (_, b) in EXPERIMENTS.items()},
-            "action_selection": "argmax of readout scores",
-        },
-    }
-    tmp = SCORES.with_suffix(".json.partial")
-    tmp.write_text(json.dumps(payload, indent=2) + "\n")
-    tmp.replace(SCORES)
+        results=[rollout_baseline(name,init,k,experiment) for k in range(10 if name=='random_policy' else 1)]
+    if len(results)==1: results=results*10
+    s,h=zip(*results)
+    return dict(success=np.stack(s),hit=np.stack(h),units=np.zeros(10))
+
+def summarize(outcome):
+    for key in ('success','hit'):
+        a=np.asarray(outcome[key])
+        if a.shape!=(N_CONTROLLERS,N_EPISODES) or not np.all(np.isin(a,[0,1])):
+            raise ConfigError('invalid outcome shape/value')
+    s=np.asarray(outcome['success'],dtype=float)
+    return dict(success_rate=float(s.mean()),seed_worst_success=float(s.mean(axis=1).min()),
+                hit_rate=float(np.asarray(outcome['hit']).mean()),controller_units=float(max(outcome['units'])))
+
+def discover_methods():
+    # Include dot/underscore directories too: missing or malformed is failure.
+    names={p.name for p in OUTPUTS.iterdir() if p.is_dir()} if OUTPUTS.exists() else set()
+    reference=json.loads((ROOT/'scoring'/'reference.json').read_text())
+    for exp in reference['experiments'].values():
+        names.update(m for m,r in exp['results'].items() if r.get('type')=='proposed')
+    return sorted(names-set(BASELINES))
+
+def score_task(task):
+    method,experiment,is_baseline=task
+    try:
+        outcome=evaluate_baseline(method,experiment) if is_baseline else evaluate_method_experiment(OUTPUTS/method,experiment)
+        metrics=summarize(outcome)
+        RAW.mkdir(parents=True,exist_ok=True)
+        # Answers and paired outcomes never leave this split's private area.
+        import hashlib
+        tag=hashlib.sha256(method.encode()).hexdigest()[:24]
+        np.savez_compressed(RAW/f'{tag}_{experiment}.npz',**outcome)
+        diag={'status':'ok','per_controller_success':outcome['success'].mean(axis=1).tolist()}
+    except Exception as exc:
+        metrics=worst(experiment)
+        diag={'status':'failed','reason':f'{type(exc).__name__}: {exc}'}
+    return method,experiment,metrics,diag
+
+def main():
+    SCORES.parent.mkdir(parents=True,exist_ok=True)
+    methods=discover_methods()
+    all_results={e:{'results':{m:worst(e) for m in methods+list(BASELINES)},'diagnostics':{}} for e in EXPERIMENTS}
+    for method in methods+list(BASELINES):
+        rows=[score_task((method,e,method in BASELINES)) for e in EXPERIMENTS]
+        # Any malformed experiment fails the entire submission. It cannot use
+        # selective missing outputs to avoid a difficult scored experiment.
+        failed=any(d['status']!='ok' for _,_,_,d in rows)
+        for _,e,m,d in rows:
+            if failed:
+                m=worst(e)
+                d={**d,'status':'failed','reason':d.get('reason','another experiment failed')}
+            all_results[e]['results'][method]=m
+            all_results[e]['diagnostics'][method]=d
+            print(method,e,m,d.get('reason',''),flush=True)
+        target=SCORES.with_suffix('.tmp')
+        target.write_text(json.dumps({'experiments':all_results},indent=2)+'\n')
+        target.replace(SCORES)
     return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__=='__main__': raise SystemExit(main())

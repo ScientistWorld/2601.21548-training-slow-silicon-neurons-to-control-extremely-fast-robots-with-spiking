@@ -1,0 +1,50 @@
+<mujoco model="three_joint_interception">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.001" gravity="0 0 0" integrator="implicitfast" iterations="30">
+    <flag warmstart="disable"/>
+  </option>
+  <default>
+    <joint damping="0.15" armature="0.02"/>
+    <geom friction="0 0 0" solref="0.002 0.1" solimp="0.99 0.999 0.001" condim="1"/>
+    <default class="visual"><geom contype="0" conaffinity="0"/></default>
+  </default>
+  <worldbody>
+    <geom name="left_wall" type="box" pos="0.974 0.539 0" size="0.994 0.02 0.06"/>
+    <geom name="right_wall" type="box" pos="0.974 -0.539 0" size="0.994 0.02 0.06"/>
+    <geom name="near_wall" type="box" pos="-0.02 0 0" size="0.02 0.519 0.06"/>
+    <geom name="far_wall" type="box" pos="1.968 0 0" size="0.02 0.519 0.06"/>
+    <body name="puck">
+      <joint name="puck_x" type="slide" axis="1 0 0" damping="0" armature="0"/>
+      <joint name="puck_y" type="slide" axis="0 1 0" damping="0" armature="0"/>
+      <geom name="puck_geom" type="sphere" size="0.03165" mass="0.01"/>
+    </body>
+    <body name="link1" pos="0 0 0.15">
+      <joint name="q1" axis="0 0 1" range="-3.05 3.05"/>
+      <geom type="capsule" fromto="0 0 0 0.75 0 0" size="0.035" mass="3" class="visual"/>
+      <body name="link2" pos="0.75 0 0">
+        <joint name="q2" axis="0 0 1" range="-3.05 3.05"/>
+        <geom type="capsule" fromto="0 0 0 0.55 0 0" size="0.03" mass="2" class="visual"/>
+        <body name="link3" pos="0.55 0 0">
+          <joint name="q3" axis="0 0 1" range="-3.05 3.05"/>
+          <geom type="capsule" fromto="0 0 0 0.4 0 0" size="0.025" mass="2" class="visual"/>
+          <body name="mallet" pos="0.4 0 -0.15">
+            <geom name="mallet_geom" type="sphere" size="0.04815" mass="0.2"/>
+            <site name="mallet_touch" type="sphere" size="0.049"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="motor1" joint="q1" kp="1800" kv="100" forcerange="-80 80"/>
+    <position name="motor2" joint="q2" kp="1200" kv="70" forcerange="-40 40"/>
+    <position name="motor3" joint="q3" kp="600" kv="35" forcerange="-15 15"/>
+  </actuator>
+  <sensor>
+    <framepos objtype="body" objname="puck"/>
+    <framelinvel objtype="body" objname="puck"/>
+    <framepos objtype="body" objname="mallet"/>
+    <framelinvel objtype="body" objname="mallet"/>
+    <touch site="mallet_touch"/>
+  </sensor>
+</mujoco>

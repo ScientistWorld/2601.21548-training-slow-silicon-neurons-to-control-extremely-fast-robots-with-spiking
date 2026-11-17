@@ -1,13 +1,9 @@
 #!/bin/bash
-# Reproduce the reference end to end (train the paper's controller for every
-# experiment with 10 reservoir seeds, then score visible and held-out slices).
-# The hardening study that produced HARDENING.md is
-#   python redteam/hardening/run_hardening.py   (resumable by stage)
-
-set -e
-
+# Single final hardening job. Restore the end-to-end entry point after audit.
+set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
-export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-
-bash scripts/reproduce.sh
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+python redteam/final/study.py

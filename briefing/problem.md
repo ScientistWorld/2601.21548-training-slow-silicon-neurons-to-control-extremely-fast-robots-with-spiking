@@ -1,24 +1,25 @@
-# Problem Definition
+# Problem
 
-## Research Question
+Learn to intercept a fast air-hockey puck with a compact controller. Every
+20 ms the controller receives puck position and velocity and mallet position
+(six numbers), and selects a homeward or forward motion primitive. The robot
+executes a cubic trajectory toward (0.70, 0) or (1.50, 0) metres. Joint inertia,
+torque limits and tracking error make the timing of this commitment matter.
+Physics runs at 1 kHz on a 1.948 by 1.038 metre table.
 
-Can a compact controller running on slow, analog-like spiking hardware learn, from online interaction, to time a fast robotic interception? A robot plays air hockey on a 1.948 m x 1.038 m table. A puck is launched sideways across the table near x = 1.0 m, at up to 2 m/s, and bounces off the side walls. Fifty times per second the controller observes a 6D state: puck position and velocity, plus end-effector position. It then picks one of two motion primitives. Action 0 moves the end effector toward a home point at x = 0.70 m; action 1 moves it toward a forward point at x = 1.50 m. Each primitive is executed open loop as a smooth spline from the end effector's current position and velocity. The controller must choose *when* to strike so that the mallet meets the puck mid-stroke and drives it past x = 1.5 m with forward velocity. Striking too early or too late misses.
+An episode succeeds when the puck passes x > 1.5 m with forward speed > 0.1 m/s.
+It lasts at most two seconds. Learning receives +20 for success, 0.2 times
+forward puck speed within 0.08 m of the mallet, and -0.1 otherwise. The mallet
+and puck radii are 0.04815 and 0.03165 m.
 
-## Why It Matters
+The scored settings cover speeds 0.5–2.0 m/s with 1020 or 256 controller units,
+and a 256-unit robustness setting with launch positions 0.85–1.30 m,
+headings tilted up to 0.30 rad toward the near end, noisy observations and
+20 ms observation latency. The first two settings launch laterally from x=1 m.
+The last setting extends the paper's discussion of sensing uncertainty.
 
-Robotic interception needs decisions committed tens of milliseconds ahead of contact, and timing that depends on the puck's position and speed. Neuromorphic processors promise always-on learning at milliwatt power. But they offer few, slow, imprecise neurons and a limited input resolution. Showing that such a substrate can learn precise timing from a modest number of trials, and characterising where capacity and input range limit it, is what moves neuromorphic control beyond simple game benchmarks.
-
-## Task Settings
-
-| Setting | Puck launch position (x) | Launch speed | Controller budget |
-|---|---|---|---|
-| Randomized position and speed | 0.95-1.05 m | 1.0-1.5 m/s | 1020 hidden units |
-| Wide speed range | 1.00 m | 0.7-1.5 m/s | 1020 hidden units |
-| Extreme speed range | 1.00 m | 0.5-2.0 m/s | 1020 hidden units |
-| Extreme speed range, single core | 1.00 m | 0.5-2.0 m/s | 256 hidden units |
-
-The physics runs at 1 ms with frictionless puck motion and elastic collisions. An episode lasts at most 100 control steps (2 s), so a missed puck may come back after a wall bounce. The reward signal available during learning is +20 when the puck crosses x > 1.5 m with v_x > 0.1 m/s, which ends the episode. A step with mallet-puck contact earns 0.2 x v_x. Every other step costs -0.1.
-
-## Success Criteria
-
-A successful system reaches high episode success on unseen launches in every setting. It does so reliably across independent training runs and within the hidden-unit budget of each setting. Wider speed ranges and smaller budgets are expected to cost performance; reducing that cost is the open problem.
+The research question is whether learning improves success across unseen
+launches while respecting a fixed compact substrate. Training procedures are
+open; every method uses the same supplied ten physical controller instances.
+The software robot and controller are substitutes for the authors' robot and
+silicon. This gym does not measure electrical energy or hardware real time.

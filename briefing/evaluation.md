@@ -1,43 +1,46 @@
 # Evaluation
 
-## What Is Submitted
+Write `outputs/<method>/<experiment>/seed_<k>.npz` for k=0..9. Each slot is
+assigned the chip in `data/backbones/<condition>_<units>/seed_<k>.npz`.
+Supply its full configuration with your own `w_out` and `b_out` arrays. Every
+other array must match the assigned instance exactly. The public runtime in
+`data/neuromorphic_chip.py` defines the file format and bounded values.
+The evaluator executes this configuration and chooses the larger action score.
+Any learning procedure may produce the readout. Evaluation never trains.
 
-A submission is a set of **controller configurations**, not reported numbers. For each experiment, a method writes 10 independently trained controllers:
+| Experiment | Condition | Units | Weight |
+|---|---|---:|---:|
+| `velocity_range_extreme` | lateral speeds 0.5–2.0 m/s | 1020 | 0.2 |
+| `single_core_extreme` | same speeds | 256 | 0.3 |
+| `sensor_robustness` | varied positions/headings, state noise and latency | 256 | 0.5 |
 
-```
-outputs/<method>/<experiment>/seed_<k>.npz      k = 0..9
-```
+Each of ten controllers sees the same 4096 episodes. All methods see the same
+inputs, including the same observation-noise draws. Position noise has standard
+deviation 0.01 m and velocity noise 0.10 m/s in the robustness setting. Its
+observations arrive one control tick late. Train and test use independently
+drawn episodes of identical difficulty and separate evaluator implementations.
 
-Each file fully specifies a spiking network in the format executed by the public runtime `data/neuromorphic_chip.py`:
-- **Input stage:** per state variable, a population of Gaussian-tuned deterministic spike generators; centers, widths and peak rates are free (at most 32 cells per variable, at most 1000 Hz).
-- **Hidden stage:** leaky integrate-and-fire units with synaptic filtering, adaptation and refractoriness (per-unit parameters within physical bounds), input weights, and optional recurrent weights.
-- **Readout:** two linear scores on the filtered hidden spike trains.
+`success_rate` is the scored metric (higher is better; coefficient 1).
+`seed_worst_success`, `hit_rate`, and `controller_units` are diagnostics
+(coefficient 0). Capacity is a hard constraint, not a compensating reward.
+Ranking sums experiment weight times absolute metric coefficient times the
+better-direction improvement over the local reference, divided by the metric's
+standard deviation over the attempts being compared. A constant metric
+contributes zero. `eval/rank.py` provides this calculation for audit cohorts.
 
-The evaluator runs 20 ms of network dynamics per control step and takes the action with the higher score. How the configuration was obtained (learning rule, number of training episodes, encoding, connectivity) is entirely up to the method. Training interacts with the public simulator in `data/air_hockey_env.py`.
+Run `bash scripts/evaluate_train.sh` for `scoring/scores_train.json` and
+`bash scripts/evaluate_test.sh` with no arguments for `scoring/scores_test.json`.
+Every directory under `outputs/` is scored, including hidden names, as is the
+reference even if its files are missing. Fixed evaluator baselines have reserved
+names `random_policy`, `always_forward`, and `intercept_rule`.
+Only numbers under each experiment's `results` count. Reported metrics, logs,
+flags and other files supplied by a method are ignored.
 
-## Experiments and Metrics
-
-| Experiment | Setting | Unit budget | Weight |
-|---|---|---|---|
-| `randomized_air_hockey` | launch x 0.95-1.05 m, speed 1.0-1.5 m/s | 1020 | 0.4 |
-| `velocity_range_wide` | speed 0.7-1.5 m/s | 1020 | 0.2 |
-| `velocity_range_extreme` | speed 0.5-2.0 m/s | 1020 | 0.2 |
-| `single_core_extreme` | speed 0.5-2.0 m/s | 256 | 0.2 |
-
-Per experiment the evaluator runs every controller in closed loop on 1000 episodes and computes:
-- `success_rate` (coefficient 1.0, higher is better): success pooled over the 10 controllers. An episode succeeds when the puck crosses x > 1.5 m with v_x > 0.1 m/s.
-- `seed_worst_success` (0.3, higher): success of the weakest of the 10 controllers.
-- `hit_rate` (0.1, higher): fraction of episodes with puck-mallet contact.
-- `controller_units` (0.1, lower): hidden units of the largest controller, counted from the configuration.
-
-## Protocol and Failure Rules
-
-- `scripts/evaluate_train.sh` and `scripts/evaluate.sh` score on public validation episodes. `scripts/evaluate_test.sh` (no arguments) scores on held-out episodes with frozen copies of the simulator and runtime. Editing `data/` therefore changes nothing on the held-out test.
-- Every method directory under `outputs/` is scored, plus the proposed method listed in `scoring/reference.json`.
-- A (method, experiment) entry receives the worst value of every metric (success 0, units = budget) when any of these hold:
-  - a controller is missing, unreadable or malformed
-  - a value is non-finite or out of bounds
-  - the controller exceeds the experiment's unit budget
-  - two seeds' controllers are identical
-- Baselines are computed by the evaluator on the same episodes: `random_policy` (uniform random primitive every step) and `always_forward` (strike immediately). Both score about 0.10 and 0.00 success.
-- Scoring is deterministic: the same files always receive the same scores.
+Any missing experiment or controller, invalid value, wrong chip, or capacity
+violation fails the entire submission: every experiment gets success, worst
+success and contact rate zero, and controller units equal to its budget.
+The test uses its own frozen assets. Only bounded numeric configurations cross
+its interface, so a method cannot query hidden trajectories with a private
+simulator during evaluation. Baselines and their candidate operating points are fixed by
+the evaluator. The intercept baseline reports the best global rule in a fixed
+nine-rule bank, giving the simple comparison a conservative advantage. There are no wall-clock scoring metrics or method time limits.
