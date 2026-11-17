@@ -58,3 +58,15 @@ nine-rule bank (eight lead times plus a distance-based travel-time estimate).
 It has an intentional selection advantage over a single preselected rule;
 there is no per-instance best-candidate oracle. This avoids testing only a
 poorly tuned handwritten schedule. Rule imitation tunes on public data only.
+
+The first combined audit was cancelled after repeated MuJoCo QACC instability
+warnings. Its partial controllers and calibrated chips are excluded from all
+results. The contact time-constant parameterization implied stiffness about
+25 million at a 1 ms physics step. Both robot copies now use explicit stiffness
+100000 and damping 20. Both simulators also reject non-advancing or reset
+rollout times, including finite arrays returned after instability. A public
+4096-episode random/switching/rule stability preflight precedes chip calibration
+in the replacement combined job. No score from the cancelled run is valid.
+Loose velocity and table-boundary safety limits reject numerical explosions
+before a spurious goal could mask a subsequent solver warning. Training
+failures now stop the audit rather than silently continuing to scoring.

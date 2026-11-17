@@ -66,3 +66,10 @@ rank, added noisy/latent observations and richer launches, and enlarged paired
 evaluation. One combined CPU job will generate calibrated chip assets, train
 reference and honest/weak alternatives, audit affected shortcuts, and finish
 with isolated reference-only scoring. Empirical outcome remains pending.
+
+The initial combined audit (d84087a8-7da) was cancelled for repeated unstable
+MuJoCo accelerations. Its partial outputs and chip calibrations are archived
+under ignored tmp/ and cannot be resumed. Contact stiffness is reduced to a
+value resolved by the 1 ms timestep; finite reset/frozen rollouts now raise.
+The replacement combined job checks public random and extreme switching
+trajectories before recalibrating every chip and rerunning all training.

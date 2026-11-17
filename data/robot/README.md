@@ -12,3 +12,13 @@ two task-space cubic primitives, 50 Hz control, 1 kHz physics, reward and
 success are as in the paper. The explicit sensor-noise condition is a new
 robustness extension motivated by Section IV, not a paper-reported result.
 No external model files or meshes are needed. All assets ship in git.
+
+Contact uses MuJoCo's direct stiffness/damping format, `-100000 -20`, with
+impedance `0.95 0.99 0.001`. This resolves near-elastic impact at the 1 ms step.
+The cancelled audit used `0.002 0.1` in time-constant/damping-ratio format,
+which implied stiffness about 25 million and produced unstable accelerations.
+See https://mujoco.readthedocs.io/en/3.3.7/modeling.html#solver-parameters.
+Both simulator copies reject finite rollout tails that reset or stop time.
+Numerical safety bounds also reject puck speeds above 50 m/s, joint speeds
+above 100 rad/s, or puck positions over 10 cm beyond a table boundary, before
+any goal is scored. These bounds are far above the task's 0.5--2 m/s launches.

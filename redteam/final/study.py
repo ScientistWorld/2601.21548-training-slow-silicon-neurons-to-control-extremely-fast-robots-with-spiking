@@ -162,15 +162,24 @@ def main():
         for path in (ROOT/'outputs').iterdir():
             if path.is_dir(): shutil.move(str(path),str(old/path.name))
         (STUDY/'started.json').write_text('{"final_code_run":true}\n')
+    subprocess.run([sys.executable,'redteam/final/check_physics.py'],check=True)
     subprocess.run([sys.executable,'scripts/generate_backbones.py'],check=True)
     workers=min(8,len(os.sched_getaffinity(0)))
     tasks=[(mode,e,k) for mode in ['long','critic'] for e in EXPS for k in range(10)]
     records=[]
     with futures.ProcessPoolExecutor(max_workers=workers) as pool:
-        for result in pool.map(launch,tasks):
-            records.append(result)
-            (STUDY/'training_jobs.json').write_text(json.dumps(records,indent=2)+'\n')
-            print(result,flush=True)
+        pending=[pool.submit(launch,task) for task in tasks]
+        try:
+            for completed in futures.as_completed(pending):
+                result=completed.result()
+                records.append(result)
+                (STUDY/'training_jobs.json').write_text(json.dumps(records,indent=2)+'\n')
+                print(result,flush=True)
+                if result['exit_code']:
+                    raise RuntimeError(f'training failed; inspect its log: {result}')
+        except BaseException:
+            for task in pending: task.cancel()
+            raise
     distill()
     attacks()
     # Test only after training pool and all distillation computation exit.
@@ -197,5 +206,6 @@ def main():
     (ROOT/'scoring'/'reference.json').write_text(json.dumps(reference,indent=2)+'\n')
     from eval.rank import rank
     (STUDY/'ranks.json').write_text(json.dumps(rank(scores,reference),indent=2)+'\n')
+    subprocess.run([sys.executable,'validate.py'],check=True)
     print('FINAL AUDIT COMPLETE',flush=True)
 if __name__=='__main__': main()

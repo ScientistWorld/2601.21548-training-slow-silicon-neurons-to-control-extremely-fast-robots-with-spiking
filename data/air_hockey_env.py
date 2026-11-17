@@ -139,6 +139,19 @@ class AirHockeyBatch:
         states,sensors = self.engine.rollout(self.model,self.data,self.state[idx],ctrl)
         if not np.all(np.isfinite(states)) or not np.all(np.isfinite(sensors)):
             raise ValueError('nonfinite physical trajectory')
+        # rollout can return finite, repeated states after a MuJoCo warning.
+        # A reset or frozen tail is a failed trajectory, never a task result.
+        if not np.allclose(states[:,:,0],t,rtol=0,atol=1e-10):
+            raise ValueError('physical simulation reset or stopped advancing')
+        # Loose safety bounds catch numerical explosions before a spurious
+        # goal can terminate an episode and conceal the next solver warning.
+        puck_position=sensors[:,:,:2]
+        if (np.any(np.linalg.norm(sensors[:,:,3:5],axis=2)>50)
+                or np.any(np.abs(states[:,:,8:])>100)
+                or np.any(puck_position[:,:,0]<-.1)
+                or np.any(puck_position[:,:,0]>cfg.table_length+.1)
+                or np.any(np.abs(puck_position[:,:,1])>cfg.table_width/2+.1)):
+            raise ValueError('physical trajectory exceeds safety bounds')
         self.state[idx] = states[:,-1]
         self.time[idx] += cfg.control_dt
         self.steps[idx] += 1
@@ -151,7 +164,7 @@ class AirHockeyBatch:
         self.mx[idx],self.my[idx],self.mvx[idx] = sensor[:,6],sensor[:,7],sensor[:,9]
         self._previous_obs[idx] = self._true_obs[idx]
         self._true_obs[idx] = sensor[:,[0,1,3,4,6,7]]
-        near = np.min(np.linalg.norm(sensors[:,:,:2]-sensors[:,:,6:8],axis=2),axis=1) <= .0798
+        near = np.min(np.linalg.norm(sensors[:,:,:2]-sensors[:,:,6:8],axis=2),axis=1) <= .08
         reward[idx] = np.where(scored,cfg.terminal_reward,
                              np.where(near,cfg.contact_reward_scale*sensor[:,3],cfg.step_penalty))
         self.done[idx] = self.success[idx] | (self.steps[idx]>=cfg.max_steps)

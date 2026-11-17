@@ -39,6 +39,9 @@ flags and other files supplied by a method are ignored.
 Any missing experiment or controller, invalid value, wrong chip, or capacity
 violation fails the entire submission: every experiment gets success, worst
 success and contact rate zero, and controller units equal to its budget.
+Nonfinite, reset or stalled physics also fails the run. Numerical safety
+bounds are 50 m/s puck speed, 100 rad/s joint speed, and 10 cm penetration
+beyond a table boundary; these are checked before scoring any goal.
 The test uses its own frozen assets. Only bounded numeric configurations cross
 its interface, so a method cannot query hidden trajectories with a private
 simulator during evaluation. Baselines and their candidate operating points are fixed by

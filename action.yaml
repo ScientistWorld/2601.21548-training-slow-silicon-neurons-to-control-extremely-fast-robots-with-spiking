@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: method_runs
-notes: "One combined final-hardening audit: fixed chip assets, MuJoCo reference and paired honest/weak variants, repaired shortcuts, then isolated reference-only train/test scoring."
+notes: "Retry combined audit after fixing unstable contact: public stability preflight, fresh chip calibration and all reference/variant training, shortcut audit, isolated reference-only train/test scores, validation. No cancelled-run artifact is reused."

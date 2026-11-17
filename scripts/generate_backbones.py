@@ -7,8 +7,9 @@ The resulting small assets are tracked; test receives immutable copies.
 import json
 import shutil
 from pathlib import Path
+import numpy as np
 from method.spiking_eprop_rl import EpropConfig, build_reservoir
-from data.neuromorphic_chip import save_config
+from data.neuromorphic_chip import load_config, save_config
 
 ROOT=Path(__file__).resolve().parents[1]
 PLAN=[('speed_extreme',1020),('speed_extreme',256),('sensor_robustness',256)]
@@ -23,6 +24,11 @@ def main():
                 target.with_suffix('.json').write_text(json.dumps(stats,indent=2)+'\n')
             frozen=ROOT/'eval'/'test'/'backbones'/target.parent.name/target.name
             frozen.parent.mkdir(parents=True,exist_ok=True)
-            shutil.copyfile(target,frozen)
+            if frozen.exists():
+                public,private=load_config(target),load_config(frozen)
+                if public.keys()!=private.keys() or any(not np.array_equal(public[k],private[k]) for k in public):
+                    raise ValueError(f'public chip differs from frozen evaluator asset: {target}')
+            else:
+                shutil.copyfile(target,frozen)
             print('fixed backbone',target.relative_to(ROOT),flush=True)
 if __name__=='__main__': main()

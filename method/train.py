@@ -113,6 +113,7 @@ def main() -> None:
                   f"last200={history['online_success_last200']:.3f}", flush=True)
     if failures:
         print(f"{failures} run(s) produced no valid controller", flush=True)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,9 @@
   </option>
   <default>
     <joint damping="0.15" armature="0.02"/>
-    <geom friction="0 0 0" solref="0.002 0.1" solimp="0.99 0.999 0.001" condim="1"/>
+    <!-- Direct stiffness/damping: resolved at 1 ms, with near-elastic contact.
+         The former .002/.1 timeconstant format implied stiffness 25 million. -->
+    <geom friction="0 0 0" solref="-100000 -20" solimp="0.95 0.99 0.001" condim="1"/>
     <default class="visual"><geom contype="0" conaffinity="0"/></default>
   </default>
   <worldbody>

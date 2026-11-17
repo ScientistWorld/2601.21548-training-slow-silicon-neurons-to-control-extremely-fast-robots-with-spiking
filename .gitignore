@@ -239,3 +239,4 @@ eval/train/raw/
 !eval/test/backbones/**/*.npz
 redteam/final/logs/
 redteam/final/started.json
+MUJOCO_LOG.TXT

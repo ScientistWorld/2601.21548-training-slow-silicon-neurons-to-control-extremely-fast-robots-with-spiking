@@ -1,0 +1,9 @@
+{
+  "job_id": "d84087a8-7da",
+  "decision": "cancelled",
+  "reason": "MuJoCo QACC instability; finite reset or frozen tails were not rejected",
+  "training_logs_with_warnings": 8,
+  "warning_count_in_retained_logs": 48,
+  "all_partial_results_excluded": true,
+  "replacement": "resolved direct stiffness/damping contact and rollout-time guard; regenerate chips and all methods"
+}
