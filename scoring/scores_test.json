@@ -1,172 +1,475 @@
 {
-  "slice": "test",
   "experiments": {
-    "randomized_air_hockey": {
-      "results": {
-        "spiking_eprop": {
-          "success_rate": 0.9997,
-          "hit_rate": 0.9999,
-          "seed_worst_success": 0.997,
-          "controller_units": 1020.0
-        },
-        "random_policy": {
-          "success_rate": 0.0977,
-          "hit_rate": 0.1432,
-          "seed_worst_success": 0.089,
-          "controller_units": 0.0
-        },
-        "always_forward": {
-          "success_rate": 0.0,
-          "hit_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "controller_units": 0.0
-        }
-      }
-    },
-    "velocity_range_wide": {
-      "results": {
-        "spiking_eprop": {
-          "success_rate": 0.9992,
-          "hit_rate": 1.0,
-          "seed_worst_success": 0.996,
-          "controller_units": 1020.0
-        },
-        "random_policy": {
-          "success_rate": 0.1005,
-          "hit_rate": 0.1412,
-          "seed_worst_success": 0.088,
-          "controller_units": 0.0
-        },
-        "always_forward": {
-          "success_rate": 0.0,
-          "hit_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "controller_units": 0.0
-        }
-      }
-    },
     "velocity_range_extreme": {
       "results": {
+        "averaged_readout": {
+          "success_rate": 0.853564453125,
+          "seed_worst_success": 0.30517578125,
+          "hit_rate": 0.9096435546875,
+          "controller_units": 1020.0
+        },
+        "constant_forward": {
+          "success_rate": 0.207763671875,
+          "seed_worst_success": 0.207763671875,
+          "hit_rate": 0.297119140625,
+          "controller_units": 1020.0
+        },
+        "forged_metrics": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "long_training": {
+          "success_rate": 0.921875,
+          "seed_worst_success": 0.512451171875,
+          "hit_rate": 0.962255859375,
+          "controller_units": 1020.0
+        },
+        "missing_experiment": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "nonfinite": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "over_capacity": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "rule_distillation": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "seed_copy_jitter": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
         "spiking_eprop": {
-          "success_rate": 0.9741,
-          "hit_rate": 0.9911,
-          "seed_worst_success": 0.907,
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "training_4000": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "untrained": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "value_baseline": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "weak_500": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
           "controller_units": 1020.0
         },
         "random_policy": {
-          "success_rate": 0.0976,
-          "hit_rate": 0.138,
-          "seed_worst_success": 0.084,
-          "controller_units": 0.0
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
         },
         "always_forward": {
           "success_rate": 0.0,
-          "hit_rate": 0.0,
           "seed_worst_success": 0.0,
-          "controller_units": 0.0
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        },
+        "intercept_rule": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 1020.0
+        }
+      },
+      "diagnostics": {
+        "averaged_readout": {
+          "status": "ok",
+          "per_controller_success": [
+            0.955322265625,
+            0.921875,
+            0.985107421875,
+            0.853271484375,
+            0.30517578125,
+            0.820068359375,
+            0.90673828125,
+            0.9306640625,
+            0.916015625,
+            0.94140625
+          ]
+        },
+        "constant_forward": {
+          "status": "ok",
+          "per_controller_success": [
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875,
+            0.207763671875
+          ]
+        },
+        "forged_metrics": {
+          "status": "failed",
+          "reason": "ConfigError: cannot read /home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz'"
+        },
+        "long_training": {
+          "status": "ok",
+          "per_controller_success": [
+            0.998779296875,
+            0.899658203125,
+            0.9765625,
+            0.962890625,
+            0.512451171875,
+            0.99853515625,
+            0.943359375,
+            0.955078125,
+            0.994873046875,
+            0.9765625
+          ]
         }
       }
     },
     "single_core_extreme": {
       "results": {
+        "averaged_readout": {
+          "success_rate": 0.9003173828125,
+          "seed_worst_success": 0.6513671875,
+          "hit_rate": 0.96005859375,
+          "controller_units": 256.0
+        },
+        "constant_forward": {
+          "success_rate": 0.20166015625,
+          "seed_worst_success": 0.20166015625,
+          "hit_rate": 0.2958984375,
+          "controller_units": 256.0
+        },
+        "forged_metrics": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "long_training": {
+          "success_rate": 0.9244140625,
+          "seed_worst_success": 0.753173828125,
+          "hit_rate": 0.9650146484375,
+          "controller_units": 256.0
+        },
+        "missing_experiment": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "nonfinite": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "over_capacity": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "rule_distillation": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "seed_copy_jitter": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
         "spiking_eprop": {
-          "success_rate": 0.9312,
-          "hit_rate": 0.9829,
-          "seed_worst_success": 0.845,
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "training_4000": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "untrained": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "value_baseline": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "weak_500": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
           "controller_units": 256.0
         },
         "random_policy": {
-          "success_rate": 0.1004,
-          "hit_rate": 0.1412,
-          "seed_worst_success": 0.089,
-          "controller_units": 0.0
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
         },
         "always_forward": {
           "success_rate": 0.0,
-          "hit_rate": 0.0,
           "seed_worst_success": 0.0,
-          "controller_units": 0.0
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "intercept_rule": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        }
+      },
+      "diagnostics": {
+        "averaged_readout": {
+          "status": "ok",
+          "per_controller_success": [
+            0.975830078125,
+            0.902099609375,
+            0.90625,
+            0.93994140625,
+            0.94091796875,
+            0.89794921875,
+            0.956787109375,
+            0.938720703125,
+            0.893310546875,
+            0.6513671875
+          ]
+        },
+        "constant_forward": {
+          "status": "ok",
+          "per_controller_success": [
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625,
+            0.20166015625
+          ]
+        },
+        "forged_metrics": {
+          "status": "failed",
+          "reason": "ConfigError: cannot read /home/user/outputs/forged_metrics/single_core_extreme/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/forged_metrics/single_core_extreme/seed_0.npz'"
+        },
+        "long_training": {
+          "status": "ok",
+          "per_controller_success": [
+            0.9736328125,
+            0.960693359375,
+            0.98193359375,
+            0.97509765625,
+            0.753173828125,
+            0.9833984375,
+            0.931640625,
+            0.939453125,
+            0.91064453125,
+            0.83447265625
+          ]
+        }
+      }
+    },
+    "sensor_robustness": {
+      "results": {
+        "averaged_readout": {
+          "success_rate": 0.40498046875,
+          "seed_worst_success": 0.19873046875,
+          "hit_rate": 0.541259765625,
+          "controller_units": 256.0
+        },
+        "constant_forward": {
+          "success_rate": 0.200439453125,
+          "seed_worst_success": 0.200439453125,
+          "hit_rate": 0.27099609375,
+          "controller_units": 256.0
+        },
+        "forged_metrics": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "long_training": {
+          "success_rate": 0.6539306640625,
+          "seed_worst_success": 0.23046875,
+          "hit_rate": 0.7756103515625,
+          "controller_units": 256.0
+        },
+        "missing_experiment": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "nonfinite": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "over_capacity": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "rule_distillation": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "seed_copy_jitter": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "spiking_eprop": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "training_4000": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "untrained": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "value_baseline": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "weak_500": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "random_policy": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "always_forward": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        },
+        "intercept_rule": {
+          "success_rate": 0.0,
+          "seed_worst_success": 0.0,
+          "hit_rate": 0.0,
+          "controller_units": 256.0
+        }
+      },
+      "diagnostics": {
+        "averaged_readout": {
+          "status": "ok",
+          "per_controller_success": [
+            0.213623046875,
+            0.630126953125,
+            0.64111328125,
+            0.29150390625,
+            0.250244140625,
+            0.3408203125,
+            0.645751953125,
+            0.19873046875,
+            0.61572265625,
+            0.22216796875
+          ]
+        },
+        "constant_forward": {
+          "status": "ok",
+          "per_controller_success": [
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125,
+            0.200439453125
+          ]
+        },
+        "forged_metrics": {
+          "status": "failed",
+          "reason": "ConfigError: cannot read /home/user/outputs/forged_metrics/sensor_robustness/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/forged_metrics/sensor_robustness/seed_0.npz'"
+        },
+        "long_training": {
+          "status": "ok",
+          "per_controller_success": [
+            0.7099609375,
+            0.725830078125,
+            0.768798828125,
+            0.727783203125,
+            0.793701171875,
+            0.884033203125,
+            0.8154296875,
+            0.23046875,
+            0.613525390625,
+            0.269775390625
+          ]
         }
       }
     }
-  },
-  "diagnostics": {
-    "spiking_eprop": {
-      "randomized_air_hockey": {
-        "status": "ok",
-        "per_controller_success": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          0.997
-        ],
-        "seconds": 102.5
-      },
-      "velocity_range_wide": {
-        "status": "ok",
-        "per_controller_success": [
-          0.996,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          0.997,
-          1.0,
-          0.999,
-          1.0,
-          1.0
-        ],
-        "seconds": 107.3
-      },
-      "velocity_range_extreme": {
-        "status": "ok",
-        "per_controller_success": [
-          1.0,
-          0.963,
-          0.945,
-          0.952,
-          0.998,
-          0.907,
-          1.0,
-          0.994,
-          0.987,
-          0.995
-        ],
-        "seconds": 104.9
-      },
-      "single_core_extreme": {
-        "status": "ok",
-        "per_controller_success": [
-          0.975,
-          0.999,
-          0.9,
-          0.887,
-          0.885,
-          0.985,
-          0.94,
-          0.931,
-          0.965,
-          0.845
-        ],
-        "seconds": 32.0
-      }
-    }
-  },
-  "protocol": {
-    "controllers_per_experiment": 10,
-    "episodes_per_controller": 1000,
-    "unit_budget": {
-      "randomized_air_hockey": 1020,
-      "velocity_range_wide": 1020,
-      "velocity_range_extreme": 1020,
-      "single_core_extreme": 256
-    },
-    "action_selection": "argmax of readout scores"
   }
 }
