@@ -28,7 +28,11 @@ def launch(task):
               '--snapshot','32000=outputs/spiking_eprop','--snapshot','64000=outputs/long_training']
     log=STUDY/'logs_v2'/f'{mode}_{e}_{seed}.log'
     log.parent.mkdir(exist_ok=True)
-    with log.open('w') as out:
+    # Worker retries must preserve the last completed trial count and any
+    # diagnostics from the previous process.
+    with log.open('a') as out:
+        out.write('\n--- training invocation (existing checkpoints retained) ---\n')
+        out.flush()
         result=subprocess.run(command,cwd=ROOT,stdout=out,stderr=subprocess.STDOUT,check=False)
     return dict(mode=mode,experiment=e,seed=seed,exit_code=result.returncode)
 
@@ -205,6 +209,48 @@ def scientific_checks(scores,reference):
     print('SCIENTIFIC CHECKS',report,flush=True)
 
 
+def write_json(path,value):
+    temporary=path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(value,indent=2)+'\n')
+    temporary.replace(path)
+
+
+def preflight():
+    """Reuse completed checks only when their code and fixed assets match.
+
+    This saves worker-retry time; it never caches training or test metrics.
+    Raw outcome reuse has its separate exact-input validation.
+    """
+    def fingerprint():
+        digest=hashlib.sha256(b'combined-audit-preflight-v1')
+        paths=[]
+        for folder in ['data','method','eval']:
+            paths.extend((ROOT/folder).rglob('*.py'))
+            paths.extend((ROOT/folder).rglob('*.xml'))
+        for folder in ['data/backbones','eval/test/backbones']:
+            for suffix in ['*.npz','*.json']:
+                paths.extend((ROOT/folder).rglob(suffix))
+        paths.extend(STUDY/name for name in ['check_resume.py','resume_scores.py',
+                     'check_learning_resume.py','check_physics.py'])
+        paths.append(ROOT/'scripts'/'generate_backbones.py')
+        for path in sorted(set(paths)):
+            digest.update(str(path.relative_to(ROOT)).encode())
+            digest.update(path.read_bytes())
+        import mujoco
+        digest.update((sys.version+np.__version__+mujoco.__version__).encode())
+        return digest.hexdigest()
+    marker=STUDY/'preflight_complete.json'
+    if marker.exists() and json.loads(marker.read_text()).get('fingerprint')==fingerprint():
+        print('preflight resume: source and fixed-asset fingerprints match',flush=True)
+        return
+    for script in ['redteam/final/check_resume.py',
+                   'redteam/final/check_learning_resume.py',
+                   'redteam/final/check_physics.py',
+                   'scripts/generate_backbones.py']:
+        subprocess.run([sys.executable,script],check=True)
+    write_json(marker,{'fingerprint':fingerprint(),'checks_passed':True})
+
+
 def main():
     os.chdir(ROOT)
     old=ROOT/'tmp'/'rejected_robot_setup_outputs'
@@ -214,11 +260,8 @@ def main():
         for path in (ROOT/'outputs').iterdir():
             if path.is_dir(): shutil.move(str(path),str(old/path.name))
         (STUDY/'started.json').write_text('{"final_code_run":true}\n')
-    subprocess.run([sys.executable,'redteam/final/check_resume.py'],check=True)
-    subprocess.run([sys.executable,'redteam/final/check_learning_resume.py'],check=True)
+    preflight()
     if not (STUDY/'training_complete.json').exists():
-        subprocess.run([sys.executable,'redteam/final/check_physics.py'],check=True)
-        subprocess.run([sys.executable,'scripts/generate_backbones.py'],check=True)
         workers=min(8,len(os.sched_getaffinity(0)))
         tasks=[('long',e,k) for e in EXPS for k in range(10)]
         records=[]
@@ -228,7 +271,7 @@ def main():
                 for completed in futures.as_completed(pending):
                     result=completed.result()
                     records.append(result)
-                    (STUDY/'training_jobs.json').write_text(json.dumps(records,indent=2)+'\n')
+                    write_json(STUDY/'training_jobs.json',records)
                     print(result,flush=True)
                     if result['exit_code']:
                         raise RuntimeError(f'training failed; inspect its log: {result}')

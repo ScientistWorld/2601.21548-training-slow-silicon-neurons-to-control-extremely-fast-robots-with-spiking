@@ -1,0 +1,23 @@
+{
+  "job_id": "48b012e3-422",
+  "exit_code": -1,
+  "cause": "Worker node lost after one automatic retry; no application traceback or numerical failure",
+  "training_completed": 16,
+  "training_failed": 0,
+  "incomplete_training_checkpoints": [
+    "outputs/averaged_readout/sensor_robustness/seed_0.resume.npz",
+    "outputs/averaged_readout/sensor_robustness/seed_1.resume.npz",
+    "outputs/averaged_readout/sensor_robustness/seed_2.resume.npz",
+    "outputs/averaged_readout/sensor_robustness/seed_3.resume.npz",
+    "outputs/averaged_readout/single_core_extreme/seed_6.resume.npz",
+    "outputs/averaged_readout/single_core_extreme/seed_7.resume.npz",
+    "outputs/averaged_readout/single_core_extreme/seed_8.resume.npz",
+    "outputs/averaged_readout/single_core_extreme/seed_9.resume.npz"
+  ],
+  "observed_extreme_online_success_last200": [
+    0.985,
+    1.0
+  ],
+  "scientific_setup_changed": false,
+  "continuation": "Resume exact training/RNG checkpoints and source/input-keyed raw rollouts; preserve logs and checkpoint completed preflight checks"
+}

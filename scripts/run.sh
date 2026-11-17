@@ -1,5 +1,6 @@
 #!/bin/bash
-# One combined scientific audit; all training finishes before hidden scoring.
+# Resume the combined audit after node loss. Exact training checkpoints and
+# source/input-keyed raw rollouts survive retries; scoring starts after training.
 set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}

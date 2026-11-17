@@ -106,3 +106,15 @@ Local source parsing and shell syntax checks pass. validate.py currently
 rejects the stale pre-audit score schema and incomplete all-variant test file;
 the combined job replaces all three score files with reference-only runs and
 then runs validate.py. No validation logic or paper-reported result is changed.
+
+Job 48b012e3-422 ended with a lost worker node after an automatic retry,
+without an application traceback or numerical failure. Sixteen of thirty
+64000-trial training runs completed; eight partial runs have exact training/RNG
+checkpoints. Finished extreme-speed runs reached approximately 0.985--1.000
+online success over their final 200 trials. These are training diagnostics,
+not held-out scores or a completed headroom check. The scientific setup is
+unchanged. The audit now appends training logs across retries, writes progress
+records atomically, and reuses completed preflight checks only when source,
+fixed-asset and runtime fingerprints match. The replacement job resumes saved
+training and then completes the combined hidden audit and isolated reference
+scoring. Details of the interruption are in redteam/final/node_loss_job.json.

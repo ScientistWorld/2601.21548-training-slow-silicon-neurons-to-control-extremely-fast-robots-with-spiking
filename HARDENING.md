@@ -3,6 +3,10 @@
 The reports identified paying shortcuts and inadequate headroom. Final
 verification is still pending: the first robot audit also failed the timing-rule
 check. Its results are preserved, not presented as a successful hardening.
+The revised 32000/64000-trial audit was interrupted by worker-node loss after
+16 of 30 training runs completed. Exact training/RNG checkpoints retain partial
+progress; the continuation changes audit bookkeeping only. Final hidden scores
+and paired headroom checks remain pending.
 
 ## Scientific result before this iteration
 
