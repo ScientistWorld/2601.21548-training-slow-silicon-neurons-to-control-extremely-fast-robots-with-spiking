@@ -2,8 +2,9 @@
 
 This iteration addresses REVIEW.md as well as REDTEAM.md. The prior report,
 reference definition and stored scores are preserved in `redteam/final/`.
-The final combined compute audit has not run yet; no post-fix empirical claims
-are made in this draft. Results will be filled from that job.
+The final combined compute audit is in progress; its stable training phase is
+complete, but scoring is incomplete. No final post-fix empirical claims are
+made in this draft. Results will be filled after the resumed audit finishes.
 
 The old kinematic simulator let an analytic timing rule bypass robot control.
 It is replaced by a torque-limited three-joint MuJoCo robot: inverse kinematics
@@ -70,3 +71,14 @@ in the replacement combined job. No score from the cancelled run is valid.
 Loose velocity and table-boundary safety limits reject numerical explosions
 before a spurious goal could mask a subsequent solver warning. Training
 failures now stop the audit rather than silently continuing to scoring.
+
+The stable combined job completed all training, then encountered repeated
+worker drains. Each restart began scoring from the first method again; it was
+cancelled to fix this scheduling failure. The audit now checkpoints individual
+raw controller rollouts inside the appropriate split. Keys cover exact
+controller arrays, initial conditions, evaluator sources and library versions.
+Every resumed score is recomputed from those raw outcomes. A one-off migration
+reuses the nine complete experiments from the cancelled stable run only after
+verifying its evaluator sources are byte-identical. The normal no-argument
+evaluators do not use these audit caches. The scientific setup and trained
+controllers are unchanged, so training is not repeated.

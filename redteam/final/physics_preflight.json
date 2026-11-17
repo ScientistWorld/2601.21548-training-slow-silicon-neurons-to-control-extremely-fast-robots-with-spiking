@@ -1,0 +1,58 @@
+[
+  {
+    "condition": "speed_extreme",
+    "policy": "random",
+    "episodes": 512,
+    "success": 0.076171875,
+    "peak_puck_speed": 4.895306881959612
+  },
+  {
+    "condition": "speed_extreme",
+    "policy": "alternating",
+    "episodes": 512,
+    "success": 0.0,
+    "peak_puck_speed": 1.9946754478106283
+  },
+  {
+    "condition": "speed_extreme",
+    "policy": "forward",
+    "episodes": 512,
+    "success": 0.19921875,
+    "peak_puck_speed": 5.5600693250133
+  },
+  {
+    "condition": "speed_extreme",
+    "policy": "intercept",
+    "episodes": 512,
+    "success": 0.56640625,
+    "peak_puck_speed": 7.536968650233608
+  },
+  {
+    "condition": "sensor_robustness",
+    "policy": "random",
+    "episodes": 512,
+    "success": 0.169921875,
+    "peak_puck_speed": 3.7929638913498938
+  },
+  {
+    "condition": "sensor_robustness",
+    "policy": "alternating",
+    "episodes": 512,
+    "success": 0.080078125,
+    "peak_puck_speed": 1.9994287466382168
+  },
+  {
+    "condition": "sensor_robustness",
+    "policy": "forward",
+    "episodes": 512,
+    "success": 0.22265625,
+    "peak_puck_speed": 6.431398218814068
+  },
+  {
+    "condition": "sensor_robustness",
+    "policy": "intercept",
+    "episodes": 512,
+    "success": 0.6171875,
+    "peak_puck_speed": 8.670434517376773
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "job_id": "be37540d-3d6",
+  "decision": "cancelled",
+  "reason": "Worker drains repeatedly restarted scoring from its first method; the audit lacked raw rollout resume",
+  "training_completed": 60,
+  "training_failed": 0,
+  "complete_raw_experiments_retained": 9,
+  "scientific_setup_changed": false,
+  "replacement": "Audit-only resumable raw rollout scoring; exact source/input/controller fingerprints; normal evaluators unchanged"
+}

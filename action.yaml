@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: method_runs
-notes: "Retry combined audit after fixing unstable contact: public stability preflight, fresh chip calibration and all reference/variant training, shortcut audit, isolated reference-only train/test scores, validation. No cancelled-run artifact is reused."
+notes: "Finish combined audit after worker preemptions: retain completed stable training, resume evaluator-owned raw rollouts with exact input/controller/source fingerprints, score all variants and repaired attacks, write isolated reference-only train/test scores and validate. Normal evaluators remain uncached."

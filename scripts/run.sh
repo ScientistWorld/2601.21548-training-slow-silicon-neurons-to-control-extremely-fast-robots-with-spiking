@@ -1,6 +1,6 @@
 #!/bin/bash
-# Combined audit retry: stability preflight, fresh calibration, all methods,
-# isolated final scoring. Restore the end-to-end entry point after audit.
+# Finish the combined audit; resume raw scoring after worker preemptions.
+# Restore the end-to-end reference entry point after the audit completes.
 set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}

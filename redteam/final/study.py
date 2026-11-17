@@ -162,31 +162,37 @@ def main():
         for path in (ROOT/'outputs').iterdir():
             if path.is_dir(): shutil.move(str(path),str(old/path.name))
         (STUDY/'started.json').write_text('{"final_code_run":true}\n')
-    subprocess.run([sys.executable,'redteam/final/check_physics.py'],check=True)
-    subprocess.run([sys.executable,'scripts/generate_backbones.py'],check=True)
-    workers=min(8,len(os.sched_getaffinity(0)))
-    tasks=[(mode,e,k) for mode in ['long','critic'] for e in EXPS for k in range(10)]
-    records=[]
-    with futures.ProcessPoolExecutor(max_workers=workers) as pool:
-        pending=[pool.submit(launch,task) for task in tasks]
-        try:
-            for completed in futures.as_completed(pending):
-                result=completed.result()
-                records.append(result)
-                (STUDY/'training_jobs.json').write_text(json.dumps(records,indent=2)+'\n')
-                print(result,flush=True)
-                if result['exit_code']:
-                    raise RuntimeError(f'training failed; inspect its log: {result}')
-        except BaseException:
-            for task in pending: task.cancel()
-            raise
-    distill()
-    attacks()
+    subprocess.run([sys.executable,'redteam/final/check_resume.py'],check=True)
+    if not (STUDY/'training_complete.json').exists():
+        subprocess.run([sys.executable,'redteam/final/check_physics.py'],check=True)
+        subprocess.run([sys.executable,'scripts/generate_backbones.py'],check=True)
+        workers=min(8,len(os.sched_getaffinity(0)))
+        tasks=[(mode,e,k) for mode in ['long','critic'] for e in EXPS for k in range(10)]
+        records=[]
+        with futures.ProcessPoolExecutor(max_workers=workers) as pool:
+            pending=[pool.submit(launch,task) for task in tasks]
+            try:
+                for completed in futures.as_completed(pending):
+                    result=completed.result()
+                    records.append(result)
+                    (STUDY/'training_jobs.json').write_text(json.dumps(records,indent=2)+'\n')
+                    print(result,flush=True)
+                    if result['exit_code']:
+                        raise RuntimeError(f'training failed; inspect its log: {result}')
+            except BaseException:
+                for task in pending: task.cancel()
+                raise
+        distill()
+        attacks()
+        (STUDY/'training_complete.json').write_text('{"complete":true}\n')
     # Test only after training pool and all distillation computation exit.
-    subprocess.run(['bash','scripts/evaluate_test.sh'],check=True)
-    scores=json.loads((ROOT/'scoring'/'scores_test.json').read_text())
-    (STUDY/'all_scores_test.json').write_text(json.dumps(scores,indent=2)+'\n')
-    summarize_audit(scores)
+    if not (STUDY/'audit_complete.json').exists():
+        subprocess.run([sys.executable,'redteam/final/resume_scores.py','test'],check=True)
+        scores=json.loads((ROOT/'scoring'/'scores_test.json').read_text())
+        (STUDY/'all_scores_test.json').write_text(json.dumps(scores,indent=2)+'\n')
+        summarize_audit(scores)
+        (STUDY/'audit_complete.json').write_text('{"complete":true}\n')
+    scores=json.loads((STUDY/'all_scores_test.json').read_text())
     # Do not leave shortcut or alternative methods in the baseline score set.
     archived=ROOT/'tmp'/'final_variants'
     archived.mkdir(parents=True,exist_ok=True)
@@ -195,8 +201,8 @@ def main():
             if (archived/path.name).exists(): shutil.rmtree(archived/path.name)
             shutil.move(str(path),str(archived/path.name))
     # Isolated final reference rerun: no other training/evaluation workers.
-    subprocess.run(['bash','scripts/evaluate_train.sh'],check=True)
-    subprocess.run(['bash','scripts/evaluate_test.sh'],check=True)
+    subprocess.run([sys.executable,'redteam/final/resume_scores.py','train'],check=True)
+    subprocess.run([sys.executable,'redteam/final/resume_scores.py','test'],check=True)
     shutil.copyfile(ROOT/'scoring'/'scores_train.json',ROOT/'scoring'/'scores.json')
     reference=json.loads((ROOT/'scoring'/'reference.json').read_text())
     final=json.loads((ROOT/'scoring'/'scores_test.json').read_text())

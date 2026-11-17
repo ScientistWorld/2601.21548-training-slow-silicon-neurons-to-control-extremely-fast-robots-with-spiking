@@ -73,3 +73,11 @@ under ignored tmp/ and cannot be resumed. Contact stiffness is reduced to a
 value resolved by the 1 ms timestep; finite reset/frozen rollouts now raise.
 The replacement combined job checks public random and extreme switching
 trajectories before recalibrating every chip and rerunning all training.
+
+The replacement job (be37540d-3d6) completed all 60 training runs without
+warnings. It was cancelled after worker drains repeatedly restarted the
+serial evaluator from its first method. The audit-only driver now resumes
+individual raw rollouts using exact input, controller and source fingerprints;
+normal train/test evaluators remain uncached. Completed stable controllers and
+raw outputs are retained. The next job finishes scoring and validation without
+retraining or changing the scientific setup.
