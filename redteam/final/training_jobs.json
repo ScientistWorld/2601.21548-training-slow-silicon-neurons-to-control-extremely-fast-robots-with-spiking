@@ -2,13 +2,19 @@
   {
     "mode": "long",
     "experiment": "velocity_range_extreme",
-    "seed": 7,
+    "seed": 3,
     "exit_code": 0
   },
   {
     "mode": "long",
     "experiment": "velocity_range_extreme",
-    "seed": 6,
+    "seed": 0,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "velocity_range_extreme",
+    "seed": 7,
     "exit_code": 0
   },
   {
@@ -20,7 +26,19 @@
   {
     "mode": "long",
     "experiment": "velocity_range_extreme",
+    "seed": 6,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "velocity_range_extreme",
     "seed": 1,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "velocity_range_extreme",
+    "seed": 4,
     "exit_code": 0
   },
   {
@@ -32,25 +50,13 @@
   {
     "mode": "long",
     "experiment": "velocity_range_extreme",
-    "seed": 0,
+    "seed": 8,
     "exit_code": 0
   },
   {
     "mode": "long",
-    "experiment": "velocity_range_extreme",
-    "seed": 3,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "velocity_range_extreme",
-    "seed": 4,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "velocity_range_extreme",
-    "seed": 9,
+    "experiment": "single_core_extreme",
+    "seed": 2,
     "exit_code": 0
   },
   {
@@ -62,7 +68,7 @@
   {
     "mode": "long",
     "experiment": "velocity_range_extreme",
-    "seed": 8,
+    "seed": 9,
     "exit_code": 0
   },
   {
@@ -80,7 +86,7 @@
   {
     "mode": "long",
     "experiment": "single_core_extreme",
-    "seed": 2,
+    "seed": 4,
     "exit_code": 0
   },
   {
@@ -92,7 +98,7 @@
   {
     "mode": "long",
     "experiment": "single_core_extreme",
-    "seed": 4,
+    "seed": 7,
     "exit_code": 0
   },
   {
@@ -104,25 +110,13 @@
   {
     "mode": "long",
     "experiment": "single_core_extreme",
-    "seed": 8,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "single_core_extreme",
-    "seed": 7,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "sensor_robustness",
-    "seed": 1,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "single_core_extreme",
     "seed": 9,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "single_core_extreme",
+    "seed": 8,
     "exit_code": 0
   },
   {
@@ -134,7 +128,7 @@
   {
     "mode": "long",
     "experiment": "sensor_robustness",
-    "seed": 3,
+    "seed": 1,
     "exit_code": 0
   },
   {
@@ -146,7 +140,19 @@
   {
     "mode": "long",
     "experiment": "sensor_robustness",
+    "seed": 3,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "sensor_robustness",
     "seed": 4,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "sensor_robustness",
+    "seed": 6,
     "exit_code": 0
   },
   {
@@ -158,25 +164,19 @@
   {
     "mode": "long",
     "experiment": "sensor_robustness",
+    "seed": 7,
+    "exit_code": 0
+  },
+  {
+    "mode": "long",
+    "experiment": "sensor_robustness",
     "seed": 8,
     "exit_code": 0
   },
   {
-    "mode": "long",
-    "experiment": "sensor_robustness",
-    "seed": 9,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "sensor_robustness",
-    "seed": 6,
-    "exit_code": 0
-  },
-  {
-    "mode": "long",
-    "experiment": "sensor_robustness",
-    "seed": 7,
+    "mode": "critic",
+    "experiment": "velocity_range_extreme",
+    "seed": 1,
     "exit_code": 0
   },
   {
@@ -186,9 +186,9 @@
     "exit_code": 0
   },
   {
-    "mode": "critic",
-    "experiment": "velocity_range_extreme",
-    "seed": 1,
+    "mode": "long",
+    "experiment": "sensor_robustness",
+    "seed": 9,
     "exit_code": 0
   },
   {
@@ -207,12 +207,6 @@
     "mode": "critic",
     "experiment": "velocity_range_extreme",
     "seed": 4,
-    "exit_code": 0
-  },
-  {
-    "mode": "critic",
-    "experiment": "velocity_range_extreme",
-    "seed": 6,
     "exit_code": 0
   },
   {
@@ -230,13 +224,19 @@
   {
     "mode": "critic",
     "experiment": "velocity_range_extreme",
-    "seed": 9,
+    "seed": 7,
     "exit_code": 0
   },
   {
     "mode": "critic",
     "experiment": "velocity_range_extreme",
-    "seed": 7,
+    "seed": 6,
+    "exit_code": 0
+  },
+  {
+    "mode": "critic",
+    "experiment": "velocity_range_extreme",
+    "seed": 9,
     "exit_code": 0
   },
   {
@@ -272,13 +272,13 @@
   {
     "mode": "critic",
     "experiment": "single_core_extreme",
-    "seed": 4,
+    "seed": 6,
     "exit_code": 0
   },
   {
     "mode": "critic",
     "experiment": "single_core_extreme",
-    "seed": 6,
+    "seed": 4,
     "exit_code": 0
   },
   {
@@ -295,12 +295,6 @@
   },
   {
     "mode": "critic",
-    "experiment": "sensor_robustness",
-    "seed": 0,
-    "exit_code": 0
-  },
-  {
-    "mode": "critic",
     "experiment": "single_core_extreme",
     "seed": 9,
     "exit_code": 0
@@ -308,13 +302,19 @@
   {
     "mode": "critic",
     "experiment": "sensor_robustness",
-    "seed": 1,
+    "seed": 0,
     "exit_code": 0
   },
   {
     "mode": "critic",
     "experiment": "sensor_robustness",
     "seed": 2,
+    "exit_code": 0
+  },
+  {
+    "mode": "critic",
+    "experiment": "sensor_robustness",
+    "seed": 1,
     "exit_code": 0
   },
   {
@@ -338,13 +338,13 @@
   {
     "mode": "critic",
     "experiment": "sensor_robustness",
-    "seed": 6,
+    "seed": 7,
     "exit_code": 0
   },
   {
     "mode": "critic",
     "experiment": "sensor_robustness",
-    "seed": 7,
+    "seed": 6,
     "exit_code": 0
   },
   {
