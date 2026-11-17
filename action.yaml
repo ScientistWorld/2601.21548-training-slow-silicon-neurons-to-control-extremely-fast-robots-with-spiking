@@ -1,8 +1,5 @@
-# Once you set action to 'submit' or 'done', STOP immediately.
-# Do NOT sleep, poll, or wait for jobs. The system reads this file
-# only after your turn ends.
-action: pending
+action: submit
 gpus: 0
 test: false
-milestone: core_claim
-notes: ""
+milestone: method_runs
+notes: "One combined final-hardening audit: fixed chip assets, MuJoCo reference and paired honest/weak variants, repaired shortcuts, then isolated reference-only train/test scoring."
