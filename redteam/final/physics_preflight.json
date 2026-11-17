@@ -31,28 +31,28 @@
     "condition": "sensor_robustness",
     "policy": "random",
     "episodes": 512,
-    "success": 0.169921875,
-    "peak_puck_speed": 3.7929638913498938
+    "success": 0.19921875,
+    "peak_puck_speed": 3.872439622408226
   },
   {
     "condition": "sensor_robustness",
     "policy": "alternating",
     "episodes": 512,
-    "success": 0.080078125,
+    "success": 0.134765625,
     "peak_puck_speed": 1.9994287466382168
   },
   {
     "condition": "sensor_robustness",
     "policy": "forward",
     "episodes": 512,
-    "success": 0.22265625,
-    "peak_puck_speed": 6.431398218814068
+    "success": 0.2109375,
+    "peak_puck_speed": 6.409824823832525
   },
   {
     "condition": "sensor_robustness",
     "policy": "intercept",
     "episodes": 512,
-    "success": 0.6171875,
-    "peak_puck_speed": 8.670434517376773
+    "success": 0.466796875,
+    "peak_puck_speed": 8.059929442831253
   }
 ]
