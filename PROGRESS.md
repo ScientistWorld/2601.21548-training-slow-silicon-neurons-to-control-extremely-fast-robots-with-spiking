@@ -158,3 +158,20 @@ the predeclared calibration variant's lower 95% bound above zero. The next
 single CPU job runs public calibration, scores all variants and repaired
 attacks, reuses valid saved raw outcomes, and finishes canonical reference-only
 scores and validation. Headroom is pending. No reference retraining is needed.
+
+
+Final audit complete (2026-11-18): job 516de1db-87c exited 0 after resuming
+source-validated raw outcomes across a worker drain. Reference test success is
+0.996973 / 0.990918 / 0.840601; public-only calibration improves to
+0.999756 / 0.998730 / 0.864893. Its normalized rank gain +0.040983 has paired
+95% bootstrap interval [0.022084, 0.062891], positive on all ten chips. Fixed
+sharpening and averaging do not independently exceed paired noise. The timing
+bank, rule imitation, weak training, untrained and constant controls all rank
+below reference. Five malformed attacks receive worst values in every task.
+
+Canonical train/test score files and reference.json now contain the final
+reference and fixed baselines alone. Train/test reference differences are at
+most 0.00291. validate.py and scientific checks passed. Restored run.sh to the
+end-to-end reference pipeline and replaced the pending hardening draft with
+final before/after evidence, remaining shortcuts and hardware/sample-efficiency
+limitations. Milestone restored to core_claim for the documented software task.

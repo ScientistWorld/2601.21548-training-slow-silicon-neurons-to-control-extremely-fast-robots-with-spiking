@@ -1,5 +1,3 @@
-action: submit
-gpus: 0
-test: false
-milestone: method_runs
-notes: "Finish from exact completed 64000-trial Eq. 1 checkpoints: public-only readout calibration, fixed sharpening and weak controls; paired chip/episode headroom check; repaired attacks; then isolated canonical reference/baseline train and test scores and validation. Reuse validated raw rollouts. Preserve failed 32000-trial audit; no reference retraining."
+action: done
+milestone: core_claim
+notes: "Final scientific hardening verified: honest calibration gains +0.040983 rank (paired 95% CI 0.022084 to 0.062891); repaired shortcuts rank below reference; canonical reference/baseline scores regenerated, paper numbers retained, validation passed. Evidence and remaining limits in HARDENING.md."

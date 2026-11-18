@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 ## Progress Log
 
@@ -66,3 +66,17 @@
   Public-only readout calibration and paired chip/episode resampling are queued
   together with final variant/attack comparisons and canonical scoring.
   The milestone remains `method_runs` until headroom is demonstrated.
+
+
+### [2026-11-18] - core_claim
+- Job `516de1db-87c` passed the final scientific audit and validation. Exact
+  64000-trial Eq. 1 reference success is 0.996973 / 0.990918 / 0.840601 under
+  the 1020 / 256 / 1020 unit constraints on the final software robot.
+- Public-only readout calibration scores 0.999756 / 0.998730 / 0.864893. Its
+  paired rank gain is +0.040983, 95% bootstrap interval [0.022084, 0.062891],
+  positive on all ten chips. Shorter training and simple timing/constant
+  controls score below reference. All five malformed attacks fail every task.
+- Canonical reference/baseline train and test files were regenerated in
+  isolation. The milestone covers learned compact robotic control in the
+  documented software substitute, not silicon fidelity or the paper's
+  2000-trial sample efficiency. Final evidence and limitations: HARDENING.md.
