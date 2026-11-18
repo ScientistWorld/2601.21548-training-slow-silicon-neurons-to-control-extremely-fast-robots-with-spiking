@@ -3,44 +3,89 @@
     "velocity_range_extreme": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.9885009765625,
-          "seed_worst_success": 0.97265625,
-          "hit_rate": 0.9960693359375,
+          "success_rate": 0.9968994140625,
+          "seed_worst_success": 0.994140625,
+          "hit_rate": 0.998779296875,
           "controller_units": 1020.0
         },
         "random_policy": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
+          "success_rate": 0.075390625,
+          "seed_worst_success": 0.067138671875,
+          "hit_rate": 0.1533935546875,
+          "controller_units": 0.0
         },
         "always_forward": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
+          "success_rate": 0.198486328125,
+          "seed_worst_success": 0.198486328125,
+          "hit_rate": 0.288330078125,
+          "controller_units": 0.0
         },
         "intercept_rule": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
+          "success_rate": 1.0,
+          "seed_worst_success": 1.0,
+          "hit_rate": 1.0,
+          "controller_units": 0.0
         }
       },
       "diagnostics": {
         "spiking_eprop": {
           "status": "ok",
           "per_controller_success": [
-            0.988037109375,
-            0.981201171875,
+            0.995361328125,
+            0.997314453125,
+            0.998046875,
             0.994140625,
-            0.98681640625,
-            0.97265625,
-            0.99365234375,
-            0.984130859375,
+            0.99755859375,
+            0.998046875,
             0.996337890625,
-            0.99560546875,
-            0.992431640625
+            0.998046875,
+            0.998779296875,
+            0.995361328125
+          ]
+        },
+        "random_policy": {
+          "status": "ok",
+          "per_controller_success": [
+            0.078369140625,
+            0.0791015625,
+            0.073974609375,
+            0.076171875,
+            0.078125,
+            0.074462890625,
+            0.067138671875,
+            0.070068359375,
+            0.07275390625,
+            0.083740234375
+          ]
+        },
+        "always_forward": {
+          "status": "ok",
+          "per_controller_success": [
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125,
+            0.198486328125
+          ]
+        },
+        "intercept_rule": {
+          "status": "ok",
+          "per_controller_success": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
           ]
         }
       }
@@ -48,44 +93,89 @@
     "single_core_extreme": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.9766845703125,
-          "seed_worst_success": 0.961181640625,
-          "hit_rate": 0.99111328125,
+          "success_rate": 0.9914306640625,
+          "seed_worst_success": 0.977294921875,
+          "hit_rate": 0.99755859375,
           "controller_units": 256.0
         },
         "random_policy": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
+          "success_rate": 0.0732666015625,
+          "seed_worst_success": 0.064208984375,
+          "hit_rate": 0.153271484375,
+          "controller_units": 0.0
         },
         "always_forward": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
+          "success_rate": 0.19580078125,
+          "seed_worst_success": 0.19580078125,
+          "hit_rate": 0.28759765625,
+          "controller_units": 0.0
         },
         "intercept_rule": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
+          "success_rate": 1.0,
+          "seed_worst_success": 1.0,
+          "hit_rate": 1.0,
+          "controller_units": 0.0
         }
       },
       "diagnostics": {
         "spiking_eprop": {
           "status": "ok",
           "per_controller_success": [
-            0.9794921875,
-            0.990234375,
-            0.961181640625,
-            0.972900390625,
-            0.973388671875,
-            0.992431640625,
-            0.979248046875,
-            0.968017578125,
-            0.98388671875,
-            0.966064453125
+            0.99267578125,
+            0.985595703125,
+            0.992919921875,
+            0.994140625,
+            0.996337890625,
+            0.9931640625,
+            0.992919921875,
+            0.997802734375,
+            0.991455078125,
+            0.977294921875
+          ]
+        },
+        "random_policy": {
+          "status": "ok",
+          "per_controller_success": [
+            0.076904296875,
+            0.068603515625,
+            0.074462890625,
+            0.072265625,
+            0.07568359375,
+            0.064208984375,
+            0.072509765625,
+            0.0791015625,
+            0.073486328125,
+            0.075439453125
+          ]
+        },
+        "always_forward": {
+          "status": "ok",
+          "per_controller_success": [
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125,
+            0.19580078125
+          ]
+        },
+        "intercept_rule": {
+          "status": "ok",
+          "per_controller_success": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
           ]
         }
       }
@@ -93,44 +183,89 @@
     "sensor_robustness": {
       "results": {
         "spiking_eprop": {
-          "success_rate": 0.736669921875,
-          "seed_worst_success": 0.123779296875,
-          "hit_rate": 0.8545654296875,
+          "success_rate": 0.843505859375,
+          "seed_worst_success": 0.779541015625,
+          "hit_rate": 0.9396728515625,
           "controller_units": 1020.0
         },
         "random_policy": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
+          "success_rate": 0.19384765625,
+          "seed_worst_success": 0.185791015625,
+          "hit_rate": 0.456494140625,
+          "controller_units": 0.0
         },
         "always_forward": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
+          "success_rate": 0.1865234375,
+          "seed_worst_success": 0.1865234375,
+          "hit_rate": 0.252685546875,
+          "controller_units": 0.0
         },
         "intercept_rule": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
+          "success_rate": 0.713623046875,
+          "seed_worst_success": 0.713623046875,
+          "hit_rate": 0.84912109375,
+          "controller_units": 0.0
         }
       },
       "diagnostics": {
         "spiking_eprop": {
           "status": "ok",
           "per_controller_success": [
-            0.76416015625,
-            0.78173828125,
-            0.849365234375,
-            0.796142578125,
-            0.846923828125,
-            0.821044921875,
-            0.750732421875,
-            0.765380859375,
-            0.123779296875,
-            0.867431640625
+            0.784423828125,
+            0.8212890625,
+            0.8681640625,
+            0.864990234375,
+            0.893310546875,
+            0.8779296875,
+            0.877685546875,
+            0.779541015625,
+            0.85400390625,
+            0.813720703125
+          ]
+        },
+        "random_policy": {
+          "status": "ok",
+          "per_controller_success": [
+            0.19140625,
+            0.197509765625,
+            0.197265625,
+            0.194091796875,
+            0.199462890625,
+            0.185791015625,
+            0.194091796875,
+            0.194091796875,
+            0.1884765625,
+            0.1962890625
+          ]
+        },
+        "always_forward": {
+          "status": "ok",
+          "per_controller_success": [
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375,
+            0.1865234375
+          ]
+        },
+        "intercept_rule": {
+          "status": "ok",
+          "per_controller_success": [
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875,
+            0.713623046875
           ]
         }
       }

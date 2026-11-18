@@ -1,0 +1,19 @@
+{
+  "public_calibrated": 0.040982727169913614,
+  "sharpened_readout": 0.015929451567936886,
+  "spiking_eprop": 0.0,
+  "averaged_readout": -0.0008749587978896315,
+  "intercept_rule": -0.1558919087792887,
+  "short_training_32000": -0.1590539520315867,
+  "rule_distillation": -0.23211799590895524,
+  "weak_2000": -1.248403647068752,
+  "always_forward": -1.7917718446682727,
+  "constant_forward": -1.7917718446682727,
+  "random_policy": -1.9394506530479405,
+  "untrained": -1.949086511959704,
+  "forged_metrics": -2.2942640237542795,
+  "missing_experiment": -2.2942640237542795,
+  "nonfinite": -2.2942640237542795,
+  "over_capacity": -2.2942640237542795,
+  "seed_copy_jitter": -2.2942640237542795
+}

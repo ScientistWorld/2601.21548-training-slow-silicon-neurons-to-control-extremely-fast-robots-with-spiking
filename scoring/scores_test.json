@@ -2,76 +2,10 @@
   "experiments": {
     "velocity_range_extreme": {
       "results": {
-        "averaged_readout": {
-          "success_rate": 0.996630859375,
-          "seed_worst_success": 0.99462890625,
-          "hit_rate": 0.998828125,
-          "controller_units": 1020.0
-        },
-        "constant_forward": {
-          "success_rate": 0.207763671875,
-          "seed_worst_success": 0.207763671875,
-          "hit_rate": 0.297119140625,
-          "controller_units": 1020.0
-        },
-        "forged_metrics": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "long_training": {
+        "spiking_eprop": {
           "success_rate": 0.99697265625,
           "seed_worst_success": 0.994384765625,
           "hit_rate": 0.9988037109375,
-          "controller_units": 1020.0
-        },
-        "missing_experiment": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "nonfinite": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "over_capacity": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "rule_distillation": {
-          "success_rate": 0.9995361328125,
-          "seed_worst_success": 0.9990234375,
-          "hit_rate": 0.999951171875,
-          "controller_units": 1020.0
-        },
-        "seed_copy_jitter": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "spiking_eprop": {
-          "success_rate": 0.9884521484375,
-          "seed_worst_success": 0.97314453125,
-          "hit_rate": 0.995556640625,
-          "controller_units": 1020.0
-        },
-        "untrained": {
-          "success_rate": 0.0828369140625,
-          "seed_worst_success": 0.03173828125,
-          "hit_rate": 0.16201171875,
-          "controller_units": 1020.0
-        },
-        "weak_2000": {
-          "success_rate": 0.6039306640625,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.67490234375,
           "controller_units": 1020.0
         },
         "random_policy": {
@@ -94,41 +28,7 @@
         }
       },
       "diagnostics": {
-        "averaged_readout": {
-          "status": "ok",
-          "per_controller_success": [
-            0.99462890625,
-            0.996337890625,
-            0.9990234375,
-            0.99462890625,
-            0.996826171875,
-            0.996337890625,
-            0.99560546875,
-            0.998779296875,
-            0.998291015625,
-            0.995849609375
-          ]
-        },
-        "constant_forward": {
-          "status": "ok",
-          "per_controller_success": [
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875,
-            0.207763671875
-          ]
-        },
-        "forged_metrics": {
-          "status": "failed",
-          "reason": "ConfigError: cannot read /home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz'"
-        },
-        "long_training": {
+        "spiking_eprop": {
           "status": "ok",
           "per_controller_success": [
             0.994384765625,
@@ -141,82 +41,6 @@
             0.999267578125,
             0.998291015625,
             0.99560546875
-          ]
-        },
-        "missing_experiment": {
-          "status": "failed",
-          "reason": "ConfigError: cannot read /home/user/outputs/missing_experiment/sensor_robustness/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/missing_experiment/sensor_robustness/seed_0.npz'"
-        },
-        "nonfinite": {
-          "status": "failed",
-          "reason": "ConfigError: w_out contains non-finite values"
-        },
-        "over_capacity": {
-          "status": "failed",
-          "reason": "ConfigError: seed_0: w_in differs from assigned chip"
-        },
-        "rule_distillation": {
-          "status": "ok",
-          "per_controller_success": [
-            0.999755859375,
-            0.9990234375,
-            1.0,
-            0.9990234375,
-            1.0,
-            0.99951171875,
-            0.9990234375,
-            0.999755859375,
-            0.99951171875,
-            0.999755859375
-          ]
-        },
-        "seed_copy_jitter": {
-          "status": "failed",
-          "reason": "ConfigError: seed_1: w_in differs from assigned chip"
-        },
-        "spiking_eprop": {
-          "status": "ok",
-          "per_controller_success": [
-            0.988037109375,
-            0.97900390625,
-            0.9912109375,
-            0.989013671875,
-            0.97314453125,
-            0.99267578125,
-            0.986328125,
-            0.99609375,
-            0.99609375,
-            0.992919921875
-          ]
-        },
-        "untrained": {
-          "status": "ok",
-          "per_controller_success": [
-            0.12060546875,
-            0.100341796875,
-            0.03466796875,
-            0.09033203125,
-            0.10791015625,
-            0.098876953125,
-            0.076171875,
-            0.10107421875,
-            0.066650390625,
-            0.03173828125
-          ]
-        },
-        "weak_2000": {
-          "status": "ok",
-          "per_controller_success": [
-            0.823486328125,
-            0.629150390625,
-            0.813720703125,
-            0.51611328125,
-            0.8369140625,
-            0.275146484375,
-            0.735107421875,
-            0.79833984375,
-            0.611328125,
-            0.0
           ]
         },
         "random_policy": {
@@ -268,76 +92,10 @@
     },
     "single_core_extreme": {
       "results": {
-        "averaged_readout": {
-          "success_rate": 0.992333984375,
-          "seed_worst_success": 0.9892578125,
-          "hit_rate": 0.9966796875,
-          "controller_units": 256.0
-        },
-        "constant_forward": {
-          "success_rate": 0.20166015625,
-          "seed_worst_success": 0.20166015625,
-          "hit_rate": 0.2958984375,
-          "controller_units": 256.0
-        },
-        "forged_metrics": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
-        },
-        "long_training": {
+        "spiking_eprop": {
           "success_rate": 0.99091796875,
           "seed_worst_success": 0.978515625,
           "hit_rate": 0.997216796875,
-          "controller_units": 256.0
-        },
-        "missing_experiment": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
-        },
-        "nonfinite": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
-        },
-        "over_capacity": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
-        },
-        "rule_distillation": {
-          "success_rate": 0.9515869140625,
-          "seed_worst_success": 0.901123046875,
-          "hit_rate": 0.9823974609375,
-          "controller_units": 256.0
-        },
-        "seed_copy_jitter": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 256.0
-        },
-        "spiking_eprop": {
-          "success_rate": 0.976171875,
-          "seed_worst_success": 0.964599609375,
-          "hit_rate": 0.989794921875,
-          "controller_units": 256.0
-        },
-        "untrained": {
-          "success_rate": 0.0644775390625,
-          "seed_worst_success": 0.025390625,
-          "hit_rate": 0.1314208984375,
-          "controller_units": 256.0
-        },
-        "weak_2000": {
-          "success_rate": 0.59345703125,
-          "seed_worst_success": 0.257080078125,
-          "hit_rate": 0.6792724609375,
           "controller_units": 256.0
         },
         "random_policy": {
@@ -360,41 +118,7 @@
         }
       },
       "diagnostics": {
-        "averaged_readout": {
-          "status": "ok",
-          "per_controller_success": [
-            0.989501953125,
-            0.992431640625,
-            0.993408203125,
-            0.99365234375,
-            0.991943359375,
-            0.994873046875,
-            0.9892578125,
-            0.9931640625,
-            0.991455078125,
-            0.99365234375
-          ]
-        },
-        "constant_forward": {
-          "status": "ok",
-          "per_controller_success": [
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625,
-            0.20166015625
-          ]
-        },
-        "forged_metrics": {
-          "status": "failed",
-          "reason": "ConfigError: cannot read /home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz'"
-        },
-        "long_training": {
+        "spiking_eprop": {
           "status": "ok",
           "per_controller_success": [
             0.990234375,
@@ -407,82 +131,6 @@
             0.996337890625,
             0.991455078125,
             0.978515625
-          ]
-        },
-        "missing_experiment": {
-          "status": "failed",
-          "reason": "ConfigError: cannot read /home/user/outputs/missing_experiment/sensor_robustness/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/missing_experiment/sensor_robustness/seed_0.npz'"
-        },
-        "nonfinite": {
-          "status": "failed",
-          "reason": "ConfigError: w_out contains non-finite values"
-        },
-        "over_capacity": {
-          "status": "failed",
-          "reason": "ConfigError: seed_0: w_in differs from assigned chip"
-        },
-        "rule_distillation": {
-          "status": "ok",
-          "per_controller_success": [
-            0.9658203125,
-            0.901123046875,
-            0.96630859375,
-            0.914306640625,
-            0.964111328125,
-            0.9638671875,
-            0.943603515625,
-            0.982177734375,
-            0.96533203125,
-            0.94921875
-          ]
-        },
-        "seed_copy_jitter": {
-          "status": "failed",
-          "reason": "ConfigError: seed_1: w_in differs from assigned chip"
-        },
-        "spiking_eprop": {
-          "status": "ok",
-          "per_controller_success": [
-            0.97607421875,
-            0.987548828125,
-            0.967041015625,
-            0.975341796875,
-            0.97607421875,
-            0.989990234375,
-            0.974365234375,
-            0.9697265625,
-            0.98095703125,
-            0.964599609375
-          ]
-        },
-        "untrained": {
-          "status": "ok",
-          "per_controller_success": [
-            0.03466796875,
-            0.040283203125,
-            0.0751953125,
-            0.068115234375,
-            0.115234375,
-            0.029541015625,
-            0.090087890625,
-            0.080810546875,
-            0.08544921875,
-            0.025390625
-          ]
-        },
-        "weak_2000": {
-          "status": "ok",
-          "per_controller_success": [
-            0.77978515625,
-            0.823974609375,
-            0.737548828125,
-            0.5986328125,
-            0.588623046875,
-            0.55419921875,
-            0.637451171875,
-            0.670654296875,
-            0.257080078125,
-            0.28662109375
           ]
         },
         "random_policy": {
@@ -534,76 +182,10 @@
     },
     "sensor_robustness": {
       "results": {
-        "averaged_readout": {
-          "success_rate": 0.8394287109375,
-          "seed_worst_success": 0.78173828125,
-          "hit_rate": 0.9302490234375,
-          "controller_units": 1020.0
-        },
-        "constant_forward": {
-          "success_rate": 0.194580078125,
-          "seed_worst_success": 0.194580078125,
-          "hit_rate": 0.26123046875,
-          "controller_units": 1020.0
-        },
-        "forged_metrics": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "long_training": {
+        "spiking_eprop": {
           "success_rate": 0.8406005859375,
           "seed_worst_success": 0.78564453125,
           "hit_rate": 0.937060546875,
-          "controller_units": 1020.0
-        },
-        "missing_experiment": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "nonfinite": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "over_capacity": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "rule_distillation": {
-          "success_rate": 0.6950439453125,
-          "seed_worst_success": 0.68359375,
-          "hit_rate": 0.8279541015625,
-          "controller_units": 1020.0
-        },
-        "seed_copy_jitter": {
-          "success_rate": 0.0,
-          "seed_worst_success": 0.0,
-          "hit_rate": 0.0,
-          "controller_units": 1020.0
-        },
-        "spiking_eprop": {
-          "success_rate": 0.738330078125,
-          "seed_worst_success": 0.12353515625,
-          "hit_rate": 0.8515380859375,
-          "controller_units": 1020.0
-        },
-        "untrained": {
-          "success_rate": 0.1868408203125,
-          "seed_worst_success": 0.156005859375,
-          "hit_rate": 0.4498046875,
-          "controller_units": 1020.0
-        },
-        "weak_2000": {
-          "success_rate": 0.2706298828125,
-          "seed_worst_success": 0.129638671875,
-          "hit_rate": 0.37490234375,
           "controller_units": 1020.0
         },
         "random_policy": {
@@ -626,41 +208,7 @@
         }
       },
       "diagnostics": {
-        "averaged_readout": {
-          "status": "ok",
-          "per_controller_success": [
-            0.78173828125,
-            0.810546875,
-            0.85498046875,
-            0.8876953125,
-            0.8671875,
-            0.886474609375,
-            0.802490234375,
-            0.794189453125,
-            0.833251953125,
-            0.875732421875
-          ]
-        },
-        "constant_forward": {
-          "status": "ok",
-          "per_controller_success": [
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125,
-            0.194580078125
-          ]
-        },
-        "forged_metrics": {
-          "status": "failed",
-          "reason": "ConfigError: cannot read /home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/forged_metrics/velocity_range_extreme/seed_0.npz'"
-        },
-        "long_training": {
+        "spiking_eprop": {
           "status": "ok",
           "per_controller_success": [
             0.785888671875,
@@ -673,82 +221,6 @@
             0.78564453125,
             0.85595703125,
             0.802978515625
-          ]
-        },
-        "missing_experiment": {
-          "status": "failed",
-          "reason": "ConfigError: cannot read /home/user/outputs/missing_experiment/sensor_robustness/seed_0.npz: [Errno 2] No such file or directory: '/home/user/outputs/missing_experiment/sensor_robustness/seed_0.npz'"
-        },
-        "nonfinite": {
-          "status": "failed",
-          "reason": "ConfigError: w_out contains non-finite values"
-        },
-        "over_capacity": {
-          "status": "failed",
-          "reason": "ConfigError: seed_0: w_in differs from assigned chip"
-        },
-        "rule_distillation": {
-          "status": "ok",
-          "per_controller_success": [
-            0.704345703125,
-            0.705078125,
-            0.68359375,
-            0.6962890625,
-            0.68408203125,
-            0.693115234375,
-            0.700439453125,
-            0.697265625,
-            0.701416015625,
-            0.684814453125
-          ]
-        },
-        "seed_copy_jitter": {
-          "status": "failed",
-          "reason": "ConfigError: seed_1: w_in differs from assigned chip"
-        },
-        "spiking_eprop": {
-          "status": "ok",
-          "per_controller_success": [
-            0.765869140625,
-            0.77685546875,
-            0.84716796875,
-            0.7958984375,
-            0.84619140625,
-            0.813720703125,
-            0.768798828125,
-            0.77197265625,
-            0.12353515625,
-            0.873291015625
-          ]
-        },
-        "untrained": {
-          "status": "ok",
-          "per_controller_success": [
-            0.214111328125,
-            0.19921875,
-            0.1630859375,
-            0.193115234375,
-            0.201171875,
-            0.186279296875,
-            0.173828125,
-            0.197021484375,
-            0.1845703125,
-            0.156005859375
-          ]
-        },
-        "weak_2000": {
-          "status": "ok",
-          "per_controller_success": [
-            0.248046875,
-            0.2275390625,
-            0.3876953125,
-            0.2470703125,
-            0.223388671875,
-            0.129638671875,
-            0.39794921875,
-            0.359130859375,
-            0.220947265625,
-            0.264892578125
           ]
         },
         "random_policy": {
