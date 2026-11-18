@@ -1,6 +1,6 @@
 #!/bin/bash
-# Resume the combined audit after node loss. Exact training checkpoints and
-# source/input-keyed raw rollouts survive retries; scoring starts after training.
+# Finish the combined audit from all 30 trained trajectories and saved raw
+# rollouts. Unique temporary files make score writes safe across worker retries.
 set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}

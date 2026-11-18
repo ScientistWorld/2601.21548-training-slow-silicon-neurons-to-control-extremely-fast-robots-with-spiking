@@ -3,10 +3,37 @@
 The reports identified paying shortcuts and inadequate headroom. Final
 verification is still pending: the first robot audit also failed the timing-rule
 check. Its results are preserved, not presented as a successful hardening.
-The revised 32000/64000-trial audit was interrupted by worker-node loss after
-16 of 30 training runs completed. Exact training/RNG checkpoints retain partial
-progress; the continuation changes audit bookkeeping only. Final hidden scores
-and paired headroom checks remain pending.
+The revised 32000/64000-trial audit has completed all 30 training runs. Its
+continuation (c113c132-b6f) saved complete hidden outcomes for the reference,
+honest and weak variants, rule imitation and malformed submissions, but failed
+while replacing a shared temporary score file after repeated worker drains.
+Score and raw-outcome writes now use independent temporary filenames followed
+by atomic replacement. Audit bookkeeping uses the same repair. The scoring
+calculations, inputs, chips and training code are unchanged. An exact full-source
+and runtime digest migration, confined to the audit helper, preserves valid raw
+rollouts across this write-only repair; normal evaluators remain uncached.
+The pending job finishes the fixed baselines, paired uncertainty and isolated
+reference scoring without retraining. Headroom is not yet certified.
+
+The saved held-out success rates from that interrupted scoring pass are:
+
+| Controller | Extreme / restricted capacity / sensing robustness |
+|---|---|
+| Reference, 32000 trials | 0.98845 / 0.97617 / 0.73833 |
+| Longer training, 64000 trials | 0.99697 / 0.99092 / 0.84060 |
+| Averaged late readout | 0.99663 / 0.99233 / 0.83943 |
+| Rule imitation | 0.99954 / 0.95159 / 0.69504 |
+| Weak control, 2000 trials | 0.60393 / 0.59346 / 0.27063 |
+| Untrained | 0.08284 / 0.06448 / 0.18684 |
+| Constant forward | 0.20776 / 0.20166 / 0.19458 |
+
+Forged metrics, a missing experiment, nonfinite weights, excess capacity and
+copying one chip's weights into all slots each received zero for every success,
+worst-chip success and hit metric in all three experiments, with the full
+allowed unit count as their worst constraint value. These are completed
+comparisons from the log, not values inferred from unfinished score entries.
+The 27-member analytic rule bank and conservative paired-noise check still
+need to finish before these results establish the final scientific ranking.
 
 ## Scientific result before this iteration
 

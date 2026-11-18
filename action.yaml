@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: method_runs
-notes: "Resume combined scientific audit after worker-node loss: retain 16 completed runs and 8 exact training/RNG checkpoints, finish all 30 paired 64000-trial trajectories, then audit reference/strong/weak variants, filtered timing rules and repaired invalid submissions. Preserve logs and source-keyed completed preflight checks across retries. Finish with isolated reference-only train/test scores, paired uncertainty, scientific checks and validation; scientific setup unchanged."
+notes: "Finish the combined audit from all 30 completed training runs and saved raw outcomes. Repair colliding temporary score/cache writes; exact source/runtime migration preserves outcomes across this write-only change. Complete fixed baselines and paired-noise checks, then isolated reference-only train/test scores and validation. No retraining or scientific setup change."

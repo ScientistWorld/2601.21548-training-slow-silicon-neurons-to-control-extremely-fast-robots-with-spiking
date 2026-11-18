@@ -245,3 +245,7 @@ redteam/final/preflight_complete.json
 MUJOCO_LOG.TXT
 
 redteam/final/logs_v2/
+# Interrupted atomic output writes are generated bookkeeping, never sources.
+scoring/*.tmp
+scoring/.*.tmp
+redteam/final/.*.tmp

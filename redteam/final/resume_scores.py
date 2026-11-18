@@ -4,6 +4,8 @@ Worker drains restart the whole job. Audit checkpoints live in the split's
 private raw directory and are keyed by exact inputs, controller arrays and
 evaluator sources. No metric, status or submitted cache is reused. The public
 evaluate_{train,test}.sh entry points do not import this module or use caches.
+An exact, split-local source-digest migration preserves raw checkpoints across
+the atomic file-write repair only. Any subsequent source change invalidates it.
 """
 from __future__ import annotations
 import hashlib
@@ -42,6 +44,12 @@ class RawResume:
         import mujoco
         digest.update((np.__version__ + mujoco.__version__).encode())
         self.source_digest = digest.digest()
+        migration = Path(evaluator.__file__).with_name('audit_cache_compatibility.json')
+        if migration.exists():
+            spec = json.loads(migration.read_text())
+            if spec['current_source_digest'] == self.source_digest.hex():
+                self.source_digest = bytes.fromhex(spec['equivalent_source_digest'])
+                print('audit raw resume: exact atomic-write-only source migration', flush=True)
         self.directory = evaluator.RAW / 'audit_resume'
         self.directory.mkdir(parents=True, exist_ok=True)
 
@@ -67,10 +75,8 @@ class RawResume:
     def store(self, key, result, count):
         self.validate(result, count)
         target = self.directory / f'{key}.npz'
-        temporary = target.with_suffix('.tmp')
-        with temporary.open('wb') as stream:
-            np.savez_compressed(stream, success=result[0], hit=result[1])
-        temporary.replace(target)
+        self.evaluator.atomic_write(target, lambda stream: np.savez_compressed(
+            stream, success=result[0], hit=result[1]))
 
     def obtain(self, key, count, compute):
         target = self.directory / f'{key}.npz'

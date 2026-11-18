@@ -118,3 +118,23 @@ records atomically, and reuses completed preflight checks only when source,
 fixed-asset and runtime fingerprints match. The replacement job resumes saved
 training and then completes the combined hidden audit and isolated reference
 scoring. Details of the interruption are in redteam/final/node_loss_job.json.
+
+Job c113c132-b6f finished all 30 training runs and the controller comparisons.
+Held-out reference success was 0.98845 / 0.97617 / 0.73833; longer training
+reached 0.99697 / 0.99092 / 0.84060. Rule imitation reached
+0.99954 / 0.95159 / 0.69504, below the reference on the two heavier conditions.
+Weak training and an untrained readout were much worse; five malformed
+submission attacks received worst values throughout. These saved comparisons
+are useful, but fixed baselines and paired uncertainty are still incomplete.
+
+Repeated worker drains exposed an application error: two score writers used
+scoring/scores_test.tmp, so one replacement removed the other's temporary
+path. Both independent evaluators now use unique atomic writes for scores and
+raw outcomes; the audit cache and metadata writes receive the same repair.
+A job-side concurrent-writer regression check covers both evaluators. Static
+AST comparison confirms unchanged scoring calculations. Exact full-source and
+pinned-runtime migration digests permit reuse of the previous raw rollouts
+only for this persistence change. Normal evaluator entry points remain
+uncached. No training code, fixed chip, episode or metric changed. The next
+job skips completed training, finishes the single combined audit, and writes
+isolated reference-only train/test scores before validation.

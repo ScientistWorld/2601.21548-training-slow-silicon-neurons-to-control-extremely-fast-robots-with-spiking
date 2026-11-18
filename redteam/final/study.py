@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tempfile
 import numpy as np
 
 ROOT=Path('/home/user')
@@ -210,9 +211,16 @@ def scientific_checks(scores,reference):
 
 
 def write_json(path,value):
-    temporary=path.with_suffix('.tmp')
-    temporary.write_text(json.dumps(value,indent=2)+'\n')
-    temporary.replace(path)
+    temporary=None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w',dir=path.parent,
+                prefix=f'.{path.name}.',suffix='.tmp',delete=False) as stream:
+            temporary=Path(stream.name)
+            json.dump(value,stream,indent=2)
+            stream.write('\n')
+        os.replace(temporary,path)
+    finally:
+        if temporary is not None: temporary.unlink(missing_ok=True)
 
 
 def preflight():

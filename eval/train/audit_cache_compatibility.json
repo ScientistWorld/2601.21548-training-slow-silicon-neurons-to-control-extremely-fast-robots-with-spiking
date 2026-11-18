@@ -1,0 +1,9 @@
+{
+  "_note": "One-off audit-only reuse after atomic file-write repair. Exact full source and pinned runtime digests must match. Controller arrays and initial conditions remain part of each raw cache key; normal evaluators never use this manifest.",
+  "runtime": {
+    "numpy": "2.2.6",
+    "mujoco": "3.3.7"
+  },
+  "current_source_digest": "78b5e61b1e7f774c4aa11250eed6094fa91e4d4bb3712ae094be86f2e19e3a19",
+  "equivalent_source_digest": "3652372eeac410a33c8750fe88b7b8b96a75e8ae89769ad073981e10e545de3b"
+}

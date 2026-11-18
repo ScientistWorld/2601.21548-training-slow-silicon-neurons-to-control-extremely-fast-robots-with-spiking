@@ -50,3 +50,10 @@
   hardening is not yet demonstrated. The new combined audit must establish it.
 - Eq. 1 runs on the software spiking substrate and torque-limited robot.
   Extended training and the sensing-robustness setting remain under evaluation.
+
+### [2026-11-18] - method_runs
+- All 30 extended-training trajectories completed; saved held-out comparisons
+  show improvement over the reference and failure of malformed submissions.
+- Certification still awaits the fixed timing-rule bank, paired uncertainty
+  and isolated canonical scores. A temporary score-file collision is repaired
+  without changing the scientific setup or discarding valid raw rollouts.

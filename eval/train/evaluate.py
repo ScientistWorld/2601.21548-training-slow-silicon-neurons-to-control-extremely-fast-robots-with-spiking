@@ -7,6 +7,7 @@ queried by private search. All methods see the same episodes and fixed chips.
 from __future__ import annotations
 import json
 import os
+import tempfile
 from pathlib import Path
 import numpy as np
 from data.neuromorphic_chip import ChipBatch, ConfigError, controller_units, load_config
@@ -27,6 +28,19 @@ N_EPISODES=4096
 BATCH=128
 BASELINES=('random_policy','always_forward','intercept_rule')
 METRICS=('success_rate','seed_worst_success','hit_rate','controller_units')
+
+def atomic_write(path,write):
+    # Retries can overlap briefly during worker drains. Each writer owns its
+    # temporary file; readers only see a complete replacement.
+    temporary=None
+    try:
+        with tempfile.NamedTemporaryFile(mode='wb',dir=path.parent,
+                prefix=f'.{path.name}.',suffix='.tmp',delete=False) as stream:
+            temporary=Path(stream.name)
+            write(stream)
+        os.replace(temporary,path)
+    finally:
+        if temporary is not None: temporary.unlink(missing_ok=True)
 
 def worst(experiment):
     return dict(success_rate=0.,seed_worst_success=0.,hit_rate=0.,
@@ -163,7 +177,8 @@ def score_task(task):
         # Answers and paired outcomes never leave this split's private area.
         import hashlib
         tag=hashlib.sha256(method.encode()).hexdigest()[:24]
-        np.savez_compressed(RAW/f'{tag}_{experiment}.npz',**outcome)
+        atomic_write(RAW/f'{tag}_{experiment}.npz',
+                     lambda stream:np.savez_compressed(stream,**outcome))
         diag={'status':'ok','per_controller_success':outcome['success'].mean(axis=1).tolist()}
     except Exception as exc:
         metrics=worst(experiment)
@@ -186,8 +201,7 @@ def main():
             all_results[e]['results'][method]=m
             all_results[e]['diagnostics'][method]=d
             print(method,e,m,d.get('reason',''),flush=True)
-        target=SCORES.with_suffix('.tmp')
-        target.write_text(json.dumps({'experiments':all_results},indent=2)+'\n')
-        target.replace(SCORES)
+        content=(json.dumps({'experiments':all_results},indent=2)+'\n').encode()
+        atomic_write(SCORES,lambda stream:stream.write(content))
     return 0
 if __name__=='__main__': raise SystemExit(main())
