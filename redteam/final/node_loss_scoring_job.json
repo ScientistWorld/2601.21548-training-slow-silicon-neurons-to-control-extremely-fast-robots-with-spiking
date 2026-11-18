@@ -1,0 +1,46 @@
+{
+  "job_id": "8a5b7d7e-e69",
+  "exit_code": -1,
+  "cause": "worker node lost after three consecutive checks; no application traceback or numerical failure",
+  "completed": "full 32000-trial-reference hidden audit; reference train scoring and eight random-policy train streams",
+  "rank32": {
+    "averaged_readout": 0.16959965365587032,
+    "constant_forward": -1.7223417555826952,
+    "forged_metrics": -2.253947812857117,
+    "long_training": 0.17057051997666778,
+    "missing_experiment": -2.253947812857117,
+    "nonfinite": -2.253947812857117,
+    "over_capacity": -2.253947812857117,
+    "rule_distillation": -0.0781789245610689,
+    "seed_copy_jitter": -2.253947812857117,
+    "spiking_eprop": 0.0,
+    "untrained": -1.8857877541474215,
+    "weak_2000": -1.1550625113974073,
+    "random_policy": -1.8755904120046,
+    "always_forward": -1.7223417555826952,
+    "intercept_rule": 0.0025839413504827914
+  },
+  "rank64_same_cohort_diagnostic": {
+    "averaged_readout": -0.0009708663207974789,
+    "constant_forward": -1.892912275559363,
+    "forged_metrics": -2.424518332833785,
+    "long_training": 0.0,
+    "missing_experiment": -2.424518332833785,
+    "nonfinite": -2.424518332833785,
+    "over_capacity": -2.424518332833785,
+    "rule_distillation": -0.2487494445377367,
+    "seed_copy_jitter": -2.424518332833785,
+    "spiking_eprop": -0.17057051997666778,
+    "untrained": -2.05635827412409,
+    "weak_2000": -1.325633031374075,
+    "random_policy": -2.0461609319812677,
+    "always_forward": -1.892912275559363,
+    "intercept_rule": -0.167986578626185
+  },
+  "conservative_95_lower_rank_gain32": {
+    "long_training": -0.057015700544696596,
+    "averaged_readout": -0.04778735492397359
+  },
+  "scientific_check_passed": false,
+  "next_steps": "Use already-executed exact Eq. 1 trial-64000 snapshots as reference; public-only calibration as the primary headroom variant; paired chip/episode bootstrap; reuse source-validated raw outcomes; finish isolated canonical scores."
+}

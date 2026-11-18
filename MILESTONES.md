@@ -57,3 +57,12 @@
 - Certification still awaits the fixed timing-rule bank, paired uncertainty
   and isolated canonical scores. A temporary score-file collision is repaired
   without changing the scientific setup or discarding valid raw rollouts.
+
+### [2026-11-18] - method_runs
+- The completed 32000-trial audit failed certification: a short timing bank
+  narrowly outranked reference, and skewed paired gains defeated its normal
+  uncertainty check. The worker was then lost during canonical scoring.
+- The completed exact 64000-trial checkpoints become the final reference.
+  Public-only readout calibration and paired chip/episode resampling are queued
+  together with final variant/attack comparisons and canonical scoring.
+  The milestone remains `method_runs` until headroom is demonstrated.

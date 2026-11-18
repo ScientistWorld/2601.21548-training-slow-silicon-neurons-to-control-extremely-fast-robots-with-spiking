@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: method_runs
-notes: "Finish the combined audit from all 30 completed training runs and saved raw outcomes. Repair colliding temporary score/cache writes; exact source/runtime migration preserves outcomes across this write-only change. Complete fixed baselines and paired-noise checks, then isolated reference-only train/test scores and validation. No retraining or scientific setup change."
+notes: "Finish from exact completed 64000-trial Eq. 1 checkpoints: public-only readout calibration, fixed sharpening and weak controls; paired chip/episode headroom check; repaired attacks; then isolated canonical reference/baseline train and test scores and validation. Reuse validated raw rollouts. Preserve failed 32000-trial audit; no reference retraining."

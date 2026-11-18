@@ -1,7 +1,7 @@
 #!/bin/bash
-# Eq. 1 reference: 32000 trials, two trials per update, ten fixed chip instances.
+# Eq. 1 reference: 64000 trials, two trials per update, ten fixed chip instances.
 set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
 python scripts/generate_backbones.py
-python method/train.py --output-dir outputs/spiking_eprop --episodes 32000 "$@"
+python method/train.py --output-dir outputs/spiking_eprop --episodes 64000 "$@"

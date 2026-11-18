@@ -25,11 +25,11 @@
       "notes": "Paper-reported 86% online success on [0.5, 2.0] m/s, attributed to finite encoding resolution. These numbers are retained for provenance and are not scored targets on the local software scale."
     }
   },
-  "_setup_note": "Paper-reported numbers above are unchanged. The local software robot uses Eq. 1 for 32000 trials per chip (paper: 2000), 10 fixed chip instances, and final softmax-sampled held-out rollouts. Noise robustness uses 1020 units, 0.035 m position noise, 0.35 m/s velocity noise and 40 ms latency. Local reference results are populated after the combined audit; zero placeholders are not measured results.",
+  "_setup_note": "Paper-reported numbers above are unchanged. The local software robot uses Eq. 1 for 64000 trials per chip (paper: 2000), 10 fixed chip instances, and final softmax-sampled held-out rollouts. Noise robustness uses 1020 units, 0.035 m position noise, 0.35 m/s velocity noise and 40 ms latency. Local reference results are populated after the combined audit; zero placeholders are not measured results.",
   "experiments": {
     "velocity_range_extreme": {
       "description": "Interception across the full 0.5\u20132.0 m/s speed range.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 32000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 64000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
       "weight": 0.2,
       "primary_metric": "success_rate",
       "metrics": {
@@ -66,7 +66,7 @@
     },
     "single_core_extreme": {
       "description": "Interception across 0.5\u20132.0 m/s with a single 256-unit instance.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 32000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 64000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
       "weight": 0.3,
       "primary_metric": "success_rate",
       "metrics": {
@@ -102,8 +102,8 @@
       }
     },
     "sensor_robustness": {
-      "description": "Interception with broad launch positions and directions, noisy state estimates and one-tick observation latency.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 32000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
+      "description": "Interception with broad launch positions and directions, noisy state estimates and two control ticks (40 ms) of observation latency.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 64000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
       "weight": 0.5,
       "primary_metric": "success_rate",
       "metrics": {

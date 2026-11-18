@@ -138,3 +138,23 @@ only for this persistence change. Normal evaluator entry points remain
 uncached. No training code, fixed chip, episode or metric changed. The next
 job skips completed training, finishes the single combined audit, and writes
 isolated reference-only train/test scores before validation.
+
+Job 8a5b7d7e-e69 completed the entire 32000-trial-reference comparison but lost
+its worker node during canonical train scoring. No application traceback or
+numerical failure occurred. The completed audit exposed two scientific failures:
+the 27-member timing bank narrowly outranked reference (+0.002584), and normal
+paired lower bounds for longer training/averaging remained negative because
+one robustness chip learned very late. These results are retained as rejected
+certification, not described as success.
+
+The final reference is now the already-executed exact Eq. 1 trial-64000
+checkpoints: success 0.99697 / 0.99092 / 0.84060. The old timing bank and imitation
+are below this reference in the completed comparison; no physics or learning
+rule changes. A new honest readout calibration selects global settings on fresh
+public launches only, before hidden scoring. Fixed sharpening and averaging
+remain secondary checks. Paired chip/episode resampling reports uncertainty
+without imposing a Gaussian chip-effect distribution; certification requires
+the predeclared calibration variant's lower 95% bound above zero. The next
+single CPU job runs public calibration, scores all variants and repaired
+attacks, reuses valid saved raw outcomes, and finishes canonical reference-only
+scores and validation. Headroom is pending. No reference retraining is needed.

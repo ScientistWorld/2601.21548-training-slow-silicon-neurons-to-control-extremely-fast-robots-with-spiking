@@ -40,7 +40,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--experiments", nargs="+", default=list(EXPERIMENTS), choices=list(EXPERIMENTS))
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
-    parser.add_argument("--episodes", type=int, default=32000)
+    parser.add_argument("--episodes", type=int, default=64000)
     parser.add_argument("--output-dir", default="outputs/spiking_eprop")
     parser.add_argument("--snapshot", action="append", default=[])
     parser.add_argument("--hidden-neurons", type=int, default=None,
