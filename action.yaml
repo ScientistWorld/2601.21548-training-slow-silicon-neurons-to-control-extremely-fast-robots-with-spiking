@@ -1,3 +1,8 @@
-action: done
+# Once you set action to 'submit' or 'done', STOP immediately.
+# Do NOT sleep, poll, or wait for jobs. The system reads this file
+# only after your turn ends.
+action: pending
+gpus: 0
+test: false
 milestone: core_claim
-notes: "Final scientific hardening verified: honest calibration gains +0.040983 rank (paired 95% CI 0.022084 to 0.062891); repaired shortcuts rank below reference; canonical reference/baseline scores regenerated, paper numbers retained, validation passed. Evidence and remaining limits in HARDENING.md."
+notes: ""
