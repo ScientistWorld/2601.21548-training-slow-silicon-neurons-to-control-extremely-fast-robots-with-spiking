@@ -2,9 +2,10 @@
 # Held-out test-slice evaluator (no arguments).
 #
 # Scores every method directory under outputs/ (plus the proposed methods of
-# scoring/reference.json) by running its controllers on held-out episodes with
-# frozen copies of the task simulator and controller runtime; writes
-# scoring/scores_test.json.  Does not import method/.
+# scoring/reference.json): each method's learner.py learns online for the
+# paper's 2000-trial budget on hidden controller instances and launches, with
+# frozen private copies of the task simulator and chip runtime; writes
+# scoring/scores_test.json. Does not import method/.
 
 set -e
 

@@ -1,9 +1,11 @@
 #!/bin/bash
 # Visible train-slice evaluator.
 #
-# Scores every method directory under outputs/ (plus the proposed methods of
-# scoring/reference.json) by running its controllers on public validation
-# episodes; writes scoring/scores_train.json.  Does not import method/.
+# Scores every method directory under outputs/: each method's learner.py learns
+# online for the paper's 2000-trial budget on the public controller instances
+# and launches; writes scoring/scores_train.json. Does not import method/.
+# Development options of eval/train/evaluate.py (--outputs, --methods, --budget,
+# --chips) are not used here.
 
 set -e
 

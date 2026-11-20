@@ -1,49 +1,42 @@
 #!/usr/bin/env python3
-"""Reference (non-learning) behaviours on the public task simulator.
+"""Non-learning behaviours on the public task simulator (inspection only).
 
-The scored baselines ``random_policy`` (uniform random primitive each 20 ms)
-and ``always_forward`` (strike immediately) are computed by the evaluators
-themselves, so they cannot be altered by editing this file.  This script runs
-the same behaviours on public episodes for quick inspection and writes a
-summary to ``logs/baselines.json``.
+The scored baselines ``random_policy`` (forward with probability 0.5 every
+20 ms) and ``always_forward`` are computed by the evaluators themselves, so
+editing this file cannot change them. This script runs the same behaviours on
+public launches and writes ``logs/baselines.json``.
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 from pathlib import Path
-
 import numpy as np
+from data.air_hockey_env import AirHockeySlots, sample_initial_conditions
 
-from data.air_hockey_env import AirHockeyBatch, sample_initial_conditions
-
-CONDITIONS = ("random_position_speed", "speed_wide", "speed_extreme")
-
-
-def run(condition: str, policy: str, episodes: int, seed: int) -> dict:
-    rng = np.random.default_rng([seed, CONDITIONS.index(condition)])
-    env = AirHockeyBatch(sample_initial_conditions(condition, rng, episodes))
-    while not np.all(env.done):
-        if policy == "random_policy":
-            actions = rng.integers(0, 2, size=episodes)
-        else:
-            actions = np.ones(episodes, dtype=np.int64)
-        env.step(actions)
-    return {"success_rate": float(env.success.mean()), "hit_rate": float(env.hit.mean())}
+CONDITIONS = {"randomized_air_hockey": "random_position_speed", "velocity_range_wide": "speed_wide",
+              "velocity_range_extreme": "speed_extreme"}
 
 
-def main() -> None:
+def run(condition, p_forward, episodes, seed):
+    rng = np.random.default_rng(seed)
+    env = AirHockeySlots(episodes)
+    env.reset(np.arange(episodes), sample_initial_conditions(condition, rng, episodes))
+    while not env.done.all():
+        rows = np.flatnonzero(~env.done)
+        env.step(rows, (rng.random(len(rows)) < p_forward).astype(int))
+    return float(env.success.mean())
+
+
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--episodes", type=int, default=1000)
-    parser.add_argument("--seed", type=int, default=5000)
-    parser.add_argument("--output", default="logs/baselines.json")
+    parser.add_argument("--episodes", type=int, default=512)
+    parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
-    summary = {c: {p: run(c, p, args.episodes, args.seed) for p in ("random_policy", "always_forward")}
-               for c in CONDITIONS}
-    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.output).write_text(json.dumps(summary, indent=2) + "\n")
-    print(json.dumps(summary, indent=2))
+    out = {e: {"random_policy": run(c, .5, args.episodes, args.seed), "always_forward": run(c, 1., args.episodes, args.seed)}
+           for e, c in CONDITIONS.items()}
+    Path("logs").mkdir(exist_ok=True)
+    Path("logs/baselines.json").write_text(json.dumps(out, indent=2) + "\n")
+    print(json.dumps(out))
 
 
 if __name__ == "__main__":

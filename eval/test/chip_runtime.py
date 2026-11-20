@@ -1,256 +1,191 @@
-"""FROZEN COPY for held-out scoring (identical to data/neuromorphic_chip.py at
-freeze time; edits to data/ do not affect the test).
+"""FROZEN PRIVATE COPY for held-out scoring. Edits to data/ do not affect the test.
 
-Runtime for neuromorphic interception controllers (public problem asset).
+Software substitute for the paper's fixed spiking substrate (public asset).
 
-In the paper the controller is fixed silicon (DYNAP-SE) driven by FPGA spike
-generators, with a readout computed on the host.  Here a controller is a
-*configuration file* (``.npz``) that fully specifies such a spiking network;
-this module executes it.  Every evaluator runs submitted controllers through
-an identical runtime, so a submission is judged by what its network does on
-held-out episodes, and its size is read from the configuration itself.
+Paper, Sec. II-B: each of the six state variables is encoded by 10 Gaussian
+population cells (60 deterministic spike generators); a fixed random
+feedforward layer of 1020 adaptive leaky integrate-and-fire neurons processes
+them for 20 ms per control step; the readout sees the *filtered* hidden spike
+trains. Here a "chip" is a dictionary of numeric arrays that fully specifies one
+such substrate, and ``ChipBank`` runs many chips in lockstep at 1 ms resolution.
 
-Network executed for every 20 ms control step (1 ms resolution):
+``build_chip`` is the generator of chip instances: random sparse input
+synapses, per-neuron device mismatch, and one global synaptic gain calibrated
+so a target fraction of (neuron, state) pairs is driven above threshold under
+random behaviour. Chips differ only through the seed. Learning methods never
+receive a chip's arrays; they receive its filtered spike trains.
 
-* input: one deterministic spike generator per (state dimension, cell).  The
-  generator rate is ``max_rate * exp(-0.5 * ((x_d - center) / sigma)^2)`` for
-  the current observation ``x``; spikes are emitted when an accumulating phase
-  crosses 1 (regular, replayable spike trains);
-* hidden: ``N`` leaky integrate-and-fire units with synaptic low-pass filter,
-  subtractive spike-frequency adaptation, absolute refractory period and an
-  optional recurrent weight matrix;
-* readout: filtered hidden spike trains (``trace``) times ``w_out`` plus
-  ``b_out`` give two action scores; evaluators sample their softmax probabilities.
+Chip keys (N hidden units, K cells per input dimension)::
 
-Configuration keys (all numeric arrays; N hidden units, K cells per input dim)::
-
-    enc_centers [6, K]  enc_sigma [6, K]  enc_max_rate_hz [6, K]
-    w_in [N, 6K]        w_rec [N, N] (optional)
+    enc_centers [6, K]  enc_sigma [6, K]  enc_max_rate_hz [6, K]   w_in [N, 6K]
     bias, tau_mem_ms, tau_syn_ms, tau_adapt_ms, adapt_increment,
-    threshold, refractory_ms, tau_trace_ms                      [N] each
-    w_out [N, 2]        b_out [2]
-
-Unknown keys are ignored.  ``validate_config`` enforces shapes, finiteness and
-physical bounds; ``controller_units`` is the number of hidden units.
+    threshold, refractory_ms, tau_trace_ms                          [N] each
 """
-
 from __future__ import annotations
-
-from pathlib import Path
-from typing import Mapping
-
 import numpy as np
+from eval.test.task_sim import CONDITIONS, AirHockeySlots, sample_initial_conditions
 
 STATE_DIM = 6
-N_ACTIONS = 2
 SUBSTEPS = 20
-MAX_HIDDEN_UNITS = 1020
-MAX_CELLS_PER_DIM = 32
-
-PER_NEURON_BOUNDS = {
-    "bias": (-1e4, 1e4),
-    "tau_mem_ms": (1.0, 1000.0),
-    "tau_syn_ms": (0.0, 1000.0),
-    "tau_adapt_ms": (1.0, 10000.0),
-    "adapt_increment": (0.0, 1e4),
-    "threshold": (1e-6, 1e6),
-    "refractory_ms": (0.0, 50.0),
-    "tau_trace_ms": (1.0, 1000.0),
-}
-WEIGHT_BOUND = 1e4
-READOUT_BOUND = 1e6
-
-
-class ConfigError(ValueError):
-    """Raised when a controller configuration is malformed or out of bounds."""
+CELLS_PER_DIM = 10
+INPUT_RATE_HZ = 200.
+CONNECTION_PROB = .2
+INHIBITORY_FRACTION = .2
+TARGET_ACTIVE_FRACTION = .25
+TAU_MEM_MS = 20.
+TAU_SYN_MS = 5.
+TAU_ADAPT_MS = 100.
+ADAPT_INCREMENT = .002
+REFRACTORY_MS = 2.
+TAU_TRACE_MS = 30.
+MISMATCH_CV = .2
+CALIBRATION_EPISODES = 16
+PER_NEURON = ("bias", "tau_mem_ms", "tau_syn_ms", "tau_adapt_ms", "adapt_increment",
+              "threshold", "refractory_ms", "tau_trace_ms")
 
 
-def _array(raw: Mapping[str, np.ndarray], key: str) -> np.ndarray:
-    if key not in raw:
-        raise ConfigError(f"missing key {key!r}")
-    arr = np.asarray(raw[key])
-    if arr.dtype.kind not in "fiu":
-        raise ConfigError(f"{key} must be numeric, got dtype {arr.dtype}")
-    arr = arr.astype(np.float64)
-    if not np.all(np.isfinite(arr)):
-        raise ConfigError(f"{key} contains non-finite values")
-    return arr
+def encoder_ranges(condition):
+    """Population-code range per observed variable.
+
+    The lateral-velocity code spans the condition's speed range in both
+    directions (the puck rebounds from the side walls), so wider speed ranges
+    are represented at coarser resolution by the same 10 cells (Sec. III-B).
+    """
+    vmax = max(0.2, float(CONDITIONS[condition]["speed"][1]))
+    return np.array([[.80, 1.60], [-.50, .50], [-1., 4.], [-vmax, vmax], [.70, 1.50], [-.05, .05]])
 
 
-def _bounded(arr: np.ndarray, key: str, lo: float, hi: float) -> None:
-    if arr.size and (arr.min() < lo or arr.max() > hi):
-        raise ConfigError(f"{key} outside [{lo}, {hi}]")
+def random_behaviour_states(condition, rng, episodes):
+    env = AirHockeySlots(episodes)
+    env.reset(np.arange(episodes), sample_initial_conditions(condition, rng, episodes))
+    states = [env.obs.copy()]
+    while not np.all(env.done):
+        rows = np.flatnonzero(~env.done)
+        env.step(rows, rng.integers(0, 2, size=len(rows)))
+        states.append(env.obs[~env.done].copy())
+    return np.concatenate(states, axis=0)
 
 
-def validate_config(raw: Mapping[str, np.ndarray]) -> dict[str, np.ndarray]:
-    """Check a raw configuration and return it as float32 arrays."""
-    centers = _array(raw, "enc_centers")
-    if centers.ndim != 2 or centers.shape[0] != STATE_DIM:
-        raise ConfigError("enc_centers must have shape [6, K]")
-    k = centers.shape[1]
-    if not 1 <= k <= MAX_CELLS_PER_DIM:
-        raise ConfigError(f"cells per dimension must be in [1, {MAX_CELLS_PER_DIM}]")
-    n_inputs = STATE_DIM * k
-    sigma = _array(raw, "enc_sigma")
-    rate = _array(raw, "enc_max_rate_hz")
-    for key, arr in (("enc_sigma", sigma), ("enc_max_rate_hz", rate)):
-        if arr.shape != centers.shape:
-            raise ConfigError(f"{key} must have shape [6, K]")
-    _bounded(centers, "enc_centers", -1e3, 1e3)
-    _bounded(sigma, "enc_sigma", 1e-6, 1e3)
-    _bounded(rate, "enc_max_rate_hz", 0.0, 1000.0)
-
-    w_in = _array(raw, "w_in")
-    if w_in.ndim != 2 or w_in.shape[1] != n_inputs:
-        raise ConfigError(f"w_in must have shape [N, {n_inputs}]")
-    n = w_in.shape[0]
-    if n < 1:
-        raise ConfigError("at least one hidden unit is required")
-    if n > MAX_HIDDEN_UNITS:
-        raise ConfigError(f"{n} hidden units exceed the {MAX_HIDDEN_UNITS}-unit budget")
-    _bounded(w_in, "w_in", -WEIGHT_BOUND, WEIGHT_BOUND)
-
-    out: dict[str, np.ndarray] = {
-        "enc_centers": centers, "enc_sigma": sigma, "enc_max_rate_hz": rate, "w_in": w_in,
+def build_chip(condition, seed, n_hidden=1020):
+    """Sample one fixed random substrate ("chip instance") for a condition."""
+    rng = np.random.default_rng(seed)
+    k, n = CELLS_PER_DIM, int(n_hidden)
+    ranges = encoder_ranges(condition)
+    centers = np.stack([np.linspace(lo, hi, k) for lo, hi in ranges])
+    spacing = (ranges[:, 1] - ranges[:, 0]) / (k - 1)
+    sigma = np.repeat(spacing[:, None], k, axis=1)
+    rates = np.full((STATE_DIM, k), INPUT_RATE_HZ)
+    n_in = STATE_DIM * k
+    mask = rng.random((n, n_in)) < CONNECTION_PROB
+    sign = np.where(rng.random((n, n_in)) < INHIBITORY_FRACTION, -1., 1.)
+    w_shape = mask * sign * rng.lognormal(0., .25, (n, n_in))
+    tau_mem = TAU_MEM_MS * rng.lognormal(0., MISMATCH_CV, n)
+    tau_syn = TAU_SYN_MS * rng.lognormal(0., MISMATCH_CV, n)
+    tau_adapt = TAU_ADAPT_MS * rng.lognormal(0., MISMATCH_CV, n)
+    threshold = rng.lognormal(0., .5 * MISMATCH_CV, n)
+    adapt_inc = ADAPT_INCREMENT * rng.lognormal(0., MISMATCH_CV, n)
+    # Global gain calibration over states visited by random behaviour.
+    states = random_behaviour_states(condition, rng, CALIBRATION_EPISODES)
+    if states.shape[0] > 600:
+        states = states[rng.choice(states.shape[0], 600, replace=False)]
+    dim_index = np.repeat(np.arange(STATE_DIM), k)
+    z = (states[:, dim_index] - centers.reshape(-1)) / sigma.reshape(-1)
+    in_rate = rates.reshape(-1) * 1e-3 * np.exp(-.5 * z * z)
+    a_mem, a_syn = np.exp(-1. / tau_mem), np.exp(-1. / tau_syn)
+    drive = (in_rate @ w_shape.T) / ((1. - a_syn) * (1. - a_mem))
+    ratio = np.where(drive > 0, threshold / np.maximum(drive, 1e-12), np.inf)
+    gain = float(np.quantile(ratio, TARGET_ACTIVE_FRACTION))
+    if not np.isfinite(gain):
+        gain = float(np.quantile(ratio[np.isfinite(ratio)], .5))
+    chip = {
+        "enc_centers": centers, "enc_sigma": sigma, "enc_max_rate_hz": rates,
+        "w_in": gain * w_shape, "bias": np.zeros(n), "tau_mem_ms": tau_mem,
+        "tau_syn_ms": tau_syn, "tau_adapt_ms": tau_adapt, "adapt_increment": adapt_inc,
+        "threshold": threshold, "refractory_ms": np.full(n, REFRACTORY_MS),
+        "tau_trace_ms": np.full(n, TAU_TRACE_MS),
     }
-    if "w_rec" in raw:
-        w_rec = _array(raw, "w_rec")
-        if w_rec.shape != (n, n):
-            raise ConfigError(f"w_rec must have shape [{n}, {n}]")
-        _bounded(w_rec, "w_rec", -WEIGHT_BOUND, WEIGHT_BOUND)
-        out["w_rec"] = w_rec
-    for key, (lo, hi) in PER_NEURON_BOUNDS.items():
-        arr = _array(raw, key)
-        if arr.shape != (n,):
-            raise ConfigError(f"{key} must have shape [{n}]")
-        _bounded(arr, key, lo, hi)
-        out[key] = arr
-    w_out = _array(raw, "w_out")
-    b_out = _array(raw, "b_out")
-    if w_out.shape != (n, N_ACTIONS) or b_out.shape != (N_ACTIONS,):
-        raise ConfigError("w_out must be [N, 2] and b_out [2]")
-    _bounded(w_out, "w_out", -READOUT_BOUND, READOUT_BOUND)
-    _bounded(b_out, "b_out", -READOUT_BOUND, READOUT_BOUND)
-    out["w_out"] = w_out
-    out["b_out"] = b_out
-    return {key: value.astype(np.float32) for key, value in out.items()}
+    return {key: np.asarray(value, dtype=np.float32) for key, value in chip.items()}
 
 
-def load_config(path: str | Path) -> dict[str, np.ndarray]:
-    """Load and validate a controller configuration from an ``.npz`` file."""
-    try:
-        with np.load(Path(path), allow_pickle=False) as data:
-            raw = {key: np.array(data[key]) for key in data.files}
-    except ConfigError:
-        raise
-    except Exception as exc:  # unreadable or not an npz archive
-        raise ConfigError(f"cannot read {path}: {exc}") from exc
-    return validate_config(raw)
+def _decay(tau_ms):
+    return np.exp(-1. / np.asarray(tau_ms, dtype=np.float64)).astype(np.float32)
 
 
-def save_config(path: str | Path, config: Mapping[str, np.ndarray]) -> None:
-    clean = validate_config(config)
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(Path(path), **clean)
+class ChipBank:
+    """Run ``C`` chips (one episode slot each) in lockstep at 1 ms resolution."""
 
+    def __init__(self, chips):
+        n = chips[0]["w_in"].shape[0]
+        k = chips[0]["enc_centers"].shape[1]
+        for chip in chips:
+            if chip["w_in"].shape != (n, STATE_DIM * k):
+                raise ValueError("all chips in a bank must have the same shape")
+        self.C, self.n = len(chips), n
 
-def controller_units(config: Mapping[str, np.ndarray]) -> int:
-    return int(np.asarray(config["w_in"]).shape[0])
+        def stack(key):
+            return np.stack([np.asarray(c[key], dtype=np.float32) for c in chips])
 
-
-def _decay(tau_ms: np.ndarray) -> np.ndarray:
-    tau = np.asarray(tau_ms, dtype=np.float64)
-    out = np.zeros_like(tau)
-    pos = tau > 0
-    out[pos] = np.exp(-1.0 / tau[pos])
-    return out.astype(np.float32)
-
-
-class ChipBatch:
-    """Execute one validated configuration on a batch of episodes."""
-
-    def __init__(self, config: Mapping[str, np.ndarray], batch: int) -> None:
-        c = config
-        self.n = int(c["w_in"].shape[0])
-        k = int(c["enc_centers"].shape[1])
         self.dim_index = np.repeat(np.arange(STATE_DIM), k)
-        self.centers = c["enc_centers"].reshape(-1).astype(np.float32)
-        self.inv_sigma = (1.0 / c["enc_sigma"].reshape(-1)).astype(np.float32)
-        self.rate_per_ms = (c["enc_max_rate_hz"].reshape(-1) * 1e-3).astype(np.float32)
-        self.w_in_t = np.ascontiguousarray(c["w_in"].T, dtype=np.float32)
-        w_rec = c.get("w_rec")
-        self.w_rec_t = None
-        if w_rec is not None and np.any(w_rec != 0):
-            self.w_rec_t = np.ascontiguousarray(np.asarray(w_rec).T, dtype=np.float32)
-        self.a_mem = _decay(c["tau_mem_ms"])
-        self.a_syn = _decay(c["tau_syn_ms"])
-        self.a_adapt = _decay(c["tau_adapt_ms"])
-        self.a_trace = _decay(c["tau_trace_ms"])
-        self.bias = np.asarray(c["bias"], dtype=np.float32)
-        self.threshold = np.asarray(c["threshold"], dtype=np.float32)
-        self.adapt_inc = np.asarray(c["adapt_increment"], dtype=np.float32)
-        self.use_adapt = bool(np.any(self.adapt_inc > 0))
-        self.ref_steps = np.rint(np.asarray(c["refractory_ms"])).astype(np.float32)
-        self.use_ref = bool(np.any(self.ref_steps > 0))
-        self.w_out = np.asarray(c["w_out"], dtype=np.float32)
-        self.b_out = np.asarray(c["b_out"], dtype=np.float32)
-        self.reset(batch)
+        self.centers = stack("enc_centers").reshape(self.C, -1)
+        self.inv_sigma = (1. / stack("enc_sigma")).reshape(self.C, -1).astype(np.float32)
+        self.rate_per_ms = (stack("enc_max_rate_hz") * 1e-3).reshape(self.C, -1).astype(np.float32)
+        self.w_in_t = np.ascontiguousarray(np.transpose(stack("w_in"), (0, 2, 1)))
+        self.a_mem = _decay(stack("tau_mem_ms"))
+        self.a_syn = _decay(stack("tau_syn_ms"))
+        self.a_adapt = _decay(stack("tau_adapt_ms"))
+        self.a_trace = _decay(stack("tau_trace_ms"))
+        self.bias = stack("bias")
+        self.threshold = stack("threshold")
+        self.adapt_inc = stack("adapt_increment")
+        self.ref_steps = np.rint(stack("refractory_ms")).astype(np.float32)
+        shape_in, shape = (self.C, self.centers.shape[1]), (self.C, n)
+        self.phase = np.zeros(shape_in, dtype=np.float32)
+        self.i_syn = np.zeros(shape, dtype=np.float32)
+        self.v = np.zeros(shape, dtype=np.float32)
+        self.adapt = np.zeros(shape, dtype=np.float32)
+        self.refractory = np.zeros(shape, dtype=np.float32)
+        self.trace = np.zeros(shape, dtype=np.float32)
+        self._spk = np.zeros(shape, dtype=np.float32)
+        self._tmp = np.zeros(shape, dtype=np.float32)
+        self._mask = np.zeros(shape, dtype=bool)
 
-    def reset(self, batch: int) -> None:
-        n_in = self.centers.shape[0]
-        self.batch = int(batch)
-        self.phase = np.zeros((batch, n_in), dtype=np.float32)
-        self.i_syn = np.zeros((batch, self.n), dtype=np.float32)
-        self.v = np.zeros((batch, self.n), dtype=np.float32)
-        self.adapt = np.zeros((batch, self.n), dtype=np.float32)
-        self.refractory = np.zeros((batch, self.n), dtype=np.float32)
-        self.trace = np.zeros((batch, self.n), dtype=np.float32)
-        self.spikes = np.zeros((batch, self.n), dtype=np.float32)
-        self.spike_count = np.zeros((batch, self.n), dtype=np.float32)
+    def reset(self, rows):
+        rows = np.atleast_1d(np.asarray(rows, dtype=int))
+        for arr in (self.phase, self.i_syn, self.v, self.adapt, self.refractory, self.trace):
+            arr[rows] = 0.
 
-    def keep(self, rows: np.ndarray) -> None:
-        """Restrict the batch to ``rows`` (used when episodes finish)."""
-        for name in ("phase", "i_syn", "v", "adapt", "refractory", "trace", "spikes", "spike_count"):
-            setattr(self, name, getattr(self, name)[rows])
-        self.batch = int(len(rows))
-
-    def input_rates(self, obs: np.ndarray) -> np.ndarray:
+    def step(self, obs):
+        """Run 20 ms driven by ``obs`` [C, 6]; return filtered spike trains [C, N]."""
         x = np.asarray(obs, dtype=np.float32)[:, self.dim_index]
         z = (x - self.centers) * self.inv_sigma
-        return self.rate_per_ms * np.exp(-0.5 * z * z)
-
-    def step(self, obs: np.ndarray) -> np.ndarray:
-        """Run 20 ms of network dynamics driven by ``obs`` [B, 6]; return traces."""
-        rate = self.input_rates(obs)
-        phase, i_syn, v, trace = self.phase, self.i_syn, self.v, self.trace
-        spikes = self.spikes
-        self.spike_count[:] = 0.0
-        for _ in range(SUBSTEPS):
+        rate = self.rate_per_ms * np.exp(-.5 * z * z)
+        # Regular input spike trains: an accumulating phase emits a spike at 1.
+        s_in = np.empty((SUBSTEPS,) + rate.shape, dtype=np.float32)
+        phase = self.phase
+        for t in range(SUBSTEPS):
             phase += rate
-            s_in = (phase >= 1.0).astype(np.float32)
-            phase -= s_in
+            np.greater_equal(phase, 1., out=s_in[t], casting="unsafe")
+            phase -= s_in[t]
+        drive = np.matmul(np.ascontiguousarray(s_in.transpose(1, 0, 2)), self.w_in_t)  # [C, 20, N]
+        i_syn, v, adapt, refr, trace = self.i_syn, self.v, self.adapt, self.refractory, self.trace
+        spk, tmp, mask = self._spk, self._tmp, self._mask
+        for t in range(SUBSTEPS):
             i_syn *= self.a_syn
-            i_syn += s_in @ self.w_in_t
-            if self.w_rec_t is not None:
-                i_syn += spikes @ self.w_rec_t
+            i_syn += drive[:, t]
             v *= self.a_mem
             v += i_syn
             v += self.bias
-            if self.use_adapt:
-                v -= self.adapt
-            if self.use_ref:
-                v *= self.refractory <= 0.0
-            np.greater_equal(v, self.threshold, out=spikes, casting="unsafe")
-            v *= 1.0 - spikes
-            if self.use_adapt:
-                self.adapt *= self.a_adapt
-                self.adapt += self.adapt_inc * spikes
-            if self.use_ref:
-                self.refractory = np.where(spikes > 0, self.ref_steps, np.maximum(self.refractory - 1.0, 0.0))
+            v -= adapt
+            np.copyto(v, 0., where=refr > 0.)
+            np.greater_equal(v, self.threshold, out=mask)
+            np.copyto(spk, mask, casting="unsafe")
+            np.copyto(v, 0., where=mask)
+            adapt *= self.a_adapt
+            np.multiply(self.adapt_inc, spk, out=tmp)
+            adapt += tmp
+            refr -= 1.
+            np.maximum(refr, 0., out=refr)
+            np.copyto(refr, self.ref_steps, where=mask)
             trace *= self.a_trace
-            trace += spikes
-            self.spike_count += spikes
-        return trace
-
-    def scores(self, trace: np.ndarray) -> np.ndarray:
-        return trace @ self.w_out + self.b_out
+            trace += spk
+        return trace.copy()

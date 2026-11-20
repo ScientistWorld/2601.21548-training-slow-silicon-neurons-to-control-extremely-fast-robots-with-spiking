@@ -25,179 +25,110 @@
       "notes": "Paper-reported 86% online success on [0.5, 2.0] m/s, attributed to finite encoding resolution. These numbers are retained for provenance and are not scored targets on the local software scale."
     }
   },
-  "_setup_note": "Paper-reported numbers above are unchanged. The local software robot uses Eq. 1 for 64000 trials per chip (paper: 2000), 10 fixed chip instances, and final softmax-sampled held-out rollouts. Noise robustness uses 1020 units, 0.035 m position noise, 0.35 m/s velocity noise and 40 ms latency. Local reference results below were recomputed from isolated rollouts after all training and calibration completed.",
+  "_setup_note": "Paper-reported numbers above are unchanged. They are late-training on-line success rates after up to 2000 trials on DYNAP-SE silicon and the authors' MuJoCo robot; final_success is the corresponding quantity here (last 500 of 2000 online trials), measured on a software spiking substrate and a substituted three-joint MuJoCo arm, so the paper values are provenance, not targets. The reference learns with Eq. 1 from a zero readout on each hidden chip; its learning rate was chosen on the public split only (method/selected_hyperparameters.json).",
   "experiments": {
-    "velocity_range_extreme": {
-      "description": "Interception across the full 0.5\u20132.0 m/s speed range.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 64000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
-      "weight": 0.2,
-      "primary_metric": "success_rate",
+    "randomized_air_hockey": {
+      "description": "Online learning of interception with randomized launch position (x in [0.95, 1.05] m) and speed (1.0-1.5 m/s), the paper's main setting.",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
+      "weight": 0.4,
+      "primary_metric": "final_success",
       "metrics": {
-        "success_rate": {
+        "final_success": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of paired held-out episodes that reach x > 1.5 m with forward speed > 0.1 m/s, averaged over ten fixed chip instances."
+          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget."
         },
-        "seed_worst_success": {
+        "online_success": {
           "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Lowest success across the ten fixed chip instances; diagnostic reliability measure."
-        },
-        "hit_rate": {
-          "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Fraction of episodes with physical puck\u2013mallet contact; diagnostic, not a substitute for task success."
-        },
-        "controller_units": {
-          "higher_is_better": false,
-          "coefficient": 0.0,
-          "description": "Counted hidden units; must equal the assigned 1020-unit fixed instance. A violation fails every experiment."
+          "coefficient": 1.0,
+          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired."
         }
       },
       "results": {
         "spiking_eprop": {
           "type": "proposed",
-          "success_rate": 0.99697265625,
-          "seed_worst_success": 0.994384765625,
-          "hit_rate": 0.9988037109375,
-          "controller_units": 1020.0
+          "final_success": 0.0,
+          "online_success": 0.0
         },
         "random_policy": {
           "type": "baseline",
-          "success_rate": 0.0762451171875,
-          "seed_worst_success": 0.069580078125,
-          "hit_rate": 0.1571533203125,
-          "controller_units": 0.0
+          "final_success": 0.0,
+          "online_success": 0.0
         },
         "always_forward": {
           "type": "baseline",
-          "success_rate": 0.207763671875,
-          "seed_worst_success": 0.207763671875,
-          "hit_rate": 0.297119140625,
-          "controller_units": 0.0
-        },
-        "intercept_rule": {
-          "type": "baseline",
-          "success_rate": 1.0,
-          "seed_worst_success": 1.0,
-          "hit_rate": 1.0,
-          "controller_units": 0.0
+          "final_success": 0.0,
+          "online_success": 0.0
         }
       }
     },
-    "single_core_extreme": {
-      "description": "Interception across 0.5\u20132.0 m/s with a single 256-unit instance.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 64000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
+    "velocity_range_wide": {
+      "description": "Online learning of interception for lateral launch speeds 0.7-1.5 m/s encoded by the fixed 10-cell population code (paper Sec. III-B).",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
       "weight": 0.3,
-      "primary_metric": "success_rate",
+      "primary_metric": "final_success",
       "metrics": {
-        "success_rate": {
+        "final_success": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of paired held-out episodes that reach x > 1.5 m with forward speed > 0.1 m/s, averaged over ten fixed chip instances."
+          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget."
         },
-        "seed_worst_success": {
+        "online_success": {
           "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Lowest success across the ten fixed chip instances; diagnostic reliability measure."
-        },
-        "hit_rate": {
-          "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Fraction of episodes with physical puck\u2013mallet contact; diagnostic, not a substitute for task success."
-        },
-        "controller_units": {
-          "higher_is_better": false,
-          "coefficient": 0.0,
-          "description": "Counted hidden units; must equal the assigned 256-unit fixed instance. A violation fails every experiment."
+          "coefficient": 1.0,
+          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired."
         }
       },
       "results": {
         "spiking_eprop": {
           "type": "proposed",
-          "success_rate": 0.99091796875,
-          "seed_worst_success": 0.978515625,
-          "hit_rate": 0.997216796875,
-          "controller_units": 256.0
+          "final_success": 0.0,
+          "online_success": 0.0
         },
         "random_policy": {
           "type": "baseline",
-          "success_rate": 0.0759033203125,
-          "seed_worst_success": 0.071044921875,
-          "hit_rate": 0.1574462890625,
-          "controller_units": 0.0
+          "final_success": 0.0,
+          "online_success": 0.0
         },
         "always_forward": {
           "type": "baseline",
-          "success_rate": 0.20166015625,
-          "seed_worst_success": 0.20166015625,
-          "hit_rate": 0.2958984375,
-          "controller_units": 0.0
-        },
-        "intercept_rule": {
-          "type": "baseline",
-          "success_rate": 1.0,
-          "seed_worst_success": 1.0,
-          "hit_rate": 1.0,
-          "controller_units": 0.0
+          "final_success": 0.0,
+          "online_success": 0.0
         }
       }
     },
-    "sensor_robustness": {
-      "description": "Interception with broad launch positions and directions, noisy state estimates and two control ticks (40 ms) of observation latency.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. Ten fixed chips, 4096 paired episodes each with common observation noise and common action-sampling draws. Reference: 64000 trials; learning procedures are open. Coefficient zero means diagnostic only.",
-      "weight": 0.5,
-      "primary_metric": "success_rate",
+    "velocity_range_extreme": {
+      "description": "Online learning of interception for lateral launch speeds 0.5-2.0 m/s, the widest range the paper reports (Sec. IV).",
+      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
+      "weight": 0.3,
+      "primary_metric": "final_success",
       "metrics": {
-        "success_rate": {
+        "final_success": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of paired held-out episodes that reach x > 1.5 m with forward speed > 0.1 m/s, averaged over ten fixed chip instances."
+          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget."
         },
-        "seed_worst_success": {
+        "online_success": {
           "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Lowest success across the ten fixed chip instances; diagnostic reliability measure."
-        },
-        "hit_rate": {
-          "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Fraction of episodes with physical puck\u2013mallet contact; diagnostic, not a substitute for task success."
-        },
-        "controller_units": {
-          "higher_is_better": false,
-          "coefficient": 0.0,
-          "description": "Counted hidden units; must equal the assigned 1020-unit fixed instance. A violation fails every experiment."
+          "coefficient": 1.0,
+          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired."
         }
       },
       "results": {
         "spiking_eprop": {
           "type": "proposed",
-          "success_rate": 0.8406005859375,
-          "seed_worst_success": 0.78564453125,
-          "hit_rate": 0.937060546875,
-          "controller_units": 1020.0
+          "final_success": 0.0,
+          "online_success": 0.0
         },
         "random_policy": {
           "type": "baseline",
-          "success_rate": 0.1903076171875,
-          "seed_worst_success": 0.18212890625,
-          "hit_rate": 0.4517578125,
-          "controller_units": 0.0
+          "final_success": 0.0,
+          "online_success": 0.0
         },
         "always_forward": {
           "type": "baseline",
-          "success_rate": 0.194580078125,
-          "seed_worst_success": 0.194580078125,
-          "hit_rate": 0.26123046875,
-          "controller_units": 0.0
-        },
-        "intercept_rule": {
-          "type": "baseline",
-          "success_rate": 0.725830078125,
-          "seed_worst_success": 0.725830078125,
-          "hit_rate": 0.8505859375,
-          "controller_units": 0.0
+          "final_success": 0.0,
+          "online_success": 0.0
         }
       }
     }

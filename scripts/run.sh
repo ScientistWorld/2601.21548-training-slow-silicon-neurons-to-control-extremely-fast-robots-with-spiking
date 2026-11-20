@@ -1,10 +1,11 @@
 #!/bin/bash
-# Reproduce the final reference end to end; audit helpers are optional.
+# Final hardening job: public learning-rate selection, isolated reference and
+# baseline scoring, then the hidden-test audit of variants and shortcuts.
 set -euo pipefail
 cd /home/user
 export PYTHONPATH=/home/user:${PYTHONPATH:-}
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
-bash scripts/reproduce.sh "$@"
+python redteam/learning_budget/audit.py
 python validate.py

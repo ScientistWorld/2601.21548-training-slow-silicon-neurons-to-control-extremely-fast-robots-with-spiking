@@ -1,9 +1,11 @@
 """Diagnostic cohort rank implementing the gym's metric normalization.
 
-Only per-experiment results in scores_{train,test}.json are inputs. Failure
-metrics are complete zeros for success, so auxiliary diagnostics cannot buy a
-rank advantage. Identical columns contribute zero. Signs of coefficients do
-not reverse the better direction. This helper does not write scored numbers.
+Only per-experiment results in scores_{train,test}.json are inputs. A failed
+method has 0 in every scored metric of every experiment. Each metric's
+improvement over the reference is taken in its better direction, multiplied by
+the absolute coefficient and the experiment weight, and divided by the metric's
+population standard deviation across the ranked cohort; identical columns
+contribute zero. This helper does not write scored numbers.
 """
 import math
 import numpy as np
