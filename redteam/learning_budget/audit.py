@@ -7,6 +7,7 @@ Stages (each skipped when its result file exists):
   canonical  reference + fixed baselines alone: scripts/evaluate.sh, scripts/evaluate_test.sh
   audit      alternative-learner sweep and public-readout trainer (visible split only),
              then reference rerun, better/weaker variants and shortcuts through the hidden evaluator
+  better     improved learning rules selected on the public split, then through the hidden test
   analysis   paired per-chip comparisons and cohort ranks
 No hidden chip, launch or outcome is used by any selection step.
 """
@@ -407,6 +408,77 @@ def stage_audit():
     write_json(out, merged)
 
 
+# --------------------------------------------------------------------------- better variants
+def stage_better():
+    """Headroom check: improved learning rules, selected on the public split only.
+
+    Candidates keep Eq. 1's two-trial REINFORCE structure and change its
+    conditioning (standardized readout inputs; a per-update trust region).
+    The best of each family is sent through the hidden test when it beats the
+    reference's public objective (the single best is sent regardless), together
+    with Eq. 1 using per-experiment learning rates chosen from the public sweep.
+    """
+    out = RESULTS / "better.json"
+    if out.exists():
+        return
+    slots = max(1, (CORES + 1) // 3)
+    sweep = read_json(RESULTS / "selection.json")
+    ref_objective = sweep["candidates"][sweep["selected"]]["objective"]
+    candidates = {f"std_lr{r:g}": {"mode": "standardized", "learning_rate": r} for r in (0.012, 0.025, 0.05)}
+    candidates.update({f"trust_lr{r:g}": {"mode": "trust", "learning_rate": r, "max_logit_change": 1.0}
+                       for r in (0.025, 0.05)})
+    per_experiment = {"default": selected()}
+    for e in EXPERIMENTS:
+        name = max(sweep["candidates"], key=lambda n: sum(sweep["candidates"][n]["results"][e][m]
+                                                           for m in ("online_success", "final_success")))
+        per_experiment[e] = {"learning_rate": sweep["candidates"][name]["config"]["learning_rate"]}
+    source = LEARNERS / "eprop_variants.py"
+
+    def public(name):
+        root_c = WORK / "variant_sweep" / name
+        if not (root_c / "scores_train.json").exists():
+            learner_dir(root_c / "outputs", name, source, {"default": candidates[name]})
+        return name, evaluate("train", root_c / "outputs", root_c / "scores_train.json", "--no-baselines",
+                              "--workers", "3")
+
+    def hidden(name, src, config):
+        root_h = WORK / "audit" / name
+        if not (root_h / "scores_test.json").exists():
+            learner_dir(root_h / "outputs", name, src, config)
+        return name, evaluate("test", root_h / "outputs", root_h / "scores_test.json", "--no-baselines",
+                              "--workers", "3")
+
+    kinds = {"eprop_per_experiment_lr": "alternative: Eq. 1 with per-experiment learning rates chosen on the public sweep"}
+    with futures.ThreadPoolExecutor(max_workers=slots) as pool:
+        tests = [pool.submit(hidden, "eprop_per_experiment_lr", ROOT / "method" / "eprop_learner.py", per_experiment)]
+        table = {}
+        for f in [pool.submit(public, n) for n in candidates]:
+            name, scores = f.result()
+            table[name] = {"config": candidates[name], "objective": selection.objective(scores, name),
+                           "results": {e: scores["experiments"][e]["results"][name] for e in EXPERIMENTS}}
+        families = {"standardized": [n for n in table if n.startswith("std_")],
+                    "trust": [n for n in table if n.startswith("trust_")]}
+        chosen = {fam: max(names, key=lambda n: table[n]["objective"]) for fam, names in families.items()}
+        send = {fam: n for fam, n in chosen.items() if table[n]["objective"] > ref_objective}
+        if not send:
+            fam = max(chosen, key=lambda f: table[chosen[f]]["objective"])
+            send = {fam: chosen[fam]}
+        for fam, n in send.items():
+            kinds[f"eprop_{fam}"] = (f"better candidate: {fam} e-prop readout learning "
+                                     f"(learning rate {candidates[n]['learning_rate']:g}, chosen on public split)")
+            tests.append(pool.submit(hidden, f"eprop_{fam}", source, {"default": candidates[n]}))
+        done = dict(f.result() for f in tests)
+    audit = read_json(RESULTS / "audit_scores_test.json")
+    for name, scores in done.items():
+        audit["kinds"][name] = kinds[name]
+        for e in EXPERIMENTS:
+            audit["experiments"][e]["results"][name] = scores["experiments"][e]["results"][name]
+            audit["experiments"][e]["diagnostics"][name] = scores["experiments"][e]["diagnostics"][name]
+    write_json(RESULTS / "audit_scores_test.json", audit)
+    write_json(out, {"reference_public_objective": ref_objective, "candidates": table, "chosen": chosen,
+                     "sent_to_hidden_test": send, "per_experiment_learning_rates": per_experiment})
+
+
 # --------------------------------------------------------------------------- analysis
 def per_chip(diag):
     return diag.get("per_chip_online_success"), diag.get("per_chip_final_success")
@@ -490,6 +562,7 @@ def stage_analysis():
         "public_copy_train": {e: read_json(RESULTS / "public_split.json")["public_copy_train"]["experiments"][e]["results"]
                               for e in EXPERIMENTS},
         "variant_kinds": audit["kinds"],
+        "better_public": read_json(RESULTS / "better.json"),
     }
     write_json(RESULTS / "summary.json", summary)
     log("ranks", json.dumps({k: round(v, 4) for k, v in ranks.items()}))
@@ -502,7 +575,7 @@ def run_stages(stages):
 
 
 def main():
-    stages = sys.argv[1:] or ["smoke", "select", "canonical", "audit", "analysis"]
+    stages = sys.argv[1:] or ["smoke", "select", "canonical", "audit", "better", "analysis"]
     log("cores", CORES, "stages", stages, "token", TOKEN)
     while True:
         if not claim():
