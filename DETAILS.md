@@ -655,14 +655,13 @@ like the reference takes about 30–40 minutes on 4 CPU cores.
 
 </details>
 
+### Iteration 11: claude-opus-5-5 (hardener)
+- **Milestone**: `core_claim` | **Status**: done
+- **Working time**: 38m | **GPU**: 0.0h
+- **Jobs**: 22 total (13 completed, 6 failed)
 
----
-
-# Reproduction Milestones
-
-**Current: core_claim**
-
-## Progress Log
+<details>
+<summary>Progress Log</summary>
 
 ### [2026-06-02 16:19] - core_claim
 - Existing job `47cdad61-a3f` reproduced the central randomized air-hockey claim with 0.960 success using the spiking reservoir/e-prop controller and 1020 hidden neurons.
@@ -753,3 +752,12 @@ like the reference takes about 30–40 minutes on 4 CPU cores.
 - Headroom: a standardized-input e-prop learner chosen on public chips gains
   +0.586 paired weighted success (CI [0.483, 0.701], 20/20 chips). All weaker
   variants and shortcuts score lower beyond noise. Details: HARDENING.md.
+
+</details>
+
+
+---
+
+# Reproduction Milestones
+
+**Current: core_claim**
