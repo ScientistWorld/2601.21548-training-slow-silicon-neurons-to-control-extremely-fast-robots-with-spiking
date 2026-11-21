@@ -5,8 +5,8 @@ Stages (each skipped when its result file exists):
   smoke      env regression, chip timing, protocol and failure handling at tiny scale
   select     Eq. 1 learning-rate sweep on the public split -> method/selected_hyperparameters.json
   canonical  reference + fixed baselines alone: scripts/evaluate.sh, scripts/evaluate_test.sh
-  public     alternative-learner sweep and public-readout trainer, visible split only
-  audit      reference rerun, better/weaker variants and shortcuts through the hidden evaluator
+  audit      alternative-learner sweep and public-readout trainer (visible split only),
+             then reference rerun, better/weaker variants and shortcuts through the hidden evaluator
   analysis   paired per-chip comparisons and cohort ranks
 No hidden chip, launch or outcome is used by any selection step.
 """
@@ -15,9 +15,14 @@ import json
 import math
 import os
 import shutil
+import signal
+import socket
 import subprocess
 import sys
+import tempfile
+import threading
 import time
+import uuid
 from concurrent import futures
 from pathlib import Path
 
@@ -59,10 +64,47 @@ def run(cmd):
 
 
 def write_json(path, data):
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
-    tmp.replace(path)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    with os.fdopen(fd, "w") as stream:
+        stream.write(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    os.replace(tmp, path)
+
+
+OWNER = WORK / "owner.json"
+
+
+def claim_workspace():
+    """Worker drains can leave an older copy of this job running on another
+    node while the scheduler restarts it. The newest instance owns the
+    workspace; an older instance notices within seconds and kills its own
+    process group (its evaluators and learner processes). All results are
+    deterministic, so a superseded instance can only waste CPU, never change
+    a number; this only removes the contention and file races."""
+    os.setpgrp()
+    token = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:8]}"
+    write_json(OWNER, {"token": token, "claimed": time.time()})
+    time.sleep(20)
+
+    def current():
+        try:
+            return read_json(OWNER)["token"]
+        except Exception:
+            return token
+
+    if current() != token:
+        log("superseded before starting")
+        raise SystemExit(0)
+
+    def watch():
+        while True:
+            time.sleep(15)
+            if current() != token:
+                log("superseded by", current(), "- stopping this instance")
+                os.killpg(os.getpgrp(), signal.SIGKILL)
+    threading.Thread(target=watch, daemon=True).start()
+    log("owner", token)
 
 
 def read_json(path):
@@ -82,8 +124,7 @@ def selected():
 
 def learner_dir(root, name, source, config=None, extra_files=()):
     target = Path(root) / name
-    if target.exists():
-        shutil.rmtree(target)
+    shutil.rmtree(target, ignore_errors=True)
     if source is None:
         target.mkdir(parents=True)
         return target
@@ -167,107 +208,122 @@ def stage_select():
 
 # --------------------------------------------------------------------------- canonical
 def stage_canonical():
-    out = RESULTS / "canonical_scores_test.json"
-    if out.exists():
-        return
+    """Reference + fixed baselines through the normal no-argument entry points."""
     outputs = ROOT / "outputs"
-    if outputs.exists():
-        shutil.rmtree(outputs)
-    run(["bash", ROOT / "scripts" / "method.sh"])
-    run(["bash", ROOT / "scripts" / "evaluate.sh"])
-    run(["bash", ROOT / "scripts" / "evaluate_test.sh"])
-    test = read_json(ROOT / "scoring" / "scores_test.json")
-    train = read_json(ROOT / "scoring" / "scores_train.json")
-    reference = read_json(ROOT / "scoring" / "reference.json")
-    for e, spec in reference["experiments"].items():
-        spec["results"] = {m: {"type": "proposed" if m == "spiking_eprop" else "baseline", **row}
-                           for m, row in test["experiments"][e]["results"].items()}
-    write_json(ROOT / "scoring" / "reference.json", reference)
-    write_json(RESULTS / "canonical_scores_train.json", train)
-    write_json(out, test)
+    if not (RESULTS / "canonical_scores_train.json").exists() or not (RESULTS / "canonical_scores_test.json").exists():
+        shutil.rmtree(outputs, ignore_errors=True)
+        run(["bash", ROOT / "scripts" / "method.sh"])
+    if not (RESULTS / "canonical_scores_train.json").exists():
+        run(["bash", ROOT / "scripts" / "evaluate.sh"])
+        write_json(RESULTS / "canonical_scores_train.json", read_json(ROOT / "scoring" / "scores_train.json"))
+    if not (RESULTS / "canonical_scores_test.json").exists():
+        run(["bash", ROOT / "scripts" / "evaluate_test.sh"])
+        test = read_json(ROOT / "scoring" / "scores_test.json")
+        reference = read_json(ROOT / "scoring" / "reference.json")
+        for e, spec in reference["experiments"].items():
+            spec["results"] = {m: {"type": "proposed" if m == "spiking_eprop" else "baseline", **row}
+                               for m, row in test["experiments"][e]["results"].items()}
+        write_json(ROOT / "scoring" / "reference.json", reference)
+        write_json(RESULTS / "canonical_scores_test.json", test)
 
 
-# --------------------------------------------------------------------------- public split
-def stage_public():
-    out = RESULTS / "public_split.json"
-    if out.exists():
-        return
-    parallel = max(1, CORES // 3)
-    best_rate = selected()["learning_rate"]
-    critic_grid = sorted({best_rate * f for f in (1, 2, 4, 8)})
-    jobs = {}
-    trainer_root = WORK / "public_trainer"
-    trainer_scores = trainer_root / "scores_train.json"
-    if not trainer_scores.exists():
-        learner_dir(trainer_root / "outputs", "public_trainer", LEARNERS / "public_trainer.py",
-                    {"default": selected()}, [(ROOT / "method" / "eprop_learner.py", "eprop_base.py")])
-
-    def trainer():
-        return evaluate("train", trainer_root / "outputs", trainer_scores, "--no-baselines", "--workers", "3")
-
-    with futures.ThreadPoolExecutor(max_workers=2) as pool:
-        critic_future = pool.submit(selection.sweep, "critic", critic_grid, {"critic_rate": 1.0},
-                                    WORK / "critic_sweep", max(1, parallel - 1))
-        trainer_future = pool.submit(trainer)
-        critic_best, critic_table = critic_future.result()
-        trainer_future.result()
-    copy_root = WORK / "public_copy_train"
-    copy_scores = copy_root / "scores_train.json"
-    if not copy_scores.exists():
-        learner_dir(copy_root / "outputs", "public_copy", LEARNERS / "public_copy.py", {},
-                    [(trainer_root / "outputs" / "public_trainer" / "public_readouts", "public_readouts")])
-    copy_train = evaluate("train", copy_root / "outputs", copy_scores, "--no-baselines", "--workers", "3")
-    jobs.update({"critic_selected": critic_best, "critic_candidates": critic_table,
-                 "public_trainer_train": read_json(trainer_scores),
-                 "public_copy_train": copy_train})
-    write_json(out, jobs)
-
-
-# --------------------------------------------------------------------------- hidden audit
-def variants():
+# --------------------------------------------------------------------------- variants
+def variant_plan(critic_config):
     best = selected()
-    public = read_json(RESULTS / "public_split.json")
-    critic = public["critic_candidates"][public["critic_selected"]]["config"]
     readouts = WORK / "public_trainer" / "outputs" / "public_trainer" / "public_readouts"
     ref_src = ROOT / "method" / "eprop_learner.py"
-    return {
+    plan = {
         # name: (kind, source, config, extra files)
         "spiking_eprop": ("reference rerun", ref_src, {"default": best}, ()),
-        "eprop_critic": ("better: value-baseline credit assignment", ref_src, {"default": critic}, ()),
-        "eprop_tail_greedy": ("simple trick: sharpen readout for last 500 episodes", ref_src,
+        "eprop_tail_greedy": ("simple trick: freeze and sharpen readout (x4) for the last 500 episodes", ref_src,
                               {"default": {**best, "tail_episodes": 500, "tail_gain": 4.0}}, ()),
-        "eprop_slow": ("weaker: learning rate / 4", ref_src,
+        "eprop_slow": ("weaker: Eq. 1 learning rate / 4", ref_src,
                        {"default": {**best, "learning_rate": best["learning_rate"] / 4}}, ()),
         "no_learning": ("weaker: readout never changes", LEARNERS / "no_learning.py", {}, ()),
-        "bias_only": ("shortcut: state-blind constant schedule learner", LEARNERS / "bias_only.py", {}, ()),
-        "public_copy": ("shortcut: reuse readouts learned on public chips", LEARNERS / "public_copy.py", {},
-                        ((readouts, "public_readouts"),)),
+        "bias_only": ("shortcut: state-blind constant-probability learner", LEARNERS / "bias_only.py", {}, ()),
         "forged_files": ("shortcut: self-reported perfect metrics", LEARNERS / "forged_files.py", {}, ()),
+        "crash_wide": ("shortcut: skip one experiment by crashing", LEARNERS / "crash_wide.py", {}, ()),
         "nan_readout": ("shortcut: impossible readout values", LEARNERS / "nan_readout.py", {}, ()),
         "huge_readout": ("shortcut: out-of-range readout", LEARNERS / "huge_readout.py", {}, ()),
         "bad_shape": ("shortcut: readout larger than the chip", LEARNERS / "bad_shape.py", {}, ()),
-        "crash_wide": ("shortcut: skip one experiment by crashing", LEARNERS / "crash_wide.py", {}, ()),
         "missing_learner": ("shortcut: empty submission", None, {}, ()),
     }
+    if critic_config is not None:
+        plan["eprop_critic"] = ("better: value-baseline credit assignment (selected on public split)", ref_src,
+                                {"default": critic_config}, ())
+        plan["public_copy"] = ("shortcut: reuse readouts learned in 2000 trials on public chips, frozen",
+                               LEARNERS / "public_copy.py", {}, ((readouts, "public_readouts"),))
+    return plan
 
 
 def stage_audit():
+    """Public-split alternatives and the hidden-test audit, scheduled together.
+
+    Visible-split work (alternative-learner sweep, public-readout trainer) and
+    independent hidden-test variants share one pool of evaluator slots; the
+    two variants that depend on public results start once those finish.
+    """
     out = RESULTS / "audit_scores_test.json"
     if out.exists():
         return
-    plan = variants()
+    slots = max(1, (CORES + 1) // 3)
+    best = selected()
+    critic_grid = sorted({round(best["learning_rate"] * f, 6) for f in (1, 2, 4, 8)})
     root = WORK / "audit"
+    trainer_root = WORK / "public_trainer"
+    copy_root = WORK / "public_copy_train"
 
-    def one(name):
+    def hidden(name, plan):
         kind, source, config, extra = plan[name]
         scores = root / name / "scores_test.json"
         if not scores.exists():
             learner_dir(root / name / "outputs", name, source, config, extra)
         return name, evaluate("test", root / name / "outputs", scores, "--no-baselines", "--workers", "3")
 
-    order = sorted(plan, key=lambda n: (plan[n][1] is not None and "shortcut: " not in plan[n][0], n))
-    with futures.ThreadPoolExecutor(max_workers=max(1, CORES // 3)) as pool:
-        done = dict(pool.map(one, order))
+    def trainer():
+        scores = trainer_root / "scores_train.json"
+        if not scores.exists():
+            learner_dir(trainer_root / "outputs", "public_trainer", LEARNERS / "public_trainer.py",
+                        {"default": best}, [(ROOT / "method" / "eprop_learner.py", "eprop_base.py")])
+        return evaluate("train", trainer_root / "outputs", scores, "--no-baselines", "--workers", "3")
+
+    def critic(rate):
+        config = {"default": {"learning_rate": rate, "gamma": selection.GAMMA, "critic_rate": 1.0}}
+        return selection.run_candidate(WORK / "critic_sweep", selection.candidate_name("critic", rate), config)
+
+    first = variant_plan(None)
+    expensive = ["spiking_eprop", "eprop_tail_greedy", "eprop_slow", "bias_only", "forged_files", "no_learning",
+                 "crash_wide"]
+    cheap = [n for n in first if n not in expensive]
+    done = {}
+    with futures.ThreadPoolExecutor(max_workers=slots) as pool:
+        critic_futures = [pool.submit(critic, r) for r in critic_grid]
+        trainer_future = pool.submit(trainer)
+        hidden_futures = [pool.submit(hidden, n, first) for n in expensive + cheap]
+        critic_scores = dict(f.result() for f in critic_futures)
+        objectives = {n: selection.objective(sc, n) for n, sc in critic_scores.items()}
+        critic_best = max(objectives, key=objectives.get)
+        critic_config = {"learning_rate": float(critic_best.split("_lr")[1]), "gamma": selection.GAMMA,
+                         "critic_rate": 1.0}
+        trainer_future.result()
+        plan = variant_plan(critic_config)
+        late = [pool.submit(hidden, n, plan) for n in ("eprop_critic", "public_copy")]
+        copy_scores = copy_root / "scores_train.json"
+        if not copy_scores.exists():
+            learner_dir(copy_root / "outputs", "public_copy", LEARNERS / "public_copy.py", {},
+                        [(trainer_root / "outputs" / "public_trainer" / "public_readouts", "public_readouts")])
+        copy_future = pool.submit(evaluate, "train", copy_root / "outputs", copy_scores, "--no-baselines",
+                                  "--workers", "3")
+        for f in hidden_futures + late:
+            name, scores = f.result()
+            done[name] = scores
+        copy_train = copy_future.result()
+    write_json(RESULTS / "public_split.json", {
+        "critic_selected": critic_best,
+        "critic_candidates": {n: {"objective": objectives[n], "results": {e: critic_scores[n]["experiments"][e]["results"][n]
+                                                                          for e in EXPERIMENTS}} for n in critic_scores},
+        "public_trainer_train": read_json(trainer_root / "scores_train.json"),
+        "public_copy_train": copy_train})
     merged = {"experiments": {e: {"results": {}, "diagnostics": {}} for e in EXPERIMENTS}, "kinds": {}}
     for name, scores in done.items():
         merged["kinds"][name] = plan[name][0]
@@ -348,6 +404,8 @@ def stage_analysis():
         "selection": read_json(RESULTS / "selection.json")["candidates"],
         "public_split": {k: v for k, v in read_json(RESULTS / "public_split.json").items()
                          if k in ("critic_selected", "critic_candidates")},
+        "public_trainer_train": {e: read_json(RESULTS / "public_split.json")["public_trainer_train"]["experiments"][e]["results"]
+                                 for e in EXPERIMENTS},
         "public_copy_train": {e: read_json(RESULTS / "public_split.json")["public_copy_train"]["experiments"][e]["results"]
                               for e in EXPERIMENTS},
         "variant_kinds": audit["kinds"],
@@ -357,7 +415,8 @@ def stage_analysis():
 
 
 def main():
-    stages = sys.argv[1:] or ["smoke", "select", "canonical", "public", "audit", "analysis"]
+    stages = sys.argv[1:] or ["smoke", "select", "canonical", "audit", "analysis"]
+    claim_workspace()
     log("cores", CORES, "stages", stages)
     for stage in stages:
         log("stage", stage)

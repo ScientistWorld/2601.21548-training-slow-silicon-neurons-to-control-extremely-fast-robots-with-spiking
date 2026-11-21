@@ -283,8 +283,15 @@ def discover_methods(outputs):
 def save_raw(method, experiment, outcome, scores_path):
     # Paired per-episode outcomes stay inside this split's private area.
     RAW.mkdir(parents=True, exist_ok=True)
-    tag = f"{scores_path.stem}__{method}__{experiment}.npz"
-    np.savez_compressed(RAW / tag, **outcome)
+    target = RAW / f"{scores_path.stem}__{method}__{experiment}.npz"
+    fd, temporary = tempfile.mkstemp(dir=RAW, prefix=f".{target.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            np.savez_compressed(stream, **outcome)
+        os.replace(temporary, target)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def atomic_write(path, text):

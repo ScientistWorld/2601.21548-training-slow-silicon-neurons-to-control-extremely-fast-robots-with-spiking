@@ -1,0 +1,320 @@
+{
+  "experiments": {
+    "randomized_air_hockey": {
+      "diagnostics": {
+        "always_forward": {
+          "hit_rate": 0.01105,
+          "mean_episode_ticks": 100.0,
+          "per_chip_final_success": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_chip_online_success": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "status": "ok"
+        },
+        "random_policy": {
+          "hit_rate": 0.161,
+          "mean_episode_ticks": 97.45185,
+          "per_chip_final_success": [
+            0.062,
+            0.064,
+            0.072,
+            0.074,
+            0.076,
+            0.068,
+            0.084,
+            0.096,
+            0.054,
+            0.072
+          ],
+          "per_chip_online_success": [
+            0.074,
+            0.0835,
+            0.0855,
+            0.07,
+            0.074,
+            0.077,
+            0.073,
+            0.082,
+            0.074,
+            0.072
+          ],
+          "status": "ok"
+        },
+        "spiking_eprop": {
+          "hit_rate": 0.7844,
+          "mean_episode_ticks": 48.42415,
+          "per_chip_final_success": [
+            0.866,
+            0.888,
+            0.866,
+            0.938,
+            0.908,
+            0.868,
+            0.842,
+            0.858,
+            0.864,
+            0.852
+          ],
+          "per_chip_online_success": [
+            0.671,
+            0.72,
+            0.6935,
+            0.808,
+            0.6905,
+            0.6945,
+            0.6965,
+            0.711,
+            0.6785,
+            0.704
+          ],
+          "status": "ok"
+        }
+      },
+      "results": {
+        "always_forward": {
+          "final_success": 0.0,
+          "online_success": 0.0
+        },
+        "random_policy": {
+          "final_success": 0.0722,
+          "online_success": 0.0765
+        },
+        "spiking_eprop": {
+          "final_success": 0.875,
+          "online_success": 0.70675
+        }
+      }
+    },
+    "velocity_range_extreme": {
+      "diagnostics": {
+        "always_forward": {
+          "hit_rate": 0.2921,
+          "mean_episode_ticks": 84.2457,
+          "per_chip_final_success": [
+            0.196,
+            0.182,
+            0.2,
+            0.216,
+            0.186,
+            0.208,
+            0.218,
+            0.21,
+            0.222,
+            0.2
+          ],
+          "per_chip_online_success": [
+            0.1915,
+            0.1985,
+            0.209,
+            0.2185,
+            0.204,
+            0.2135,
+            0.213,
+            0.2095,
+            0.209,
+            0.2145
+          ],
+          "status": "ok"
+        },
+        "random_policy": {
+          "hit_rate": 0.15545,
+          "mean_episode_ticks": 97.4051,
+          "per_chip_final_success": [
+            0.064,
+            0.064,
+            0.072,
+            0.074,
+            0.098,
+            0.078,
+            0.098,
+            0.058,
+            0.064,
+            0.066
+          ],
+          "per_chip_online_success": [
+            0.0755,
+            0.077,
+            0.0785,
+            0.0705,
+            0.076,
+            0.0775,
+            0.0795,
+            0.0775,
+            0.071,
+            0.082
+          ],
+          "status": "ok"
+        },
+        "spiking_eprop": {
+          "hit_rate": 0.4762,
+          "mean_episode_ticks": 71.8245,
+          "per_chip_final_success": [
+            0.726,
+            0.244,
+            0.782,
+            0.642,
+            0.218,
+            0.268,
+            0.262,
+            0.484,
+            0.738,
+            0.722
+          ],
+          "per_chip_online_success": [
+            0.4415,
+            0.293,
+            0.509,
+            0.486,
+            0.2945,
+            0.2725,
+            0.2755,
+            0.3725,
+            0.4695,
+            0.468
+          ],
+          "status": "ok"
+        }
+      },
+      "results": {
+        "always_forward": {
+          "final_success": 0.2038,
+          "online_success": 0.2081
+        },
+        "random_policy": {
+          "final_success": 0.0736,
+          "online_success": 0.0765
+        },
+        "spiking_eprop": {
+          "final_success": 0.5086,
+          "online_success": 0.3882
+        }
+      }
+    },
+    "velocity_range_wide": {
+      "diagnostics": {
+        "always_forward": {
+          "hit_rate": 0.0,
+          "mean_episode_ticks": 100.0,
+          "per_chip_final_success": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "per_chip_online_success": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "status": "ok"
+        },
+        "random_policy": {
+          "hit_rate": 0.15895,
+          "mean_episode_ticks": 97.56095,
+          "per_chip_final_success": [
+            0.07,
+            0.072,
+            0.076,
+            0.066,
+            0.078,
+            0.064,
+            0.066,
+            0.072,
+            0.094,
+            0.072
+          ],
+          "per_chip_online_success": [
+            0.075,
+            0.068,
+            0.0685,
+            0.0665,
+            0.0715,
+            0.067,
+            0.0665,
+            0.0795,
+            0.079,
+            0.0705
+          ],
+          "status": "ok"
+        },
+        "spiking_eprop": {
+          "hit_rate": 0.64185,
+          "mean_episode_ticks": 59.65255,
+          "per_chip_final_success": [
+            0.916,
+            0.606,
+            0.854,
+            0.868,
+            0.91,
+            0.862,
+            0.862,
+            0.862,
+            0.964,
+            0.0
+          ],
+          "per_chip_online_success": [
+            0.713,
+            0.2355,
+            0.669,
+            0.6615,
+            0.7275,
+            0.641,
+            0.6405,
+            0.7025,
+            0.8075,
+            0.0
+          ],
+          "status": "ok"
+        }
+      },
+      "results": {
+        "always_forward": {
+          "final_success": 0.0,
+          "online_success": 0.0
+        },
+        "random_policy": {
+          "final_success": 0.073,
+          "online_success": 0.0712
+        },
+        "spiking_eprop": {
+          "final_success": 0.7704,
+          "online_success": 0.5798
+        }
+      }
+    }
+  },
+  "slice": "train"
+}
