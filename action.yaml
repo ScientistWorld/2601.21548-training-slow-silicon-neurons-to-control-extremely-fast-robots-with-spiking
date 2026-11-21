@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Resume audit: canonical reference/baselines already scored on hidden test; now critic and public-readout runs on public split plus hidden-test audit of variants and shortcuts, analysis, validate. Single-owner leader election with followers fixes duplicate instances after drains."
+notes: "Headroom check: standardized-input and trust-region e-prop readout learners selected on the public split, best sent through the hidden test with per-experiment-lr Eq.1; then paired analysis and validate. Earlier stages cached."

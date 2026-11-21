@@ -1,0 +1,135 @@
+{
+  "candidates": {
+    "std_lr0.012": {
+      "config": {
+        "learning_rate": 0.012,
+        "mode": "standardized"
+      },
+      "objective": 0.86273,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.9506,
+          "online_success": 0.81755
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.881,
+          "online_success": 0.7158
+        },
+        "velocity_range_wide": {
+          "final_success": 0.969,
+          "online_success": 0.8282
+        }
+      }
+    },
+    "std_lr0.025": {
+      "config": {
+        "learning_rate": 0.025,
+        "mode": "standardized"
+      },
+      "objective": 0.9253875,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.983,
+          "online_success": 0.8989
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.9512,
+          "online_success": 0.8233
+        },
+        "velocity_range_wide": {
+          "final_success": 0.9754,
+          "online_success": 0.91015
+        }
+      }
+    },
+    "std_lr0.05": {
+      "config": {
+        "learning_rate": 0.05,
+        "mode": "standardized"
+      },
+      "objective": 0.9522525000000001,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.9896,
+          "online_success": 0.92695
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.98,
+          "online_success": 0.8906
+        },
+        "velocity_range_wide": {
+          "final_success": 0.9934,
+          "online_success": 0.92895
+        }
+      }
+    },
+    "trust_lr0.025": {
+      "config": {
+        "learning_rate": 0.025,
+        "max_logit_change": 1.0,
+        "mode": "trust"
+      },
+      "objective": 0.7118975000000001,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.9422,
+          "online_success": 0.7934
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.529,
+          "online_success": 0.3926
+        },
+        "velocity_range_wide": {
+          "final_success": 0.8324,
+          "online_success": 0.67785
+        }
+      }
+    },
+    "trust_lr0.05": {
+      "config": {
+        "learning_rate": 0.05,
+        "max_logit_change": 1.0,
+        "mode": "trust"
+      },
+      "objective": 0.69605,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.8476,
+          "online_success": 0.7011
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.569,
+          "online_success": 0.42555
+        },
+        "velocity_range_wide": {
+          "final_success": 0.858,
+          "online_success": 0.72285
+        }
+      }
+    }
+  },
+  "chosen": {
+    "standardized": "std_lr0.05",
+    "trust": "trust_lr0.025"
+  },
+  "per_experiment_learning_rates": {
+    "default": {
+      "gamma": 0.95,
+      "learning_rate": 0.012
+    },
+    "randomized_air_hockey": {
+      "learning_rate": 0.012
+    },
+    "velocity_range_extreme": {
+      "learning_rate": 0.025
+    },
+    "velocity_range_wide": {
+      "learning_rate": 0.006
+    }
+  },
+  "reference_public_objective": 0.6534,
+  "sent_to_hidden_test": {
+    "standardized": "std_lr0.05",
+    "trust": "trust_lr0.025"
+  }
+}

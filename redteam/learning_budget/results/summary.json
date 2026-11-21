@@ -31,6 +31,141 @@
       }
     }
   },
+  "better_public": {
+    "candidates": {
+      "std_lr0.012": {
+        "config": {
+          "learning_rate": 0.012,
+          "mode": "standardized"
+        },
+        "objective": 0.86273,
+        "results": {
+          "randomized_air_hockey": {
+            "final_success": 0.9506,
+            "online_success": 0.81755
+          },
+          "velocity_range_extreme": {
+            "final_success": 0.881,
+            "online_success": 0.7158
+          },
+          "velocity_range_wide": {
+            "final_success": 0.969,
+            "online_success": 0.8282
+          }
+        }
+      },
+      "std_lr0.025": {
+        "config": {
+          "learning_rate": 0.025,
+          "mode": "standardized"
+        },
+        "objective": 0.9253875,
+        "results": {
+          "randomized_air_hockey": {
+            "final_success": 0.983,
+            "online_success": 0.8989
+          },
+          "velocity_range_extreme": {
+            "final_success": 0.9512,
+            "online_success": 0.8233
+          },
+          "velocity_range_wide": {
+            "final_success": 0.9754,
+            "online_success": 0.91015
+          }
+        }
+      },
+      "std_lr0.05": {
+        "config": {
+          "learning_rate": 0.05,
+          "mode": "standardized"
+        },
+        "objective": 0.9522525000000001,
+        "results": {
+          "randomized_air_hockey": {
+            "final_success": 0.9896,
+            "online_success": 0.92695
+          },
+          "velocity_range_extreme": {
+            "final_success": 0.98,
+            "online_success": 0.8906
+          },
+          "velocity_range_wide": {
+            "final_success": 0.9934,
+            "online_success": 0.92895
+          }
+        }
+      },
+      "trust_lr0.025": {
+        "config": {
+          "learning_rate": 0.025,
+          "max_logit_change": 1.0,
+          "mode": "trust"
+        },
+        "objective": 0.7118975000000001,
+        "results": {
+          "randomized_air_hockey": {
+            "final_success": 0.9422,
+            "online_success": 0.7934
+          },
+          "velocity_range_extreme": {
+            "final_success": 0.529,
+            "online_success": 0.3926
+          },
+          "velocity_range_wide": {
+            "final_success": 0.8324,
+            "online_success": 0.67785
+          }
+        }
+      },
+      "trust_lr0.05": {
+        "config": {
+          "learning_rate": 0.05,
+          "max_logit_change": 1.0,
+          "mode": "trust"
+        },
+        "objective": 0.69605,
+        "results": {
+          "randomized_air_hockey": {
+            "final_success": 0.8476,
+            "online_success": 0.7011
+          },
+          "velocity_range_extreme": {
+            "final_success": 0.569,
+            "online_success": 0.42555
+          },
+          "velocity_range_wide": {
+            "final_success": 0.858,
+            "online_success": 0.72285
+          }
+        }
+      }
+    },
+    "chosen": {
+      "standardized": "std_lr0.05",
+      "trust": "trust_lr0.025"
+    },
+    "per_experiment_learning_rates": {
+      "default": {
+        "gamma": 0.95,
+        "learning_rate": 0.012
+      },
+      "randomized_air_hockey": {
+        "learning_rate": 0.012
+      },
+      "velocity_range_extreme": {
+        "learning_rate": 0.025
+      },
+      "velocity_range_wide": {
+        "learning_rate": 0.006
+      }
+    },
+    "reference_public_objective": 0.6534,
+    "sent_to_hidden_test": {
+      "standardized": "std_lr0.05",
+      "trust": "trust_lr0.025"
+    }
+  },
   "paired_vs_reference": {
     "bad_shape": {
       "reason": "failed: LearnerFailure: readout is not finite or exceeds the bound",
@@ -122,6 +257,47 @@
         "mean": -0.1361725
       }
     },
+    "eprop_per_experiment_lr": {
+      "randomized_air_hockey:final_success:chip_sd": 0.0,
+      "randomized_air_hockey:final_success:mean_diff": 0.0,
+      "randomized_air_hockey:online_success:chip_sd": 0.0,
+      "randomized_air_hockey:online_success:mean_diff": 0.0,
+      "status": "ok",
+      "velocity_range_extreme:final_success:chip_sd": 0.3622273057799917,
+      "velocity_range_extreme:final_success:mean_diff": -0.04690000000000002,
+      "velocity_range_extreme:online_success:chip_sd": 0.21146731114810752,
+      "velocity_range_extreme:online_success:mean_diff": -0.03965,
+      "velocity_range_wide:final_success:chip_sd": 0.2829482935840138,
+      "velocity_range_wide:final_success:mean_diff": 0.019499999999999983,
+      "velocity_range_wide:online_success:chip_sd": 0.21798369687952163,
+      "velocity_range_wide:online_success:mean_diff": -0.0005500000000000116,
+      "weighted:both": {
+        "chips_positive": 6,
+        "ci95": [
+          -0.125095125,
+          0.09719531249999995
+        ],
+        "mean": -0.020280000000000013
+      },
+      "weighted:final_success": {
+        "chips_negative": 11,
+        "chips_positive": 9,
+        "ci95": [
+          -0.0707415,
+          0.06123224999999994
+        ],
+        "mean": -0.008220000000000009
+      },
+      "weighted:online_success": {
+        "chips_negative": 14,
+        "chips_positive": 6,
+        "ci95": [
+          -0.05448768750000001,
+          0.03624749999999999
+        ],
+        "mean": -0.012059999999999998
+      }
+    },
     "eprop_slow": {
       "randomized_air_hockey:final_success:chip_sd": 0.18900392644208827,
       "randomized_air_hockey:final_success:mean_diff": -0.21420000000000003,
@@ -139,8 +315,8 @@
       "weighted:both": {
         "chips_positive": 3,
         "ci95": [
-          -0.396718375,
-          -0.18949043750000005
+          -0.395867625,
+          -0.18620668750000008
         ],
         "mean": -0.296805
       },
@@ -148,8 +324,8 @@
         "chips_negative": 17,
         "chips_positive": 3,
         "ci95": [
-          -0.22758075000000003,
-          -0.10351925
+          -0.22576174999999996,
+          -0.10567900000000001
         ],
         "mean": -0.16902
       },
@@ -157,10 +333,51 @@
         "chips_negative": 16,
         "chips_positive": 4,
         "ci95": [
-          -0.170175625,
-          -0.07912875000000004
+          -0.17020293749999998,
+          -0.07889950000000001
         ],
         "mean": -0.127785
+      }
+    },
+    "eprop_standardized": {
+      "randomized_air_hockey:final_success:chip_sd": 0.20213606673150689,
+      "randomized_air_hockey:final_success:mean_diff": 0.13740000000000002,
+      "randomized_air_hockey:online_success:chip_sd": 0.16512849064002444,
+      "randomized_air_hockey:online_success:mean_diff": 0.24455,
+      "status": "ok",
+      "velocity_range_extreme:final_success:chip_sd": 0.22719942549964428,
+      "velocity_range_extreme:final_success:mean_diff": 0.38899999999999996,
+      "velocity_range_extreme:online_success:chip_sd": 0.1538860737175737,
+      "velocity_range_extreme:online_success:mean_diff": 0.48114999999999997,
+      "velocity_range_wide:final_success:chip_sd": 0.3272648372254657,
+      "velocity_range_wide:final_success:mean_diff": 0.24180000000000001,
+      "velocity_range_wide:online_success:chip_sd": 0.26288113183278145,
+      "velocity_range_wide:online_success:mean_diff": 0.3324,
+      "weighted:both": {
+        "chips_positive": 20,
+        "ci95": [
+          0.48249325,
+          0.7005386874999998
+        ],
+        "mean": 0.586085
+      },
+      "weighted:final_success": {
+        "chips_negative": 0,
+        "chips_positive": 20,
+        "ci95": [
+          0.18547549999999996,
+          0.30916999999999994
+        ],
+        "mean": 0.24419999999999992
+      },
+      "weighted:online_success": {
+        "chips_negative": 0,
+        "chips_positive": 20,
+        "ci95": [
+          0.29580718750000007,
+          0.3936166874999999
+        ],
+        "mean": 0.34188499999999994
       }
     },
     "eprop_tail_greedy": {
@@ -180,8 +397,8 @@
       "weighted:both": {
         "chips_positive": 6,
         "ci95": [
-          -0.12237656249999998,
-          -0.027161875000000005
+          -0.12208812500000002,
+          -0.0276746875
         ],
         "mean": -0.072675
       },
@@ -189,8 +406,8 @@
         "chips_negative": 14,
         "chips_positive": 6,
         "ci95": [
-          -0.09815075,
-          -0.021439750000000004
+          -0.09820150000000002,
+          -0.021468750000000026
         ],
         "mean": -0.05813999999999999
       },
@@ -198,10 +415,51 @@
         "chips_negative": 14,
         "chips_positive": 6,
         "ci95": [
-          -0.024653750000000006,
-          -0.005501999999999999
+          -0.024602562500000008,
+          -0.005472437500000002
         ],
         "mean": -0.014534999999999998
+      }
+    },
+    "eprop_trust": {
+      "randomized_air_hockey:final_success:chip_sd": 0.39884100512412346,
+      "randomized_air_hockey:final_success:mean_diff": -0.057399999999999986,
+      "randomized_air_hockey:online_success:chip_sd": 0.32397358566791573,
+      "randomized_air_hockey:online_success:mean_diff": -0.014899999999999991,
+      "status": "ok",
+      "velocity_range_extreme:final_success:chip_sd": 0.27105507306003135,
+      "velocity_range_extreme:final_success:mean_diff": 0.1347,
+      "velocity_range_extreme:online_success:chip_sd": 0.17959917909494727,
+      "velocity_range_extreme:online_success:mean_diff": 0.08987499999999998,
+      "velocity_range_wide:final_success:chip_sd": 0.3698273281297354,
+      "velocity_range_wide:final_success:mean_diff": -0.008599999999999974,
+      "velocity_range_wide:online_success:chip_sd": 0.31406780507433507,
+      "velocity_range_wide:online_success:mean_diff": 0.00817499999999998,
+      "weighted:both": {
+        "chips_positive": 13,
+        "ci95": [
+          -0.109873,
+          0.19387199999999996
+        ],
+        "mean": 0.03832500000000001
+      },
+      "weighted:final_success": {
+        "chips_negative": 8,
+        "chips_positive": 12,
+        "ci95": [
+          -0.06870100000000001,
+          0.10035324999999998
+        ],
+        "mean": 0.01487
+      },
+      "weighted:online_success": {
+        "chips_negative": 8,
+        "chips_positive": 12,
+        "ci95": [
+          -0.042358375,
+          0.09172518749999999
+        ],
+        "mean": 0.023454999999999997
       }
     },
     "forged_files": {
@@ -221,8 +479,8 @@
       "weighted:both": {
         "chips_positive": 0,
         "ci95": [
-          -1.2698023125000004,
-          -1.0593049375
+          -1.2723353125,
+          -1.058041875
         ],
         "mean": -1.1707925000000003
       },
@@ -230,8 +488,8 @@
         "chips_negative": 20,
         "chips_positive": 0,
         "ci95": [
-          -0.724651,
-          -0.6031875
+          -0.724051,
+          -0.6042792499999999
         ],
         "mean": -0.6671400000000001
       },
@@ -239,8 +497,8 @@
         "chips_negative": 20,
         "chips_positive": 0,
         "ci95": [
-          -0.5466683125,
-          -0.4542748750000001
+          -0.5482380625,
+          -0.4547371249999999
         ],
         "mean": -0.5036525
       }
@@ -274,8 +532,8 @@
       "weighted:both": {
         "chips_positive": 0,
         "ci95": [
-          -0.9438075,
-          -0.7332597499999999
+          -0.945513625,
+          -0.7354013750000001
         ],
         "mean": -0.8436124999999999
       },
@@ -283,8 +541,8 @@
         "chips_negative": 20,
         "chips_positive": 0,
         "ci95": [
-          -0.55923125,
-          -0.442318
+          -0.55968,
+          -0.4408990000000001
         ],
         "mean": -0.5030999999999999
       },
@@ -292,8 +550,8 @@
         "chips_negative": 20,
         "chips_positive": 0,
         "ci95": [
-          -0.3860518125,
-          -0.2915814375000001
+          -0.38609518750000005,
+          -0.291235
         ],
         "mean": -0.3405125
       }
@@ -413,19 +671,22 @@
     }
   },
   "ranks": {
-    "always_forward": -4.602031500181765,
-    "audit:bad_shape": -5.338286634614514,
-    "audit:bias_only": -3.9035037353670177,
-    "audit:crash_wide": -5.338286634614514,
-    "audit:eprop_critic": -1.1915783637849398,
-    "audit:eprop_slow": -1.2073840911418314,
-    "audit:eprop_tail_greedy": -0.3394332953916838,
-    "audit:forged_files": -4.7126878471339655,
-    "audit:huge_readout": -5.338286634614514,
-    "audit:missing_learner": -5.338286634614514,
-    "audit:nan_readout": -5.338286634614514,
-    "audit:public_copy": -3.3007646048040935,
-    "random_policy": -4.7126878471339655,
+    "always_forward": -3.6346865229536838,
+    "audit:bad_shape": -4.121367480304698,
+    "audit:bias_only": -3.0598218399720505,
+    "audit:crash_wide": -4.121367480304698,
+    "audit:eprop_critic": -0.8767703027388541,
+    "audit:eprop_per_experiment_lr": -0.08426801425990905,
+    "audit:eprop_slow": -0.9299309705195903,
+    "audit:eprop_standardized": 2.012759438167894,
+    "audit:eprop_tail_greedy": -0.2421817411190209,
+    "audit:eprop_trust": 0.17879388794821613,
+    "audit:forged_files": -3.650224072565826,
+    "audit:huge_readout": -4.121367480304698,
+    "audit:missing_learner": -4.121367480304698,
+    "audit:nan_readout": -4.121367480304698,
+    "audit:public_copy": -2.5881463915461063,
+    "random_policy": -3.650224072565826,
     "spiking_eprop": 0.0
   },
   "reference_chip_noise": {
@@ -632,8 +893,11 @@
     "bias_only": "shortcut: state-blind constant-probability learner",
     "crash_wide": "shortcut: skip one experiment by crashing",
     "eprop_critic": "better: value-baseline credit assignment (selected on public split)",
+    "eprop_per_experiment_lr": "alternative: Eq. 1 with per-experiment learning rates chosen on the public sweep",
     "eprop_slow": "weaker: Eq. 1 learning rate / 4",
+    "eprop_standardized": "better candidate: standardized e-prop readout learning (learning rate 0.05, chosen on public split)",
     "eprop_tail_greedy": "simple trick: freeze and sharpen readout (x4) for the last 500 episodes",
+    "eprop_trust": "better candidate: trust e-prop readout learning (learning rate 0.025, chosen on public split)",
     "forged_files": "shortcut: self-reported perfect metrics (zero readout: also the no-learning control)",
     "huge_readout": "shortcut: out-of-range readout",
     "missing_learner": "shortcut: empty submission",

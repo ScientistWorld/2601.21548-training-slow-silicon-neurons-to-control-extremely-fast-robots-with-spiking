@@ -108,6 +108,55 @@
           ],
           "status": "ok"
         },
+        "eprop_per_experiment_lr": {
+          "hit_rate": 0.754575,
+          "mean_episode_ticks": 50.937875,
+          "per_chip_final_success": [
+            0.908,
+            0.896,
+            0.9,
+            0.0,
+            0.884,
+            0.856,
+            0.852,
+            0.864,
+            0.848,
+            0.912,
+            0.87,
+            0.886,
+            0.908,
+            0.846,
+            0.94,
+            0.93,
+            0.876,
+            0.882,
+            0.938,
+            0.928
+          ],
+          "per_chip_online_success": [
+            0.711,
+            0.7415,
+            0.728,
+            0.0005,
+            0.695,
+            0.717,
+            0.5965,
+            0.686,
+            0.667,
+            0.759,
+            0.689,
+            0.716,
+            0.7255,
+            0.725,
+            0.775,
+            0.744,
+            0.734,
+            0.653,
+            0.7595,
+            0.776
+          ],
+          "status": "ok"
+        },
         "eprop_slow": {
           "hit_rate": 0.59945,
           "mean_episode_ticks": 64.8196,
@@ -157,6 +206,55 @@
           ],
           "status": "ok"
         },
+        "eprop_standardized": {
+          "hit_rate": 0.95145,
+          "mean_episode_ticks": 41.9913,
+          "per_chip_final_success": [
+            0.882,
+            0.996,
+            0.992,
+            0.98,
+            0.986,
+            0.982,
+            0.982,
+            0.998,
+            0.994,
+            0.99,
+            0.96,
+            0.996,
+            0.97,
+            0.98,
+            1.0,
+            1.0,
+            0.994,
+            0.998,
+            1.0,
+            0.992
+          ],
+          "per_chip_online_success": [
+            0.7435,
+            0.9525,
+            0.929,
+            0.8885,
+            0.9075,
+            0.9295,
+            0.9315,
+            0.949,
+            0.9585,
+            0.944,
+            0.924,
+            0.956,
+            0.8645,
+            0.933,
+            0.9355,
+            0.958,
+            0.9455,
+            0.961,
+            0.972,
+            0.9065
+          ],
+          "status": "ok"
+        },
         "eprop_tail_greedy": {
           "hit_rate": 0.752,
           "mean_episode_ticks": 51.854775,
@@ -203,6 +301,55 @@
             0.6795,
             0.775,
             0.7495
+          ],
+          "status": "ok"
+        },
+        "eprop_trust": {
+          "hit_rate": 0.72285,
+          "mean_episode_ticks": 50.9835,
+          "per_chip_final_success": [
+            0.928,
+            0.916,
+            0.964,
+            0.894,
+            0.888,
+            0.0,
+            0.902,
+            0.0,
+            0.9,
+            0.924,
+            0.922,
+            0.924,
+            0.94,
+            0.966,
+            0.958,
+            0.958,
+            0.89,
+            0.0,
+            0.948,
+            0.954
+          ],
+          "per_chip_online_success": [
+            0.79,
+            0.789,
+            0.8135,
+            0.7555,
+            0.7725,
+            0.004,
+            0.755,
+            0.056,
+            0.7185,
+            0.735,
+            0.7635,
+            0.7725,
+            0.799,
+            0.845,
+            0.8625,
+            0.8125,
+            0.6675,
+            0.0,
+            0.7815,
+            0.8075
           ],
           "status": "ok"
         },
@@ -334,13 +481,25 @@
           "final_success": 0.7895,
           "online_success": 0.570775
         },
+        "eprop_per_experiment_lr": {
+          "final_success": 0.8462,
+          "online_success": 0.679925
+        },
         "eprop_slow": {
           "final_success": 0.632,
           "online_success": 0.496325
         },
+        "eprop_standardized": {
+          "final_success": 0.9836,
+          "online_success": 0.924475
+        },
         "eprop_tail_greedy": {
           "final_success": 0.7931,
           "online_success": 0.66665
+        },
+        "eprop_trust": {
+          "final_success": 0.7888,
+          "online_success": 0.665025
         },
         "forged_files": {
           "final_success": 0.0749,
@@ -472,6 +631,55 @@
           ],
           "status": "ok"
         },
+        "eprop_per_experiment_lr": {
+          "hit_rate": 0.4467,
+          "mean_episode_ticks": 72.69005,
+          "per_chip_final_success": [
+            0.732,
+            0.814,
+            0.0,
+            0.71,
+            0.87,
+            0.398,
+            0.0,
+            0.824,
+            0.0,
+            0.0,
+            0.24,
+            0.36,
+            0.754,
+            0.842,
+            0.886,
+            0.842,
+            0.778,
+            0.878,
+            0.824,
+            0.0
+          ],
+          "per_chip_online_success": [
+            0.462,
+            0.4595,
+            0.0225,
+            0.3885,
+            0.6445,
+            0.314,
+            0.0045,
+            0.6075,
+            0.0005,
+            0.1135,
+            0.2705,
+            0.1865,
+            0.5405,
+            0.5895,
+            0.666,
+            0.633,
+            0.5395,
+            0.586,
+            0.492,
+            0.113
+          ],
+          "status": "ok"
+        },
         "eprop_slow": {
           "hit_rate": 0.432925,
           "mean_episode_ticks": 75.333125,
@@ -521,6 +729,55 @@
           ],
           "status": "ok"
         },
+        "eprop_standardized": {
+          "hit_rate": 0.934225,
+          "mean_episode_ticks": 36.970225,
+          "per_chip_final_success": [
+            0.99,
+            0.986,
+            0.982,
+            0.966,
+            0.986,
+            0.99,
+            0.986,
+            0.996,
+            0.952,
+            0.996,
+            0.994,
+            0.984,
+            0.99,
+            0.986,
+            0.926,
+            0.952,
+            0.946,
+            0.986,
+            0.978,
+            0.898
+          ],
+          "per_chip_online_success": [
+            0.929,
+            0.927,
+            0.929,
+            0.9015,
+            0.9305,
+            0.9105,
+            0.931,
+            0.849,
+            0.893,
+            0.938,
+            0.907,
+            0.9425,
+            0.951,
+            0.926,
+            0.825,
+            0.916,
+            0.786,
+            0.949,
+            0.911,
+            0.7975
+          ],
+          "status": "ok"
+        },
         "eprop_tail_greedy": {
           "hit_rate": 0.4764,
           "mean_episode_ticks": 71.772275,
@@ -567,6 +824,55 @@
             0.4985,
             0.5335,
             0.303
+          ],
+          "status": "ok"
+        },
+        "eprop_trust": {
+          "hit_rate": 0.590625,
+          "mean_episode_ticks": 62.945675,
+          "per_chip_final_success": [
+            0.662,
+            0.712,
+            0.738,
+            0.806,
+            0.866,
+            0.798,
+            0.312,
+            0.74,
+            0.834,
+            0.65,
+            0.832,
+            0.75,
+            0.836,
+            0.788,
+            0.928,
+            0.796,
+            0.282,
+            0.884,
+            0.306,
+            0.864
+          ],
+          "per_chip_online_success": [
+            0.3965,
+            0.4365,
+            0.5405,
+            0.51,
+            0.6385,
+            0.622,
+            0.3065,
+            0.4755,
+            0.6455,
+            0.414,
+            0.571,
+            0.483,
+            0.6165,
+            0.5435,
+            0.732,
+            0.4895,
+            0.268,
+            0.6545,
+            0.2965,
+            0.584
           ],
           "status": "ok"
         },
@@ -698,13 +1004,25 @@
           "final_success": 0.3692,
           "online_success": 0.287125
         },
+        "eprop_per_experiment_lr": {
+          "final_success": 0.5376,
+          "online_success": 0.381675
+        },
         "eprop_slow": {
           "final_success": 0.406,
           "online_success": 0.343175
         },
+        "eprop_standardized": {
+          "final_success": 0.9735,
+          "online_success": 0.902475
+        },
         "eprop_tail_greedy": {
           "final_success": 0.4576,
           "online_success": 0.3896
+        },
+        "eprop_trust": {
+          "final_success": 0.7192,
+          "online_success": 0.5112
         },
         "forged_files": {
           "final_success": 0.0741,
@@ -836,6 +1154,55 @@
           ],
           "status": "ok"
         },
+        "eprop_per_experiment_lr": {
+          "hit_rate": 0.670825,
+          "mean_episode_ticks": 59.1529,
+          "per_chip_final_success": [
+            0.702,
+            0.824,
+            0.846,
+            0.838,
+            0.862,
+            0.844,
+            0.856,
+            0.816,
+            0.75,
+            0.0,
+            0.754,
+            0.75,
+            0.828,
+            0.752,
+            0.802,
+            0.832,
+            0.83,
+            0.826,
+            0.852,
+            0.85
+          ],
+          "per_chip_online_success": [
+            0.5275,
+            0.6085,
+            0.692,
+            0.6385,
+            0.6785,
+            0.6525,
+            0.651,
+            0.576,
+            0.5705,
+            0.001,
+            0.576,
+            0.585,
+            0.671,
+            0.557,
+            0.607,
+            0.6705,
+            0.654,
+            0.635,
+            0.6685,
+            0.654
+          ],
+          "status": "ok"
+        },
         "eprop_slow": {
           "hit_rate": 0.58725,
           "mean_episode_ticks": 66.792325,
@@ -885,6 +1252,55 @@
           ],
           "status": "ok"
         },
+        "eprop_standardized": {
+          "hit_rate": 0.95055,
+          "mean_episode_ticks": 34.156,
+          "per_chip_final_success": [
+            0.996,
+            0.99,
+            0.998,
+            0.994,
+            0.996,
+            0.99,
+            0.976,
+            0.996,
+            0.998,
+            0.996,
+            0.996,
+            0.986,
+            1.0,
+            0.994,
+            0.988,
+            0.998,
+            0.988,
+            0.992,
+            0.998,
+            0.99
+          ],
+          "per_chip_online_success": [
+            0.9385,
+            0.936,
+            0.9405,
+            0.944,
+            0.8955,
+            0.9405,
+            0.9425,
+            0.9445,
+            0.8905,
+            0.954,
+            0.9285,
+            0.9205,
+            0.9485,
+            0.9365,
+            0.7635,
+            0.947,
+            0.943,
+            0.9385,
+            0.9565,
+            0.924
+          ],
+          "status": "ok"
+        },
         "eprop_tail_greedy": {
           "hit_rate": 0.658075,
           "mean_episode_ticks": 58.5168,
@@ -931,6 +1347,55 @@
             0.7005,
             0.75,
             0.6285
+          ],
+          "status": "ok"
+        },
+        "eprop_trust": {
+          "hit_rate": 0.6514,
+          "mean_episode_ticks": 57.7671,
+          "per_chip_final_success": [
+            0.928,
+            0.928,
+            0.0,
+            0.928,
+            0.92,
+            0.958,
+            0.962,
+            0.0,
+            0.898,
+            0.0,
+            0.934,
+            0.922,
+            0.0,
+            0.904,
+            0.932,
+            0.922,
+            0.922,
+            0.934,
+            0.924,
+            0.936
+          ],
+          "per_chip_online_success": [
+            0.6925,
+            0.749,
+            0.0455,
+            0.737,
+            0.8105,
+            0.8145,
+            0.8305,
+            0.0005,
+            0.712,
+            0.0,
+            0.7785,
+            0.754,
+            0.0025,
+            0.7955,
+            0.606,
+            0.7765,
+            0.773,
+            0.8275,
+            0.637,
+            0.706
           ],
           "status": "ok"
         },
@@ -1062,13 +1527,25 @@
           "final_success": 0.6245,
           "online_success": 0.420075
         },
+        "eprop_per_experiment_lr": {
+          "final_success": 0.7707,
+          "online_success": 0.5937
+        },
         "eprop_slow": {
           "final_success": 0.6519,
           "online_success": 0.49125
         },
+        "eprop_standardized": {
+          "final_success": 0.993,
+          "online_success": 0.92665
+        },
         "eprop_tail_greedy": {
           "final_success": 0.7551,
           "online_success": 0.595225
+        },
+        "eprop_trust": {
+          "final_success": 0.7426,
+          "online_success": 0.602425
         },
         "forged_files": {
           "final_success": 0.0662,
@@ -1098,8 +1575,11 @@
     "bias_only": "shortcut: state-blind constant-probability learner",
     "crash_wide": "shortcut: skip one experiment by crashing",
     "eprop_critic": "better: value-baseline credit assignment (selected on public split)",
+    "eprop_per_experiment_lr": "alternative: Eq. 1 with per-experiment learning rates chosen on the public sweep",
     "eprop_slow": "weaker: Eq. 1 learning rate / 4",
+    "eprop_standardized": "better candidate: standardized e-prop readout learning (learning rate 0.05, chosen on public split)",
     "eprop_tail_greedy": "simple trick: freeze and sharpen readout (x4) for the last 500 episodes",
+    "eprop_trust": "better candidate: trust e-prop readout learning (learning rate 0.025, chosen on public split)",
     "forged_files": "shortcut: self-reported perfect metrics (zero readout: also the no-learning control)",
     "huge_readout": "shortcut: out-of-range readout",
     "missing_learner": "shortcut: empty submission",
