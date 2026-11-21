@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Learning-budget redesign: smoke checks, public Eq.1 learning-rate selection, isolated reference/baseline scoring on 20 hidden chips x 2000 online trials, hidden-test audit of better/weaker variants and shortcuts, validate. All stages resumable."
+notes: "Resume learning-budget audit: isolated canonical hidden-test scoring of the Eq.1 reference (lr 0.012, selected on public split) and baselines, then critic/public-trainer sweeps on the public split together with the hidden-test audit of variants and shortcuts; analysis; validate. Newest instance now supersedes leftovers from worker drains."

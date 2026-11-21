@@ -1,136 +1,136 @@
 {
   "_paper_reported": {
     "randomized_air_hockey": {
+      "notes": "Paper-reported >98% online success after about 1300 of 2000 trials, with 1020 silicon neurons. These numbers are retained for provenance and are not scored targets on the local software scale.",
       "results": {
-        "type": "proposed",
+        "controller_units": 1020.0,
         "success_rate": 0.98,
-        "controller_units": 1020.0
-      },
-      "notes": "Paper-reported >98% online success after about 1300 of 2000 trials, with 1020 silicon neurons. These numbers are retained for provenance and are not scored targets on the local software scale."
-    },
-    "velocity_range_wide": {
-      "results": {
-        "type": "proposed",
-        "success_rate": 0.93,
-        "controller_units": 1020.0
-      },
-      "notes": "Paper-reported approximately 93% asymptotic online success on [0.7, 1.5] m/s, versus 97% on [0.7, 0.9] m/s. These numbers are retained for provenance and are not scored targets on the local software scale."
+        "type": "proposed"
+      }
     },
     "velocity_range_extreme": {
+      "notes": "Paper-reported 86% online success on [0.5, 2.0] m/s, attributed to finite encoding resolution. These numbers are retained for provenance and are not scored targets on the local software scale.",
       "results": {
-        "type": "proposed",
+        "controller_units": 1020.0,
         "success_rate": 0.86,
-        "controller_units": 1020.0
-      },
-      "notes": "Paper-reported 86% online success on [0.5, 2.0] m/s, attributed to finite encoding resolution. These numbers are retained for provenance and are not scored targets on the local software scale."
+        "type": "proposed"
+      }
+    },
+    "velocity_range_wide": {
+      "notes": "Paper-reported approximately 93% asymptotic online success on [0.7, 1.5] m/s, versus 97% on [0.7, 0.9] m/s. These numbers are retained for provenance and are not scored targets on the local software scale.",
+      "results": {
+        "controller_units": 1020.0,
+        "success_rate": 0.93,
+        "type": "proposed"
+      }
     }
   },
   "_setup_note": "Paper-reported numbers above are unchanged. They are late-training on-line success rates after up to 2000 trials on DYNAP-SE silicon and the authors' MuJoCo robot; final_success is the corresponding quantity here (last 500 of 2000 online trials), measured on a software spiking substrate and a substituted three-joint MuJoCo arm, so the paper values are provenance, not targets. The reference learns with Eq. 1 from a zero readout on each hidden chip; its learning rate was chosen on the public split only (method/selected_hyperparameters.json).",
   "experiments": {
     "randomized_air_hockey": {
       "description": "Online learning of interception with randomized launch position (x in [0.95, 1.05] m) and speed (1.0-1.5 m/s), the paper's main setting.",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
-      "weight": 0.4,
-      "primary_metric": "final_success",
       "metrics": {
         "final_success": {
-          "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget."
+          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget.",
+          "higher_is_better": true
         },
         "online_success": {
-          "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired."
+          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired.",
+          "higher_is_better": true
         }
       },
-      "results": {
-        "spiking_eprop": {
-          "type": "proposed",
-          "final_success": 0.0,
-          "online_success": 0.0
-        },
-        "random_policy": {
-          "type": "baseline",
-          "final_success": 0.0,
-          "online_success": 0.0
-        },
-        "always_forward": {
-          "type": "baseline",
-          "final_success": 0.0,
-          "online_success": 0.0
-        }
-      }
-    },
-    "velocity_range_wide": {
-      "description": "Online learning of interception for lateral launch speeds 0.7-1.5 m/s encoded by the fixed 10-cell population code (paper Sec. III-B).",
       "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
-      "weight": 0.3,
       "primary_metric": "final_success",
-      "metrics": {
-        "final_success": {
-          "higher_is_better": true,
-          "coefficient": 1.0,
-          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget."
-        },
-        "online_success": {
-          "higher_is_better": true,
-          "coefficient": 1.0,
-          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired."
-        }
-      },
       "results": {
-        "spiking_eprop": {
-          "type": "proposed",
+        "always_forward": {
           "final_success": 0.0,
-          "online_success": 0.0
+          "online_success": 0.0,
+          "type": "baseline"
         },
         "random_policy": {
-          "type": "baseline",
-          "final_success": 0.0,
-          "online_success": 0.0
+          "final_success": 0.0749,
+          "online_success": 0.074175,
+          "type": "baseline"
         },
-        "always_forward": {
-          "type": "baseline",
-          "final_success": 0.0,
-          "online_success": 0.0
+        "spiking_eprop": {
+          "final_success": 0.8462,
+          "online_success": 0.679925,
+          "type": "proposed"
         }
-      }
+      },
+      "weight": 0.4
     },
     "velocity_range_extreme": {
       "description": "Online learning of interception for lateral launch speeds 0.5-2.0 m/s, the widest range the paper reports (Sec. IV).",
-      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
-      "weight": 0.3,
-      "primary_metric": "final_success",
       "metrics": {
         "final_success": {
-          "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget."
+          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget.",
+          "higher_is_better": true
         },
         "online_success": {
-          "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired."
+          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired.",
+          "higher_is_better": true
         }
       },
+      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
+      "primary_metric": "final_success",
       "results": {
-        "spiking_eprop": {
-          "type": "proposed",
-          "final_success": 0.0,
-          "online_success": 0.0
+        "always_forward": {
+          "final_success": 0.2114,
+          "online_success": 0.20725,
+          "type": "baseline"
         },
         "random_policy": {
-          "type": "baseline",
-          "final_success": 0.0,
-          "online_success": 0.0
+          "final_success": 0.0741,
+          "online_success": 0.0763,
+          "type": "baseline"
         },
-        "always_forward": {
-          "type": "baseline",
-          "final_success": 0.0,
-          "online_success": 0.0
+        "spiking_eprop": {
+          "final_success": 0.5845,
+          "online_success": 0.421325,
+          "type": "proposed"
         }
-      }
+      },
+      "weight": 0.3
+    },
+    "velocity_range_wide": {
+      "description": "Online learning of interception for lateral launch speeds 0.7-1.5 m/s encoded by the fixed 10-cell population code (paper Sec. III-B).",
+      "metrics": {
+        "final_success": {
+          "coefficient": 1.0,
+          "description": "Fraction of successful episodes (puck past x = 1.5 m with forward speed > 0.1 m/s) among the last 500 of the 2000 online learning episodes, averaged over the hidden controller instances: the success a learner has reached within the paper's trial budget.",
+          "higher_is_better": true
+        },
+        "online_success": {
+          "coefficient": 1.0,
+          "description": "Fraction of successful episodes among all 2000 online learning episodes, averaged over the hidden controller instances (the paper's on-line success rate): how quickly success is acquired.",
+          "higher_is_better": true
+        }
+      },
+      "notes": "Local software robot and spiking substrate, not silicon measurements. 20 hidden controller instances, each learning online for the paper's 2000 trials from a zero readout; identical launches and action draws for every method. Results are filled from the isolated held-out reference run.",
+      "primary_metric": "final_success",
+      "results": {
+        "always_forward": {
+          "final_success": 0.0,
+          "online_success": 0.0,
+          "type": "baseline"
+        },
+        "random_policy": {
+          "final_success": 0.0662,
+          "online_success": 0.0681,
+          "type": "baseline"
+        },
+        "spiking_eprop": {
+          "final_success": 0.7512,
+          "online_success": 0.59425,
+          "type": "proposed"
+        }
+      },
+      "weight": 0.3
     }
   }
 }
