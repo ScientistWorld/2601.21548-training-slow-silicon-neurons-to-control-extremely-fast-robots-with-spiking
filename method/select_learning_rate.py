@@ -67,7 +67,17 @@ def main():
     parser.add_argument("--sweep-dir", type=Path, default=ROOT / "tmp" / "lr_sweep")
     parser.add_argument("--parallel", type=int, default=max(1, len(os.sched_getaffinity(0)) // 3))
     args = parser.parse_args()
-    best, table = sweep("eq1", args.grid, {}, args.sweep_dir, args.parallel)
+    grid = sorted(args.grid)
+    for _ in range(3):
+        best, table = sweep("eq1", grid, {}, args.sweep_dir, args.parallel)
+        rate = table[best]["config"]["learning_rate"]
+        # Extend the grid when the best rate sits on its edge.
+        if rate == max(grid):
+            grid.append(2 * rate)
+        elif rate == min(grid):
+            grid.insert(0, rate / 2)
+        else:
+            break
     record = {"default": table[best]["config"], "selected": best,
               "criterion": "weighted mean over experiments of (online_success + final_success) / 2 on the public split",
               "candidates": table}

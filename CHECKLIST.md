@@ -32,7 +32,7 @@ Check off items as you complete them. Order doesn't matter — work however make
 - [x] `environment/container.def` + `environment/setup.sh`
 
 ## Data
-- [x] All small authored task and fixed-chip assets tracked under `data/`; no external dataset required
+- [x] All small authored task assets tracked under `data/`; chips are generated deterministically from seeds; no external dataset required
 - [x] No pretrained external model required
 
 ## Milestones

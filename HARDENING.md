@@ -1,256 +1,152 @@
-# Final hardening
+# Final hardening: score learning within the paper's trial budget
 
-The completed audit rewards the tested scientific improvement and penalizes the
-weaker controls and major shortcuts. The primary honest variant improves all
-three success rates over the reference. Its normalized rank gain is +0.040983,
-with paired 95% bootstrap interval [0.022084, 0.062891] and a positive combined
-gain on all ten chips. This is evidence of headroom on this fixed software
-problem, not a claim that every possible shortcut has been excluded.
+## Summary
 
-Job 516de1db-87c completed successfully, including scientific checks and
-validation. The final canonical score files contain only the reproduced
-reference and three evaluator-owned baselines. Variant and shortcut results
-are retained in [the audit scores](redteam/final/all_scores_ref64.json),
-[paired uncertainty](redteam/final/paired_bootstrap_ref64.json), and
-[scientific checks](redteam/final/scientific_checks.json).
+REVIEW.md raised two problems with the previous gym:
 
-## What changed and why
+- It scored final success after unlimited offline readout training (the reference used 64000 trials), whereas the paper's claim is fast online learning within about 2000 trials.
+- Half its weight sat on a sensing experiment the paper never ran, while the paper's own conditions were saturated and a hand-written rule scored 1.0 on them.
 
-The paper's actual procedure is retained: six observations, 60 deterministic
-Gaussian population spike generators, a fixed random feedforward adaptive LIF
-substrate, two filtered-spike linear readouts, softmax action sampling, and the
-reward-weighted local Eq. 1 update every two trials. There is no return
-centering, trajectory-length normalization, probability floor, or learned
-hidden recurrence in the reference. The Eq. 2 shaping condition uses
-instantaneous Euclidean distance, rather than a contact-history flag.
+The gym is rebuilt around the paper's actual quantity.
 
-The earlier task-level mallet approximation is replaced by a torque-limited
-three-joint MuJoCo arm with inverse kinematics and cubic task-space primitives.
-Physics and neurons advance at 1 ms; actions arrive every 20 ms. Joint inertia,
-tracking error and physical contact now determine interception. The software
-neurons and robot geometry are documented substitutes for the authors' silicon
-and exact robot. This restores the computational training procedure and the
-robotic timing problem; it does not reproduce hardware measurements.
+**What a submission is.** A submission is a *learning procedure*. The hidden test runs it online for the paper's 2000 trials on each of 20 fixed random spiking substrates ("chips"). These chips exist only inside the test, and every method gets the same launches and action draws. Before each episode the learner supplies a linear readout of the chip's filtered spike trains. After the episode it sees only what the paper's host sees: those spike trains, the probabilities used, the sampled actions and the Eq. 2 rewards.
 
-The reference uses the exact unaveraged endpoint after 64000 trials per chip,
-32 times the paper's 2000 trials. Shorter software-robot runs were still
-learning and allowed the hand rule to win. Extending training keeps Eq. 1,
-its two-trial update interval, learning rate and discount unchanged. No setup
-was changed to approach a published number. Original paper values 0.98, 0.93
-and 0.86 remain unchanged under _paper_reported in
-[reference.json](scoring/reference.json); they are not local score targets.
+**What is scored.** The three experiments are the paper's own: randomized position and speed, speeds 0.7–1.5 m/s, and speeds 0.5–2.0 m/s. Each scores:
 
-REVIEW.md identified saturated easy conditions, seed selection comparable to
-honest gains, and nearly perfect hand-written timing. The repairs address all
-three:
+- `final_success`: success over episodes 1501–2000, the primary metric;
+- `online_success`: success over all 2000 episodes, the paper's on-line success rate.
 
-- Retire the saturated main and wide conditions from rank. Use weights 0.2 for
-  extreme speeds, 0.3 for restricted capacity, and 0.5 for sensing robustness.
-  Robustness carries half the weight because uncertain temporal control is
-  the unresolved scientific problem and clean launches admit simple schedules.
-- Add a 1020-unit robustness experiment: launch x in [0.80, 1.35] m, incoming
-  heading in [-0.30, 0] rad, position noise 0.035 m, velocity noise 0.35 m/s,
-  and two control ticks (40 ms) of observation latency. This extends the
-  paper's discussion of uncertainty; it is not a reported paper experiment.
-- Freeze the ten supplied chip instances and check every non-readout array
-  against evaluator-owned copies. A slot cannot select a lucky reservoir.
-- Enlarge evaluation from 1000 to 4096 launches per chip and pair physical
-  inputs, observation noise and action draws across methods. Train and test
-  use independent inputs of the same difficulty.
+**Outcome.**
 
-## Reference and variants: before and after
+- Better learning now scores higher. An improved readout learning rule, chosen on public chips only, gains +0.586 weighted success over the reference (paired 95% CI [0.483, 0.701], positive on 20/20 hidden chips).
+- Every weaker variant and every shortcut scores lower, beyond paired noise.
+- The reference (the paper's Eq. 1, learning rate chosen on public chips) learns within the budget in the paper's direction: main > wide > extreme.
 
-REDTEAM.md described an older two-task toy gym: reference 0.960 / 0.674,
-honest learned timing 0.996 / 1.000 (rank +0.255275), and no learning
-0.59733 / 0.49200 (rank -0.732019). Enumeration also reached 1 / 1 and constant
-forward tied the reference, so this ordering did not establish scientific
-contribution. Those old controllers and ranks are not numerically comparable
-to the new robot and fixed-chip interface.
+All evidence is in `redteam/learning_budget/results/` (produced by `redteam/learning_budget/audit.py`; summary in `summary.json`).
 
-At the start of this iteration, REVIEW.md's four-task reference was
-0.9997 / 0.9992 / 0.9741 / 0.9312 (main / wide / extreme / restricted capacity).
-Its approximate seed standard error was 0.017 and selecting seeds paid about
-0.03–0.04. The two easiest tasks offered effectively no useful headroom.
-The actual pre-change files are preserved in
-[scores_test_before.json](redteam/final/scores_test_before.json).
+## What changed
 
-Final held-out results below use the same 4096 inputs on each of ten chips.
-Ranks use the complete 17-method audit cohort, the final weights, and population
-standard deviations across that cohort. Reference rank is zero by definition;
-rank magnitudes change with the future cohort. Calibration's success dominance
-in all three experiments preserves its ordering under positive scales.
-
-| Method | Extreme | Restricted capacity | Sensing robustness | Rank change |
-|---|---:|---:|---:|---:|
-| Reference, Eq. 1, 64000 trials | 0.996973 | 0.990918 | 0.840601 | 0 |
-| Public calibration, primary improvement | 0.999756 | 0.998730 | 0.864893 | +0.040983 |
-| Fixed readout sharpening | 0.999780 | 0.996191 | 0.848462 | +0.015929 |
-| Late readout averaging | 0.996631 | 0.992334 | 0.839429 | -0.000875 |
-| Same trajectory at 32000 trials | 0.988452 | 0.976172 | 0.738330 | -0.159054 |
-| Weak training, 2000 trials | 0.603931 | 0.593457 | 0.270630 | -1.248404 |
-| Untrained | 0.082837 | 0.064478 | 0.186841 | -1.949087 |
-| Random action baseline | 0.076245 | 0.075903 | 0.190308 | -1.939451 |
-| Constant forward | 0.207764 | 0.201660 | 0.194580 | -1.791772 |
-| Best global timing rule | 1.000000 | 1.000000 | 0.725830 | -0.155892 |
-| Public rule imitation | 0.999536 | 0.951587 | 0.695044 | -0.232118 |
-
-Canonical reference train success is 0.996899 / 0.991431 / 0.843506, versus
-test 0.996973 / 0.990918 / 0.840601. The largest split difference is 0.00291;
-the independent slices measure comparable difficulty. Learned reference
-control clearly beats random, constant action and untrained control, while
-respecting the 1020 / 256 / 1020 unit limits. Restricted capacity reduces clean
-success in the paper's direction. This supports the software core claim,
-without establishing the paper's 2000-trial sample efficiency or hardware claims.
-
-## Headroom and paired noise
-
-The reference is at the upper bound of none of the scored metrics: the only
-ranked metric is success, whose three values are 0.996973, 0.990918 and
-0.840601. Clean conditions remain close to saturation. The added, weighted
-sensing experiment provides substantial error and distinguishes learning from
-short timing rules. Even the best honest variant still fails 13.51% there;
-no simple variant reaches all bounds.
-
-The primary alternative, [public calibration](method/calibrate_readout.py),
-chooses one global readout blend, inverse temperature and action offset per
-experiment. Its fixed 36 candidates use only 256 fresh public launches on each
-chip. The selected (blend, temperature, offset) values are (0, 2, -2),
-(0.5, 8, -2), and (0.5, 4, -2). Hidden inputs and outcomes are not used for
-selection. The reference remains the unmodified Eq. 1 endpoint. Any readout
-learning procedure can use the same numeric submission interface.
-
-A predeclared check requires this primary alternative's paired lower bound
-above zero. The test-private audit jointly resamples ten chip identities and
-whole episode columns in 4096 bootstrap replicates. It shares resampling draws
-across methods, preserves within-episode dependence, shares chip identities
-across experiments, and holds measured cohort normalization fixed.
-
-| Variant | Paired rank gain | 95% bootstrap interval | Chips with positive combined gain |
-|---|---:|---|---:|
-| Public calibration | +0.040983 | [0.022084, 0.062891] | 10 / 10 |
-| Fixed sharpening | +0.015929 | [-0.001403, 0.034055] | 6 / 10 |
-| Late averaging | -0.000875 | [-0.032035, 0.031001] | 4 / 10 |
-
-Calibration also passes the exact one-sided chip sign check, p=0.0009765625.
-Sharpening and averaging do not independently establish improvement beyond
-noise; they are not substituted for the primary check. Inference remains
-limited to the fixed ten chips and the chosen task distribution, rather than
-all possible robot or sensor distributions.
-
-## Major shortcuts
-
-Before values here come from REDTEAM.md unless marked REVIEW. Its old two-task
-scores and ranks are retained as provenance, not directly comparable effect
-sizes. After values are from the final hidden audit. An invalid submission's
-complete worst row is success=0, worst-chip success=0, hit=0 and units equal to
-the experiment budget, in every experiment; its final audit rank is -2.294264.
-
-| Shortcut and before result | Fix | After result |
+| Aspect | Before (previous gym) | After |
 |---|---|---|
-| Forged summaries: 1 / 1, rank +0.263152; impossible rates: 2 / 2, rank +2.578002 | Ignore all submitted numbers and flags; execute bounded numeric configurations and derive every metric from raw physical outcomes | JSON-only forged submission: 0 / 0 / 0, rank -2.294264. Legacy summary values have no input to scoring |
-| Failed task compensated with huge auxiliary metrics: rank +0.387261 | Rank success alone; contact and worst-chip success are diagnostics, capacity is a hard constraint | Forged-metric submission fails every experiment, rank -2.294264; auxiliary coefficients are zero |
-| Empty or omitted experiment: free rank tie | Discover every on-disk method directory and require all experiments and ten slots; any failure applies to the whole method | Missing-experiment and JSON-only empty-controller cases: 0 / 0 / 0, rank -2.294264 |
-| Training allowlist silently skips another method: free tie | Discover directories independently of train scores, including hidden names; always include the configured reference | All 17 audit methods get all three complete rows; the five invalid methods are retained with worst values |
-| Omitted or fictitious capacity: reference tie | Count actual units, validate fields and bounds, enforce assigned chip identity | Over-capacity submission: 0 / 0 / 0, rank -2.294264 |
-| Nonfinite values accepted; null input can leave stale scores | Validate numeric arrays and physics; initialize every result with worst values and write complete rows atomically | Nonfinite-weight submission: 0 / 0 / 0, rank -2.294264; no omitted metrics |
-| Lucky reservoir selection: +0.03–0.04 (REVIEW) | Freeze ten chips per experiment and compare every non-readout array exactly | Copying seed 0 into all slots with readout jitter: 0 / 0 / 0, rank -2.294264 |
-| Constant forward: reference task tie, rank +0.000994 | Robot dynamics and richer launches make timing meaningful | 0.207764 / 0.201660 / 0.194580, rank -1.791772 |
-| Hand-written interception nearly solves task; imitation outranks undertrained robot reference | Full paper-sized robustness substrate, richer noisy/latent observations, converged Eq. 1 training and weight 0.5 on robustness | Best of 27 global filtered timing rules: 1 / 1 / 0.725830, rank -0.155892; learned rule imitation: 0.999536 / 0.951587 / 0.695044, rank -0.232118 |
-| Enumerating 31 timings and known-seed lookup: both 1 / 1, rank +0.262159 | Hidden launches are unseen; only static readout arrays execute, with no submitted planner, callback, simulator or lookup-file access | Legacy summary-only output is the rejected JSON interface above; its old executables are not meaningful controllers on the new interface. The new global rule bank and public rule imitation both lose |
-| Replacing public simulator: random reaches 1 / 1, rank +0.262159; moving baseline was a tie | Test owns independent robot, simulator, chip runtime, inputs and baseline procedures; public mutations cannot change them | Genuine random baseline is 0.076245 / 0.075903 / 0.190308, rank -1.939451. No new public-mutation replay is claimed; the public module is absent from test imports |
+| Submission | Readout arrays for 10 public chips, trained any way and for any length | `outputs/<method>/learner.py`, run online by the evaluator |
+| Trial budget | Not scored; reference used 64000 trials per chip | Exactly 2000 sequential episodes per chip (paper) |
+| Chips | 10 public chips, copied into the test | 10 public chips for the visible split; 20 hidden chips generated inside `eval/test/` from 62-bit seeds |
+| Learner input | Six robot states (any policy fitted offline) | Filtered spike trains, probabilities, actions, rewards; never states, launches or chip parameters |
+| Policy form | Linear readout of chip traces | Same (paper's architecture), fixed within an episode; the evaluator computes the softmax and samples the action from common random numbers |
+| Scored experiments | Extreme speeds 0.2, 256-unit capacity 0.3, sensing/latency extension 0.5 | randomized_air_hockey 0.4, velocity_range_wide 0.3, velocity_range_extreme 0.3 (all paper conditions) |
+| Metrics | Held-out success of a frozen readout | `final_success` (primary) and `online_success`, coefficient 1 each |
+| Reference | Eq. 1 for 64000 trials | Eq. 1 exactly, from a zero readout, 2000 trials; learning rate 0.012 chosen on the public split (`method/select_learning_rate.py`) |
 
-These are interface and task repairs, rather than defenses against leftover
-processes or interpreter changes. The new audit replays forged metrics,
-missing experiments, capacity violation, nonfinite weights, copied chips,
-constant action, timing rules and imitation. Legacy executables that merely
-write the removed JSON schema are represented by the replayed JSON-only
-attack; their former perfect summaries are no longer runnable policies.
+The learning rate was swept over 0.006–0.2 on public chips. Rates above 0.025 destabilize Eq. 1, and 0.012 maximizes the weighted public objective (0.653, against 0.613 at 0.006 and 0.503 at 0.025).
 
-## Scoring and isolation
+The physics, primitives, reward, success event and spiking substrate recipe are unchanged. The slot environment reproduces the old batch physics: always-forward and random success on 512 extreme launches are 0.188 / 0.051, against the previous preflight's 0.199 / 0.076 on different launches.
 
-Only per-experiment results in scoring/scores_test.json and
-scoring/scores_train.json are ranked. Audit ranks, verdicts and files elsewhere
-have no ranking authority. [eval/rank.py](eval/rank.py) sums experiment weight
-times the absolute coefficient times better-direction improvement over the
-reference, divided by population standard deviation across ranked attempts.
-An identical column contributes zero. Success is the sole ranked quantity;
-a completely failed task cannot buy rank through diagnostics or declared size.
+Weights: 0.4 on the paper's headline setting (>98% after about 1300 episodes), and 0.3 each on the two encoding-range settings that carry its scalability claim (93% and 86%). The added sensing experiment and the 256-unit experiment, which the paper never ran, are retired. All weight now sits on the paper's own conditions, as REVIEW asked.
 
-All test input generation, seeds and raw per-episode answers are confined to
-eval/test/. No method code runs in the hidden test: bounded numeric readouts
-are loaded into its own runtime. Thus a method cannot read test answers or
-privately evaluate hidden candidates during inference. Readout training remains
-open to alternative optimizers, credit assignment, exploration, value estimates,
-longer training and public-data imitation. The restriction does not limit a
-submission to a menu of the reference's settings.
+The previous scaling departure is restored: the paper's 2000 trials, its on-line success measure and its conditions. The number of chips is scaled up from the paper's 10 seeds to 20 hidden chips to reduce noise.
 
-The two split evaluators share no imported implementation, and eval/ and data/
-never import method/. Everything on the other side of each comparison is
-owned by eval/: physical task, baseline operating points, chip copies, inputs,
-thresholds, capacities and test size. Test scoring never retrains. It runs
-fixed-sized rollouts without a wall-clock stopping rule or wall-clock metric.
-All training and calibration workers had exited before serial reference and
-baseline scoring. Saved, source-validated raw outcomes were rescored where
-only packaging/evaluation changed; no method-written metric was trusted.
+## Reference before and after
 
-## Rejected checks and operational repairs
+Before, the reference scored success 0.996973 / 0.990918 / 0.840601 on the old experiments (extreme / 256-unit / sensing) after 64000 trials. At the paper's 2000 trials the same procedure scored 0.60 / 0.59 / 0.27. These are not comparable to the new metrics.
 
-Early unstable MuJoCo runs were discarded. Explicit contact stiffness and
-damping now fit the 1 ms timestep. Nonfinite states, resets, stalled time,
-puck speed over 50 m/s, joint speed over 100 rad/s, or penetration over 10 cm
-fail before a goal can count. The final job passed public physics preflight,
-exact interrupted/uninterrupted learning checks and concurrent atomic-write
-checks. Every controller affected by physical or training changes was rerun.
+After, hidden test (20 chips, canonical run with nothing else beside it):
 
-The 2000-trial robot reference scored 0.53442 / 0.48931 / 0.21348; 8000 trials
-scored 0.92188 / 0.92441 / 0.65393. Rule imitation still won that rejected setup
-(0.99993 / 0.98975 / 0.75591). On the final physical task the 32000-trial
-reference scored 0.988452 / 0.976172 / 0.738330, but the timing bank still
-narrowly won (rank +0.002584). Its longer-training and averaging improvements
-had conservative normal lower bounds -0.057016 and -0.047787: one robustness
-chip had learned very late. Neither audit was certified. Their aggregate
-results remain in rejected_robot_setup/ and reference32_audit/ under redteam/final/.
-The final reference promotion uses already-completed, exact trial-64000
-checkpoints, with no change to the training trajectory. Calibration was then
-selected on public data before its hidden run.
+| | randomized | wide | extreme |
+|---|---:|---:|---:|
+| Reference `final_success` | 0.8462 | 0.7512 | 0.5845 |
+| Reference `online_success` | 0.6799 | 0.5943 | 0.4213 |
+| Reference train (10 public chips), final / online | 0.875 / 0.707 | 0.770 / 0.580 | 0.509 / 0.388 |
+| `random_policy`, final / online | 0.075 / 0.074 | 0.066 / 0.068 | 0.074 / 0.076 |
+| `always_forward`, final / online | 0 / 0 | 0 / 0 | 0.211 / 0.207 |
 
-Worker drains caused repeated job restarts and one lost-node exit. They did
-not justify changing scientific outputs. Exact training/RNG checkpoints and
-audit-only raw rollout checkpoints preserve progress. Raw cache keys cover
-full inputs, controller arrays, evaluator sources and pinned library versions;
-normal no-argument evaluators are uncached. A persistence-only repair replaced
-colliding temporary filenames with unique atomic writes in both independent
-evaluators. Exact source migration digests allow only those equivalent old
-raw rollouts to be reused. No time-based training truncation was added.
+**Paper's claim.** The paper reports 0.98 / 0.93 / 0.86 on silicon, unchanged under `_paper_reported`. The local reference learns from random-level success to 0.85 / 0.75 / 0.58 within 2000 trials. Success decreases from the main setting to the widest speed range, as the paper reports.
 
-## Package and remaining limitations
+**Where the reference falls short.** On a few chips Eq. 1 collapses into a saturated policy and never recovers: 1 of 20 main chips and 3 of 20 wide chips score 0 for all 2000 episodes. On the other chips it reaches about 0.85–0.96 final success.
 
-The final script scripts/run.sh again reproduces the reference end to end,
-then validates. scripts/evaluate_test.sh takes no arguments and scores every
-method on disk. Both canonical slices and scores.json were regenerated from
-the final reference and fixed baselines alone; variants are archived outside
-outputs/. The container builds from environment/, with pinned NumPy and MuJoCo
-installed by setup.sh. All small authored chip assets are tracked. No external
-pre-existing dataset or model is used, so download.sh has no remote artifact to
-fetch. Committed code has no shared/ references. Briefing and scoring documents
-describe the final problem and interface. python validate.py passes; its four
-heuristic RNG warnings do not indicate detached scoring: the evaluators load
-and execute numeric controller files, and raw outcomes change with the method.
+**Train and test comparability.** The two splits measure comparable difficulty: the largest train–test difference in a scored reference metric is 0.076 (extreme final), within two per-chip standard errors.
 
-Remaining issues are explicit:
+**Seed noise.** Standard errors over chips are 0.035–0.073 depending on metric and setting.
 
-- Selecting among repeated training runs on an assigned chip, undisclosed
-  public-data computation, and copying a stored learned readout are provenance
-  questions for the separate attempt grader. The evaluator cannot verify an
-  asserted learning history. Fixed chip identities close reservoir selection,
-  not all selection among learned readouts.
-- Short clean-launch schedules still solve the two clean conditions. They lose
-  overall on the weighted robustness experiment, as does public rule imitation.
-  Stronger hand-coded or distilled policies were not exhaustively excluded.
-- Private search over public training launches remains possible and can improve
-  generalization; there is no test-instance search interface. The gym measures
-  final control success at fixed capacity, not training efficiency or cost.
-- The ten-chip software model and substituted robot do not establish exact
-  silicon behavior, electrical power, hardware real time, the paper's 2000-trial
-  efficiency, or all of its empirical settings. Hardware fidelity remains
-  unmeasured. The milestone is core_claim on the documented software task.
+**Determinism.** Scores are deterministic and independent of machine load:
+
+- on train, two independent runs of the selected reference are bit-identical;
+- on test, a variant identical to the reference for its first 1500 episodes reproduces the canonical reference's raw outcomes exactly on all chips;
+- there is no wall-clock limit in the scored path except a 600 s per-call failure limit, about 10^5 times the reference's call time.
+
+## Better and weaker variants
+
+Hidden test. Rank is the normalized cohort rank of `eval/rank.py` over all 17 audited entries (reference = 0). The paired gain is the weighted (0.4/0.3/0.3) mean per-chip difference in success, summed over both metrics, with a 95% bootstrap interval over the 20 chips.
+
+| Variant (how it was chosen) | Final success R / W / E | Online success R / W / E | Paired gain [95% CI], chips > 0 | Rank |
+|---|---|---|---|---:|
+| Reference, Eq. 1 | 0.846 / 0.751 / 0.585 | 0.680 / 0.594 / 0.421 | 0 | 0 |
+| **Standardized-input e-prop**: same two-trial REINFORCE signal on per-neuron standardized traces plus a bias input; lr 0.05 chosen on public split (public objective 0.952 vs 0.653) | **0.984 / 0.993 / 0.974** | **0.924 / 0.927 / 0.902** | **+0.586 [0.483, 0.701], 20/20** | **+2.013** |
+| Trust-region Eq. 1: logit change capped at 1 per update; lr 0.025 (public 0.712) | 0.789 / 0.743 / 0.719 | 0.665 / 0.602 / 0.511 | +0.038 [−0.110, 0.194], 13/20 | +0.179 |
+| Eq. 1, per-experiment public learning rates (0.012 / 0.006 / 0.025) | 0.846 / 0.771 / 0.538 | 0.680 / 0.594 / 0.382 | −0.020 [−0.125, 0.097], 6/20 | −0.084 |
+| Eq. 1, sharpen ×4 and freeze for the last 500 episodes | 0.793 / 0.755 / 0.458 | 0.667 / 0.595 / 0.390 | −0.073 [−0.122, −0.028], 6/20 | −0.242 |
+| Eq. 1 with learned value baseline; lr 0.012 chosen on public split | 0.789 / 0.625 / 0.369 | 0.571 / 0.420 / 0.287 | −0.262 [−0.415, −0.094], 5/20 | −0.877 |
+| Weaker: Eq. 1 at lr / 4 | 0.632 / 0.652 / 0.406 | 0.496 / 0.491 / 0.343 | −0.297 [−0.396, −0.186], 3/20 | −0.930 |
+| Weaker: no learning (zero readout; behaviour of `forged_files`) | 0.075 / 0.066 / 0.074 | 0.074 / 0.068 / 0.076 | −1.171 [−1.272, −1.058], 0/20 | −3.650 |
+
+**Better scores higher.**
+
+- The standardized learner removes the collapse: its worst chip reaches 0.88 final success. It improves every metric of every experiment by far more than the paired noise.
+- The two learners whose gains are within noise (trust region, per-experiment learning rates) are reported as such.
+- Variants that learn worse score lower, beyond noise.
+
+Before this iteration, by comparison, the best honest variant gained only +0.041 rank (public calibration: 0.9998 / 0.9987 / 0.8649 against 0.9970 / 0.9909 / 0.8406), mostly through the non-paper sensing experiment. The old controls (timing bank −0.156, rule imitation −0.232, 2000-trial training −1.248, untrained −1.949) ranked below a reference that was not at the paper's budget.
+
+## Major shortcuts: fix and score before and after
+
+"Before" values are from the previous HARDENING.md and REVIEW.md, on the old interface; "after" values are from the hidden test audit.
+
+| Shortcut | Before | Fix | After |
+|---|---|---|---|
+| **Offline readout optimization with unlimited trials** (REVIEW item 1) | Was the reference itself: 64000 trials scored like any optimizer | Trial budget owned by the evaluator; chips are hidden and new to every method, so readouts trained elsewhere cannot transfer | Copying the readouts Eq. 1 learned in 2000 trials on the public chips scores 0.913 / 0.808 / 0.544 final on the public chips, but 0.278 / 0.159 / 0.257 on the hidden ones; rank −2.588 |
+| **Hand-written timing rule** (REVIEW item 2) | 1.0 / 1.0 on the paper-derived conditions | Learners never see robot states or launches; the policy must be a readout of hidden-chip traces | Not expressible. The best state-blind learner (trains only the readout bias) scores 0.138 / 0.127 / 0.198 final, rank −3.060; `always_forward` scores 0 / 0 / 0.211 |
+| **Headroom carried by a non-paper experiment** (REVIEW item 2) | Sensing extension weight 0.5; paper conditions near saturation (0.997, 0.991) | Sensing and 256-unit experiments retired; all weight on paper conditions | Reference unsaturated on all three (0.85 / 0.75 / 0.58); the better learner's gain comes from them |
+| Self-reported metrics or score files | Already ignored (JSON-only attack failed) | Unchanged principle: evaluator computes every outcome from its own simulation | Learner writing perfect scores files: 0.075 / 0.066 / 0.074 (its real behaviour), rank −3.650 |
+| Impossible values | NaN or out-of-range readouts failed | Readout validated every episode (finite, \|·\| ≤ 1e6, shape [1020, 2] and [2]) | NaN after 10 episodes, 1e9 bias, oversized readout: 0 in every metric of every experiment (rank −4.121) |
+| Skipping an experiment, empty submission | Fixed in the previous gym | Every directory scored, reference always included; any failure fails all experiments | Crash in one experiment only, or missing `learner.py`: 0 everywhere, rank −4.121 |
+| Choosing lucky chips | Fixed chips (public) | Chips generated by the evaluator; hidden on test | Impossible by construction |
+| Private search with the public simulator | Closed by readout-only interface | Learner never receives the chip, its parameters, states or launches; the public simulator cannot reproduce hidden-chip traces | Not runnable; no hidden-test instance is computable by a method |
+
+The smoke stage confirmed that both evaluators handle failures identically, using tiny scale on both splits. The full-scale runs of all failure cases above used the unmodified hidden evaluator with no arguments other than an audit output directory.
+
+## Shortcuts left, and why
+
+- **Reading `eval/test/` from learner code.** The hidden seeds are in the test source. A learner process runs as the same user, so it could read them, rebuild the hidden chips and launches, and plan privately. Preventing this needs OS-level sandboxing, which the container does not provide. Reading evaluator files is an explicit violation (`scoring/CONSTRAINTS.md`) left to the attempt grader.
+- **Communication between the 20 learner processes.** Learners run in separate processes, so they share no memory. They could still exchange files, for example to pool experience or tune hyperparameters across hidden chips. This is forbidden in `CONSTRAINTS.md` and left to the grader.
+- **Unbounded computation between episodes.** Only trials are budgeted, matching the paper's claim. The only cap is 600 s per call, so a very slow learner makes the hidden test long. Compute is not scored.
+- **Inferring hidden seeds from traces.** Seeds are 62-bit; brute force is infeasible. Not tested.
+- **Leftover background processes overwriting scores after the evaluator exits.** Out of scope per the task: the hidden test runs in a fresh container.
+
+## Headroom check
+
+- **Reference bounds.** The reference sits at the bound of no scored metric: final 0.85 / 0.75 / 0.58, online 0.68 / 0.59 / 0.42. A genuinely better learner exists and scores far higher (above).
+- **Brute force.** The brute force the paper's method avoids (enumerating timings or planning with a simulator) is not available to a submission, because the hidden chips and launches are unseen.
+- **Simple baselines.** Random choice (about 0.07) and always-forward (0–0.21) sit clearly below the reference.
+- **What remains above the strongest variant.** The standardized learner comes close to the bound on `final_success` (0.97–0.99). Most of the headroom left above it is learning speed: `online_success` 0.90–0.93, where the early episodes are necessarily near random. This is the paper's emphasis on few trials. Future gains over that learner will be small in final success and mostly in online success.
+- **Added experiment.** No experiment beyond the paper's was added. The paper's own conditions, scored at its own budget, already leave the reference far from the bound.
+
+## Light test and isolation
+
+The hidden test now runs the submitted learner, and learning happens during the test: 2000 episodes × 20 chips × 3 experiments. A full run of a reference-like learner takes about 30–40 minutes on 4 CPU cores, plus about 7 minutes per baseline experiment.
+
+This departs from "the test only scores what the method produced". The trial budget can only be verified by the party that owns the interaction, which is what REVIEW item 1 requires. Nothing is retrained offline, and the test does not depend on `method/`.
+
+Other isolation properties:
+
+- Test chips, launches and action draws are generated in memory inside `eval/test/`.
+- Raw per-episode outcomes stay in `eval/test/raw/`.
+- The test has its own frozen copies of the simulator, chip runtime and learner host.
+- `eval/train/` and `eval/test/` share no code, and neither imports `method/`.
+- Learners run in separate processes behind a fixed binary protocol. The evaluator parses only fixed-size float arrays from them (no unpickling).
+
+## What could not be fixed
+
+- **Hardware fidelity.** The DYNAP-SE silicon and the authors' robot are replaced by a software spiking substrate and a three-joint MuJoCo arm. Energy, latency and silicon behaviour are not measured.
+- **Gap to the paper's numbers.** The reproduced Eq. 1 reaches 0.85 / 0.75 / 0.58 rather than 0.98 / 0.93 / 0.86, mainly because it collapses on some chips of this substrate. The learning rule is unchanged; only its unreported learning rate was chosen, on public data.
+- **Compute infrastructure.** Repeated worker drains restarted the audit and sometimes left duplicate instances running. The driver now elects one owner, and followers wait for it or take over. No number depended on this, since all results are deterministic.
+
+Milestone: `core_claim`. The paper's central claim, compact spiking reinforcement learning of interception within 2000 trials, is reproduced in direction on the software task. Its secondary claim, degradation with wider encoding range, also holds in direction.

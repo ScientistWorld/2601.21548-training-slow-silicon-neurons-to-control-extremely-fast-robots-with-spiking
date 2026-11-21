@@ -1,8 +1,6 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: core_claim
-notes: "Headroom check: standardized-input and trust-region e-prop readout learners selected on the public split, best sent through the hidden test with per-experiment-lr Eq.1; then paired analysis and validate. Earlier stages cached."
+notes: "Gym now scores online learning within the paper's 2000-trial budget on 20 hidden chips and the paper's three conditions. Eq.1 reference final 0.846/0.751/0.585; standardized-input e-prop +0.586 paired gain (20/20 chips); all shortcuts and weaker variants below reference; validate passes. See HARDENING.md."

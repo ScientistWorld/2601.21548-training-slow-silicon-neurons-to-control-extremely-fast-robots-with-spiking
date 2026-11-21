@@ -175,3 +175,18 @@ most 0.00291. validate.py and scientific checks passed. Restored run.sh to the
 end-to-end reference pipeline and replaced the pending hardening draft with
 final before/after evidence, remaining shortcuts and hardware/sample-efficiency
 limitations. Milestone restored to core_claim for the documented software task.
+
+
+## Final hardening: learning-budget gym (2026-11-21)
+
+REVIEW.md asked for the paper's trial budget to be scored and for headroom from
+the paper's own conditions. Submissions became online learners run by the
+evaluator for 2000 episodes on hidden chips; experiments are the paper's
+randomized, wide and extreme conditions; metrics are final and online success.
+Jobs d0d94ab5 (smoke, public learning-rate sweep), c3407e80 (canonical hidden
+scoring), eccc00dc (audit of variants and shortcuts) and c3508621 (improved
+learners, analysis, validation) completed; repeated worker drains were handled
+by resumable stages and single-owner election. Reference hidden-test final
+success 0.846 / 0.751 / 0.585; standardized-input e-prop 0.984 / 0.993 / 0.974;
+every shortcut and weaker variant below the reference. validate.py passes.
+See HARDENING.md and redteam/learning_budget/results/summary.json.

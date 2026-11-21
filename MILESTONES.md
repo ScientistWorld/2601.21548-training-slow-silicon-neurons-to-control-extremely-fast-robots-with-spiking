@@ -80,3 +80,16 @@
   isolation. The milestone covers learned compact robotic control in the
   documented software substitute, not silicon fidelity or the paper's
   2000-trial sample efficiency. Final evidence and limitations: HARDENING.md.
+
+
+### [2026-11-21] - core_claim (final hardening: learning budget)
+- The scored quantity is now the paper's: online success within 2000 trials per
+  chip, on 20 hidden chips and the paper's own three launch conditions; the
+  evaluator runs each submitted learner online and owns every outcome.
+- Reference (Eq. 1 exactly, learning rate 0.012 chosen on public chips):
+  final success 0.846 / 0.751 / 0.585 and online success 0.680 / 0.594 / 0.421
+  (randomized / wide / extreme), versus random 0.07; success falls with wider
+  speed range, as in the paper (paper: 0.98 / 0.93 / 0.86 on silicon).
+- Headroom: a standardized-input e-prop learner chosen on public chips gains
+  +0.586 paired weighted success (CI [0.483, 0.701], 20/20 chips). All weaker
+  variants and shortcuts score lower beyond noise. Details: HARDENING.md.

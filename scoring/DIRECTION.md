@@ -1,12 +1,15 @@
 # Direction
 
-Improve closed-loop interception on unseen launches while retaining the assigned
-compact controller instances. Success across broader motion, limited capacity,
-noisy estimates and observation latency is the research quantity.
+Improve how quickly and how reliably a fixed random spiking substrate's linear
+readout is learned online from reward, within 2000 trials per instance, across
+the paper's launch-speed and launch-position settings.
 
-The open procedure is readout learning: exploration, credit assignment,
-variance reduction, optimization, training stability, imitation and training
-length. The supplied physical instances eliminate selection of lucky chips.
-The final two settings carry most weight because the old easy launch conditions
-were saturated and did not reward progress. Arbitrary policy code is not the
-submission interface; a better learning procedure must export a readout.
+Open: credit assignment, exploration, conditioning and normalization of the
+readout update, step-size control, value or world-model learning from the
+observed spike trains and rewards, replay of past episodes, and any computation
+between episodes. Gains should hold across independently sampled instances: the
+hidden instances are new to every method, so nothing learned about a specific
+public instance transfers.
+
+Out of scope: changing the substrate, the readout form, the episode budget or
+the task; using robot states, launches or substrate parameters.

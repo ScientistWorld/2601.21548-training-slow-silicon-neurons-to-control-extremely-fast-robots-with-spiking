@@ -9,9 +9,9 @@ The previous gym had no joints, inertias, actuators or tracking error.
 The puck and mallet have the paper's radii. Plane-constrained spheres represent
 their circular horizontal contact; there is no vertical flight. Input states,
 two task-space cubic primitives, 50 Hz control, 1 kHz physics, reward and
-success are as in the paper. The explicit sensor-noise condition is a new
-robustness extension motivated by Section IV, not a paper-reported result.
-No external model files or meshes are needed. All assets ship in git.
+success are as in the paper. The scored launch conditions are the paper's own
+(Sec. III). No external model files or meshes are needed. All assets ship in
+git; eval/test/robot/ holds the hidden test's frozen copy.
 
 Contact uses MuJoCo's direct stiffness/damping format, `-100000 -20`, with
 impedance `0.95 0.99 0.001`. This resolves near-elastic impact at the 1 ms step.

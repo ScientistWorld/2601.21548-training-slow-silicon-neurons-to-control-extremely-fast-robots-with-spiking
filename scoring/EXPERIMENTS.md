@@ -1,35 +1,30 @@
 # Experiments
 
-Every experiment evaluates ten assigned controller instances on 4096 identical
-paired launches per instance. It reports task success, weakest-instance
-success, physical contact frequency and measured controller size. Only task
-success contributes to rank. Invalid submissions receive worst values across
-all experiments. All baselines use the same launches and observation noise.
+Every experiment measures online learning of interception within the paper's
+budget of 2000 sequential episodes per controller instance. The hidden test uses
+20 fixed random instances and launch sequences that exist only inside the test;
+every method sees the same instances, launches and action-sampling draws.
+Two quantities are scored per experiment, averaged over instances:
+`final_success` (success over the last 500 episodes: what has been learned by the
+end of the budget) and `online_success` (success over all 2000 episodes: how
+quickly it was learned). A method that fails anywhere scores 0 everywhere.
+Both fixed comparisons (random primitive choice, always forward) run under the
+same draws.
+
+## randomized_air_hockey
+
+The paper's main setting: launch position randomized within a 0.10 m window and
+launch speed within 1.0–1.5 m/s. Tests whether reliable interception timing is
+acquired from few trials when both where and how fast the puck arrives vary.
+
+## velocity_range_wide
+
+Launch speeds 0.7–1.5 m/s from a fixed position, encoded over a wider velocity
+range by the same fixed number of input cells. Tests learning when the
+substrate resolves the relevant variable more coarsely.
 
 ## velocity_range_extreme
 
-Tests successful forward interception across the broad 0.5–2.0 m/s speed range
-where the paper reports losses. The 1020-unit limit retains the paper's scale.
-
-## single_core_extreme
-
-Tests the same range under a 256-unit limit. It asks how well learning uses a
-restricted fixed controller capacity. Violating that capacity fails the run.
-
-## sensor_robustness
-
-Tests forward interception across wider launch positions and oblique incoming
-headings, with 0.035 m position noise, 0.35 m/s velocity noise, and two control
-ticks of observation latency. This extends the sensing and mechanical robustness
-questions raised by the paper, where timing is uncertain and simple launch
-schedules are less reliable. It carries half the experiment weight.
-
-## Fixed comparisons
-
-Every experiment includes a uniformly random action policy, an immediate
-forward commitment, and the strongest global member of a fixed bank of short intercept-time rules.
-The bank crosses eight fixed lead times plus a distance-based travel-time estimate
-with observation smoothing constants 0, 40 and 80 ms;
-reporting its best global member favors this simple comparison conservatively. These measure
-whether improved success reflects learning beyond basic control schedules.
-They are computed by the evaluator, never read from submitted logs.
+Launch speeds 0.5–2.0 m/s, the widest range the paper reports, where it finds
+the largest loss of success. Tests learning at the representational limit of the
+fixed compact substrate.

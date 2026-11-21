@@ -1,16 +1,23 @@
 # Targets
 
-All three experiments report the same four evaluator-derived metrics:
-`success_rate` (ranked, higher), `seed_worst_success` and `hit_rate`
-(diagnostics, higher), and `controller_units` (diagnostic capacity measurement).
+| Experiment | Scientific target | Weight |
+|---|---|---:|
+| randomized_air_hockey | high success reached within 2000 online trials, acquired quickly, randomized position and speed | 0.4 |
+| velocity_range_wide | the same with launch speeds 0.7–1.5 m/s | 0.3 |
+| velocity_range_extreme | the same with launch speeds 0.5–2.0 m/s | 0.3 |
 
-| Experiment | Scientific target | Capacity constraint | Weight |
-|---|---|---:|---:|
-| velocity_range_extreme | reliable interception across 0.5–2.0 m/s | fixed 1020 units | 0.2 |
-| single_core_extreme | reliable interception at restricted capacity | fixed 256 units | 0.3 |
-| sensor_robustness | reliable interception under richer launches, state noise and latency | fixed 1020 units | 0.5 |
+Benefit metrics (each experiment, higher is better, coefficient 1):
+`final_success` (primary; last 500 of 2000 online episodes) and
+`online_success` (all 2000 online episodes).
 
-All ten assigned instances must be present and valid. A failed constraint
-sets every success metric to zero in every experiment. Final measured reference
-and fixed baselines are in `reference.json`; original paper numbers remain
-unchanged under `_paper_reported` because the local software scale differs.
+Constraints the paper's claim depends on, enforced by the evaluator rather than
+scored: the fixed 1020-unit random substrate (not trainable, not visible), a
+linear two-action readout of its filtered spike trains, and exactly 2000
+sequential episodes per instance with no state, launch or chip information.
+These cannot be traded for a better score: the evaluator owns the substrate,
+the episode count and every outcome, and any malformed or failed submission
+scores 0 in every metric of every experiment.
+
+Local reference results (Eq. 1, hidden test) and the fixed baselines are in
+`reference.json`. The paper's own numbers stay under `_paper_reported`: they
+come from silicon and the authors' robot, so they are provenance, not targets.

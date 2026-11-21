@@ -1,4 +1,4 @@
-> **Superseded.** This document describes the gym before the final hardening iteration (head-on simulator, self-reported JSON scores, two experiments). The task, submission interface, evaluators and scoring changed; see `HARDENING.md`.
+> **Superseded twice.** This document describes an early design (head-on simulator, self-reported JSON scores). The next design (fixed public chips, readouts trained offline) was replaced in the final hardening by online learning within the paper's 2000-trial budget on hidden chips; see `HARDENING.md`.
 
 # Verification Report
 

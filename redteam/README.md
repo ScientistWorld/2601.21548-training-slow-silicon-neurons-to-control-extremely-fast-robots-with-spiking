@@ -1,3 +1,12 @@
+# Audits
+
+**Current gym:** `learning_budget/` holds the final hardening audit of the
+online-learning gym (`audit.py`, the audit learners under `learners/`, and every
+result under `results/`; summary in `results/summary.json`, narrative in
+HARDENING.md). The directories below it are earlier audits of superseded gym
+designs (toy simulator, then fixed public chips scored after 64000 trials); their
+scripts reference interfaces that no longer exist and are kept as provenance.
+
 # Scoring audit
 
 Run `bash redteam/<case>/run.sh` on a compute node. `cases.json` lists the batch;
