@@ -1,0 +1,60 @@
+{
+  "affinity": 8,
+  "cores": 8,
+  "cpu_count": 192,
+  "probe": {
+    "chip_timing": {
+      "build_seconds_per_chip": 0.1692136526107788,
+      "mean_spike_prob_last_ms": 0.007004084946432462,
+      "ms_per_tick_chip_and_physics": 5.174783865610759,
+      "ticks": 60
+    },
+    "env_regression": {
+      "forward": 0.1875,
+      "random": 0.05078125
+    },
+    "unit_timing_10": {
+      "budget": 40,
+      "chips": 10,
+      "lockstep_ticks": 4000,
+      "mean_episode_ticks": 92.5475,
+      "ms_per_tick": 3.3066707849502563,
+      "seconds": 13.226683139801025,
+      "success": 0.1325
+    },
+    "unit_timing_20": {
+      "budget": 40,
+      "chips": 20,
+      "lockstep_ticks": 4000,
+      "mean_episode_ticks": 90.99625,
+      "ms_per_tick": 6.261116921901703,
+      "seconds": 25.04446768760681,
+      "success": 0.15
+    }
+  },
+  "python": "3.11.15 (main, Apr  7 2026, 02:24:41) [GCC 14.2.0]",
+  "status_test": {
+    "always_forward": "ok",
+    "bad_shape": "failed",
+    "bias_only": "ok",
+    "crash_wide": "failed",
+    "forged_files": "ok",
+    "huge_readout": "failed",
+    "missing_learner": "failed",
+    "nan_readout": "failed",
+    "random_policy": "ok",
+    "reference": "ok"
+  },
+  "status_train": {
+    "always_forward": "ok",
+    "bad_shape": "failed",
+    "bias_only": "ok",
+    "crash_wide": "failed",
+    "forged_files": "ok",
+    "huge_readout": "failed",
+    "missing_learner": "failed",
+    "nan_readout": "failed",
+    "random_policy": "ok",
+    "reference": "ok"
+  }
+}

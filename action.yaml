@@ -1,8 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: pending
+action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: ""
+notes: "Learning-budget redesign: smoke checks, public Eq.1 learning-rate selection, isolated reference/baseline scoring on 20 hidden chips x 2000 online trials, hidden-test audit of better/weaker variants and shortcuts, validate. All stages resumable."
