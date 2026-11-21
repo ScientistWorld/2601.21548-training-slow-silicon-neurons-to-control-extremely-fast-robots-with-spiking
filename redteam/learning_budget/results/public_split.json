@@ -1,0 +1,317 @@
+{
+  "critic_candidates": {
+    "critic_lr0.012": {
+      "objective": 0.46460749999999995,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.6036,
+          "online_success": 0.39625
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.296,
+          "online_success": 0.255
+        },
+        "velocity_range_wide": {
+          "final_success": 0.7416,
+          "online_success": 0.47165
+        }
+      }
+    },
+    "critic_lr0.024": {
+      "objective": 0.33287500000000003,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.5808,
+          "online_success": 0.38765
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.2586,
+          "online_success": 0.2107
+        },
+        "velocity_range_wide": {
+          "final_success": 0.2832,
+          "online_success": 0.1754
+        }
+      }
+    },
+    "critic_lr0.048": {
+      "objective": 0.13049,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.0958,
+          "online_success": 0.0546
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.1306,
+          "online_success": 0.1357
+        },
+        "velocity_range_wide": {
+          "final_success": 0.2654,
+          "online_success": 0.1377
+        }
+      }
+    },
+    "critic_lr0.096": {
+      "objective": 0.0680375,
+      "results": {
+        "randomized_air_hockey": {
+          "final_success": 0.0,
+          "online_success": 0.0016
+        },
+        "velocity_range_extreme": {
+          "final_success": 0.1596,
+          "online_success": 0.14435
+        },
+        "velocity_range_wide": {
+          "final_success": 0.0952,
+          "online_success": 0.0523
+        }
+      }
+    }
+  },
+  "critic_selected": "critic_lr0.012",
+  "public_copy_train": {
+    "experiments": {
+      "randomized_air_hockey": {
+        "diagnostics": {
+          "public_copy": {
+            "hit_rate": 0.94725,
+            "mean_episode_ticks": 31.88045,
+            "per_chip_final_success": [
+              0.93,
+              0.946,
+              0.91,
+              0.96,
+              0.946,
+              0.908,
+              0.902,
+              0.846,
+              0.894,
+              0.888
+            ],
+            "per_chip_online_success": [
+              0.9165,
+              0.938,
+              0.913,
+              0.96,
+              0.931,
+              0.9015,
+              0.9085,
+              0.858,
+              0.899,
+              0.8795
+            ],
+            "status": "ok"
+          }
+        },
+        "results": {
+          "public_copy": {
+            "final_success": 0.913,
+            "online_success": 0.9105
+          }
+        }
+      },
+      "velocity_range_extreme": {
+        "diagnostics": {
+          "public_copy": {
+            "hit_rate": 0.62625,
+            "mean_episode_ticks": 59.8861,
+            "per_chip_final_success": [
+              0.756,
+              0.234,
+              0.822,
+              0.704,
+              0.218,
+              0.276,
+              0.266,
+              0.596,
+              0.83,
+              0.742
+            ],
+            "per_chip_online_success": [
+              0.742,
+              0.256,
+              0.8025,
+              0.727,
+              0.249,
+              0.2825,
+              0.2675,
+              0.608,
+              0.805,
+              0.7625
+            ],
+            "status": "ok"
+          }
+        },
+        "results": {
+          "public_copy": {
+            "final_success": 0.5444,
+            "online_success": 0.5502
+          }
+        }
+      },
+      "velocity_range_wide": {
+        "diagnostics": {
+          "public_copy": {
+            "hit_rate": 0.843,
+            "mean_episode_ticks": 42.30125,
+            "per_chip_final_success": [
+              0.956,
+              0.752,
+              0.882,
+              0.942,
+              0.916,
+              0.836,
+              0.9,
+              0.908,
+              0.986,
+              0.0
+            ],
+            "per_chip_online_success": [
+              0.9495,
+              0.7455,
+              0.9,
+              0.925,
+              0.919,
+              0.8405,
+              0.919,
+              0.921,
+              0.9765,
+              0.0
+            ],
+            "status": "ok"
+          }
+        },
+        "results": {
+          "public_copy": {
+            "final_success": 0.8078,
+            "online_success": 0.8096
+          }
+        }
+      }
+    },
+    "slice": "train"
+  },
+  "public_trainer_train": {
+    "experiments": {
+      "randomized_air_hockey": {
+        "diagnostics": {
+          "public_trainer": {
+            "hit_rate": 0.7844,
+            "mean_episode_ticks": 48.42415,
+            "per_chip_final_success": [
+              0.866,
+              0.888,
+              0.866,
+              0.938,
+              0.908,
+              0.868,
+              0.842,
+              0.858,
+              0.864,
+              0.852
+            ],
+            "per_chip_online_success": [
+              0.671,
+              0.72,
+              0.6935,
+              0.808,
+              0.6905,
+              0.6945,
+              0.6965,
+              0.711,
+              0.6785,
+              0.704
+            ],
+            "status": "ok"
+          }
+        },
+        "results": {
+          "public_trainer": {
+            "final_success": 0.875,
+            "online_success": 0.70675
+          }
+        }
+      },
+      "velocity_range_extreme": {
+        "diagnostics": {
+          "public_trainer": {
+            "hit_rate": 0.4762,
+            "mean_episode_ticks": 71.8245,
+            "per_chip_final_success": [
+              0.726,
+              0.244,
+              0.782,
+              0.642,
+              0.218,
+              0.268,
+              0.262,
+              0.484,
+              0.738,
+              0.722
+            ],
+            "per_chip_online_success": [
+              0.4415,
+              0.293,
+              0.509,
+              0.486,
+              0.2945,
+              0.2725,
+              0.2755,
+              0.3725,
+              0.4695,
+              0.468
+            ],
+            "status": "ok"
+          }
+        },
+        "results": {
+          "public_trainer": {
+            "final_success": 0.5086,
+            "online_success": 0.3882
+          }
+        }
+      },
+      "velocity_range_wide": {
+        "diagnostics": {
+          "public_trainer": {
+            "hit_rate": 0.64185,
+            "mean_episode_ticks": 59.65255,
+            "per_chip_final_success": [
+              0.916,
+              0.606,
+              0.854,
+              0.868,
+              0.91,
+              0.862,
+              0.862,
+              0.862,
+              0.964,
+              0.0
+            ],
+            "per_chip_online_success": [
+              0.713,
+              0.2355,
+              0.669,
+              0.6615,
+              0.7275,
+              0.641,
+              0.6405,
+              0.7025,
+              0.8075,
+              0.0
+            ],
+            "status": "ok"
+          }
+        },
+        "results": {
+          "public_trainer": {
+            "final_success": 0.7704,
+            "online_success": 0.5798
+          }
+        }
+      }
+    },
+    "slice": "train"
+  }
+}
