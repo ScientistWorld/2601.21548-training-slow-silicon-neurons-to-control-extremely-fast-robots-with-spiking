@@ -58,9 +58,32 @@ def log(*parts):
     print(time.strftime("%H:%M:%S"), *parts, flush=True)
 
 
+CHILDREN = set()
+CHILD_LOCK = threading.Lock()
+SUPERSEDED = threading.Event()
+
+
+class Superseded(RuntimeError):
+    pass
+
+
 def run(cmd):
+    """Run a child in its own session so a superseded instance can stop it."""
+    if SUPERSEDED.is_set():
+        raise Superseded()
     log("run", " ".join(map(str, cmd)))
-    subprocess.run([str(c) for c in cmd], check=True, env=ENV, cwd=ROOT)
+    proc = subprocess.Popen([str(c) for c in cmd], env=ENV, cwd=ROOT, start_new_session=True)
+    with CHILD_LOCK:
+        CHILDREN.add(proc)
+    try:
+        code = proc.wait()
+    finally:
+        with CHILD_LOCK:
+            CHILDREN.discard(proc)
+    if SUPERSEDED.is_set():
+        raise Superseded()
+    if code:
+        raise subprocess.CalledProcessError(code, cmd)
 
 
 def write_json(path, data):
@@ -72,39 +95,83 @@ def write_json(path, data):
     os.replace(tmp, path)
 
 
+# Worker drains can leave an older copy of this job running while the scheduler
+# restarts it, and a restart can start two copies at once. Only one instance
+# (the owner) computes; the others follow it. The newest claimant owns the
+# workspace unless a live owner is already computing. A superseded instance stops its own evaluator process groups and
+# waits for the owner's completion marker, exiting with the owner's status; if
+# the owner's heartbeat goes stale it takes over and resumes from saved stages.
+# All results are deterministic, so ownership only prevents contention and
+# file races; it cannot change any number.
 OWNER = WORK / "owner.json"
+HEARTBEAT = WORK / "heartbeat.json"
+MARKER = WORK / "finished.json"
+STALE_S = 300.
+TOKEN = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:8]}"
 
 
-def claim_workspace():
-    """Worker drains can leave an older copy of this job running on another
-    node while the scheduler restarts it. The newest instance owns the
-    workspace; an older instance notices within seconds and kills its own
-    process group (its evaluators and learner processes). All results are
-    deterministic, so a superseded instance can only waste CPU, never change
-    a number; this only removes the contention and file races."""
-    os.setpgrp()
-    token = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:8]}"
-    write_json(OWNER, {"token": token, "claimed": time.time()})
+def safe_read(path):
+    try:
+        return read_json(path)
+    except Exception:
+        return None
+
+
+def owner_alive():
+    owner, beat, marker = safe_read(OWNER), safe_read(HEARTBEAT), safe_read(MARKER)
+    if owner is None or owner["token"] == TOKEN:
+        return False
+    if marker is not None and marker.get("token") == owner["token"]:
+        return False
+    last = max(beat["time"] if beat and beat.get("token") == owner["token"] else 0., owner["claimed"])
+    return time.time() - last < STALE_S
+
+
+def claim():
+    # Defer to a live owner (its in-flight work is kept); claim otherwise.
+    if owner_alive():
+        return False
+    write_json(OWNER, {"token": TOKEN, "claimed": time.time()})
     time.sleep(20)
+    owner = safe_read(OWNER)
+    return owner is not None and owner["token"] == TOKEN
 
-    def current():
+
+def stop_children():
+    SUPERSEDED.set()
+    with CHILD_LOCK:
+        children = list(CHILDREN)
+    for proc in children:
         try:
-            return read_json(OWNER)["token"]
-        except Exception:
-            return token
+            os.killpg(proc.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
 
-    if current() != token:
-        log("superseded before starting")
-        raise SystemExit(0)
 
-    def watch():
-        while True:
-            time.sleep(15)
-            if current() != token:
-                log("superseded by", current(), "- stopping this instance")
-                os.killpg(os.getpgrp(), signal.SIGKILL)
-    threading.Thread(target=watch, daemon=True).start()
-    log("owner", token)
+def watchdog():
+    while not SUPERSEDED.is_set():
+        owner = safe_read(OWNER)
+        if owner is not None and owner["token"] != TOKEN:
+            log("superseded by", owner["token"], "- stopping this instance's evaluators")
+            stop_children()
+            return
+        write_json(HEARTBEAT, {"token": TOKEN, "time": time.time()})
+        time.sleep(15)
+
+
+def follow():
+    """Wait for the current owner's marker; take over if it stops beating."""
+    while True:
+        owner, beat, marker = safe_read(OWNER), safe_read(HEARTBEAT), safe_read(MARKER)
+        if owner is not None and marker is not None and marker.get("token") == owner["token"]:
+            log("owner", owner["token"], "finished with status", marker["status"])
+            return marker["status"]
+        last = max(beat["time"] if beat and owner and beat.get("token") == owner["token"] else 0.,
+                   owner["claimed"] if owner else 0.)
+        if time.time() - last > STALE_S:
+            log("owner stale; taking over")
+            return None
+        time.sleep(30)
 
 
 def read_json(path):
@@ -234,14 +301,13 @@ def variant_plan(critic_config):
     ref_src = ROOT / "method" / "eprop_learner.py"
     plan = {
         # name: (kind, source, config, extra files)
-        "spiking_eprop": ("reference rerun", ref_src, {"default": best}, ()),
         "eprop_tail_greedy": ("simple trick: freeze and sharpen readout (x4) for the last 500 episodes", ref_src,
                               {"default": {**best, "tail_episodes": 500, "tail_gain": 4.0}}, ()),
         "eprop_slow": ("weaker: Eq. 1 learning rate / 4", ref_src,
                        {"default": {**best, "learning_rate": best["learning_rate"] / 4}}, ()),
-        "no_learning": ("weaker: readout never changes", LEARNERS / "no_learning.py", {}, ()),
         "bias_only": ("shortcut: state-blind constant-probability learner", LEARNERS / "bias_only.py", {}, ()),
-        "forged_files": ("shortcut: self-reported perfect metrics", LEARNERS / "forged_files.py", {}, ()),
+        "forged_files": ("shortcut: self-reported perfect metrics (zero readout: also the no-learning control)",
+                         LEARNERS / "forged_files.py", {}, ()),
         "crash_wide": ("shortcut: skip one experiment by crashing", LEARNERS / "crash_wide.py", {}, ()),
         "nan_readout": ("shortcut: impossible readout values", LEARNERS / "nan_readout.py", {}, ()),
         "huge_readout": ("shortcut: out-of-range readout", LEARNERS / "huge_readout.py", {}, ()),
@@ -288,13 +354,21 @@ def stage_audit():
         return evaluate("train", trainer_root / "outputs", scores, "--no-baselines", "--workers", "3")
 
     def critic(rate):
+        name = selection.candidate_name("critic", rate)
         config = {"default": {"learning_rate": rate, "gamma": selection.GAMMA, "critic_rate": 1.0}}
-        return selection.run_candidate(WORK / "critic_sweep", selection.candidate_name("critic", rate), config)
+        root_c = WORK / "critic_sweep" / name
+        if not (root_c / "scores_train.json").exists():
+            learner_dir(root_c / "outputs", name, ROOT / "method" / "eprop_learner.py", config)
+        return name, evaluate("train", root_c / "outputs", root_c / "scores_train.json", "--no-baselines",
+                              "--workers", "3")
 
     first = variant_plan(None)
-    expensive = ["spiking_eprop", "eprop_tail_greedy", "eprop_slow", "bias_only", "forged_files", "no_learning",
-                 "crash_wide"]
-    cheap = [n for n in first if n not in expensive]
+    # The reference's test determinism is checked for free: eprop_tail_greedy is
+    # the reference until episode 1500, so its first 1500 raw outcomes must
+    # equal the canonical run's. forged_files keeps a zero readout and so is
+    # also the no-learning control.
+    expensive = ["eprop_tail_greedy", "eprop_slow", "bias_only", "forged_files"]
+    cheap = ["nan_readout", "huge_readout", "bad_shape", "missing_learner", "crash_wide"]
     done = {}
     with futures.ThreadPoolExecutor(max_workers=slots) as pool:
         critic_futures = [pool.submit(critic, r) for r in critic_grid]
@@ -382,8 +456,15 @@ def stage_analysis():
         row["weighted:both"] = {"mean": float(combined.mean()), "ci95": [float(np.quantile(boot, .025)),
                                 float(np.quantile(boot, .975))], "chips_positive": int((combined > 0).sum())}
         paired[name] = row
-    # Reference determinism and train/test comparability.
-    rerun = {e: audit["experiments"][e]["results"].get("spiking_eprop") for e in EXPERIMENTS}
+    # Reference determinism on the hidden test: eprop_tail_greedy is the reference
+    # until episode 1500, so its raw outcomes there must equal the canonical run.
+    raw = ROOT / "eval" / "test" / "raw"
+    determinism = {}
+    for e in EXPERIMENTS:
+        with np.load(raw / f"scores_test__spiking_eprop__{e}.npz") as a, \
+                np.load(raw / f"scores_test__eprop_tail_greedy__{e}.npz") as b:
+            determinism[e] = {key: bool(np.array_equal(a[key][:, :1500], b[key][:, :1500]))
+                              for key in ("success", "hit", "steps")}
     canon = {e: canonical["experiments"][e]["results"]["spiking_eprop"] for e in EXPERIMENTS}
     train = read_json(RESULTS / "canonical_scores_train.json")
     chip_noise = {}
@@ -395,7 +476,7 @@ def stage_analysis():
     summary = {
         "ranks": ranks,
         "paired_vs_reference": paired,
-        "reference_rerun_identical": rerun == canon,
+        "reference_test_determinism_first_1500_episodes": determinism,
         "reference_test": canon,
         "reference_train": {e: train["experiments"][e]["results"]["spiking_eprop"] for e in EXPERIMENTS},
         "baselines_test": {e: {m: r for m, r in canonical["experiments"][e]["results"].items() if m != "spiking_eprop"}
@@ -414,15 +495,37 @@ def stage_analysis():
     log("ranks", json.dumps({k: round(v, 4) for k, v in ranks.items()}))
 
 
-def main():
-    stages = sys.argv[1:] or ["smoke", "select", "canonical", "audit", "analysis"]
-    claim_workspace()
-    log("cores", CORES, "stages", stages)
+def run_stages(stages):
     for stage in stages:
         log("stage", stage)
         globals()[f"stage_{stage}"]()
-    log("audit complete")
 
+
+def main():
+    stages = sys.argv[1:] or ["smoke", "select", "canonical", "audit", "analysis"]
+    log("cores", CORES, "stages", stages, "token", TOKEN)
+    while True:
+        if not claim():
+            status = follow()
+            if status is not None:
+                return status
+            continue
+        log("owner", TOKEN)
+        SUPERSEDED.clear()
+        threading.Thread(target=watchdog, daemon=True).start()
+        try:
+            run_stages(stages)
+        except BaseException as exc:
+            if SUPERSEDED.is_set():
+                status = follow()
+                if status is not None:
+                    return status
+                continue
+            write_json(MARKER, {"token": TOKEN, "status": 1, "error": f"{type(exc).__name__}: {exc}"})
+            raise
+        write_json(MARKER, {"token": TOKEN, "status": 0})
+        log("audit complete")
+        return 0
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
